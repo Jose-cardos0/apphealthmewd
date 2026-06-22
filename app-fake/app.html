@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HealthMe A.I</title>
+  <link rel="icon" href="logo.png" type="image/png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: {
+              50: '#fffdf4',
+              100: '#fdf4d9',
+              200: '#fbe8a8',
+              300: '#f6d572',
+              400: '#e6b325',
+              500: '#c8930a',
+            }
+          },
+          fontFamily: { sans: ['Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+
+    /* ===== Luxuriöser, animierter Goldwellen-Hintergrund ===== */
+    #lux-bg{
+      position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;
+      background:radial-gradient(120% 85% at 50% 0%, #fffdf6 0%, #fdf6e3 45%, #faedc6 100%);
+    }
+    /* Inhalt liegt über dem Hintergrund */
+    #login-view, #app-view{ position:relative; z-index:10; }
+
+    /* schwebende goldene Lichtkugeln */
+    .lux-orb{
+      position:absolute; border-radius:50%; filter:blur(70px); opacity:.45;
+      background:radial-gradient(circle at 30% 30%, #fbe8a8, #e6b325 60%, transparent 75%);
+      will-change:transform;
+    }
+    .orb1{ width:440px; height:440px; top:-130px; left:-110px; animation:floatA 16s ease-in-out infinite; }
+    .orb2{ width:360px; height:360px; top:26%; right:-130px; opacity:.34; animation:floatB 20s ease-in-out infinite; }
+    .orb3{ width:300px; height:300px; bottom:6%; left:6%;  opacity:.30; animation:floatA 24s ease-in-out infinite reverse; }
+
+    /* diagonaler Gold-/Licht-Schimmer, der langsam durchzieht */
+    .lux-shimmer{
+      position:absolute; top:-20%; left:0; width:55%; height:140%;
+      background:linear-gradient(100deg, transparent 0%, rgba(255,248,224,.65) 50%, transparent 100%);
+      transform:translateX(-140%) rotate(8deg); mix-blend-mode:screen;
+      animation:shimmer 11s ease-in-out infinite; will-change:transform;
+    }
+
+    /* goldene Wellen am unteren Rand */
+    .lux-waves{ position:absolute; left:0; bottom:0; width:100%; height:48vh; min-height:300px; }
+    .wave{ position:absolute; left:0; bottom:0; width:200%; height:100%; will-change:transform; }
+    .wave svg{ width:100%; height:100%; display:block; }
+    .wave1{ opacity:.55; animation:waveMove 24s linear infinite; }
+    .wave2{ opacity:.42; height:82%; animation:waveMove 17s linear infinite reverse; }
+    .wave3{ opacity:.30; height:64%; animation:waveMove 32s linear infinite; }
+
+    @keyframes waveMove{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+    @keyframes floatA{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(42px,-32px); } }
+    @keyframes floatB{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(-52px,30px); } }
+    @keyframes shimmer{ 0%{ transform:translateX(-140%) rotate(8deg); } 60%,100%{ transform:translateX(260%) rotate(8deg); } }
+
+    /* Barrierefreiheit: Animationen aus, wenn der Nutzer es wünscht */
+    @media (prefers-reduced-motion: reduce){
+      .lux-orb, .wave, .lux-shimmer{ animation:none !important; }
+    }
+  </style>
+</head>
+<body class="bg-gold-50 text-gray-700 min-h-screen">
+
+  <!-- ====================== LUXURIÖSER GOLDWELLEN-HINTERGRUND ====================== -->
+  <div id="lux-bg" aria-hidden="true">
+    <div class="lux-orb orb1"></div>
+    <div class="lux-orb orb2"></div>
+    <div class="lux-orb orb3"></div>
+    <div class="lux-shimmer"></div>
+    <div class="lux-waves">
+      <!-- hinterste, blasse Welle -->
+      <div class="wave wave3">
+        <svg viewBox="0 0 2880 320" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="lux-g3" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#fdf4d9"/><stop offset="1" stop-color="#f6d572"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#lux-g3)" d="M0,160 Q90,120 180,160 T360,160 T540,160 T720,160 T900,160 T1080,160 T1260,160 T1440,160 T1620,160 T1800,160 T1980,160 T2160,160 T2340,160 T2520,160 T2700,160 T2880,160 L2880,320 L0,320 Z"/>
+        </svg>
+      </div>
+      <!-- mittlere Welle -->
+      <div class="wave wave2">
+        <svg viewBox="0 0 2880 320" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="lux-g2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#fbe8a8"/><stop offset="1" stop-color="#e6b325"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#lux-g2)" d="M0,160 Q90,120 180,160 T360,160 T540,160 T720,160 T900,160 T1080,160 T1260,160 T1440,160 T1620,160 T1800,160 T1980,160 T2160,160 T2340,160 T2520,160 T2700,160 T2880,160 L2880,320 L0,320 Z"/>
+        </svg>
+      </div>
+      <!-- vorderste, satte Goldwelle -->
+      <div class="wave wave1">
+        <svg viewBox="0 0 2880 320" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="lux-g1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f6d572"/><stop offset="1" stop-color="#c8930a"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#lux-g1)" d="M0,170 Q90,125 180,170 T360,170 T540,170 T720,170 T900,170 T1080,170 T1260,170 T1440,170 T1620,170 T1800,170 T1980,170 T2160,170 T2340,170 T2520,170 T2700,170 T2880,170 L2880,320 L0,320 Z"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== LOGIN ====================== -->
+  <div id="login-view" class="min-h-screen flex items-center justify-center px-6 py-12">
+    <div class="w-full max-w-sm">
+      <div class="text-center mb-8">
+        <img src="logo.png" alt="Logo" class="h-28 w-auto mx-auto mb-3">
+        <p class="text-sm text-gray-500 mt-1">Deine kleine Küchenfee 🧚‍♀️</p>
+      </div>
+
+      <form id="login-form" class="bg-white rounded-3xl shadow-xl shadow-gold-100 p-8 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 mb-1">E-Mail</label>
+          <div class="flex items-center gap-2 border border-gold-200 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-gold-400">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 text-gold-400">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+            </svg>
+            <input type="email" required placeholder="deine@email.de" class="w-full text-sm focus:outline-none bg-transparent">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 mb-1">Passwort</label>
+          <div class="flex items-center gap-2 border border-gold-200 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-gold-400">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 text-gold-400">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+            <input type="password" required placeholder="••••••••" class="w-full text-sm focus:outline-none bg-transparent">
+          </div>
+          <div class="text-right mt-1">
+            <a href="#" class="text-xs text-gold-400 hover:underline">Passwort vergessen?</a>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full bg-gold-400 hover:bg-gold-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-gold-200 transition">
+          Anmelden
+        </button>
+
+        <div class="flex items-center gap-3 py-1">
+          <span class="flex-1 h-px bg-gold-100"></span>
+          <span class="text-xs text-gray-400">oder</span>
+          <span class="flex-1 h-px bg-gold-100"></span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <button type="submit" class="border border-gold-200 rounded-xl py-2.5 flex justify-center items-center hover:bg-gold-50 transition" title="Mit Google anmelden">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/>
+            </svg>
+          </button>
+          <button type="submit" class="border border-gold-200 rounded-xl py-2.5 flex justify-center items-center hover:bg-gold-50 transition" title="Mit Apple anmelden">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="#000000" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.05 12.54c-.03-2.6 2.13-3.85 2.22-3.91-1.21-1.77-3.1-2.01-3.77-2.04-1.6-.16-3.13.94-3.94.94-.81 0-2.07-.92-3.4-.9-1.75.03-3.36 1.02-4.26 2.58-1.82 3.15-.47 7.81 1.3 10.37.86 1.25 1.89 2.66 3.24 2.61 1.3-.05 1.79-.84 3.36-.84 1.57 0 2.01.84 3.39.81 1.4-.02 2.29-1.28 3.15-2.54.99-1.46 1.4-2.87 1.42-2.94-.03-.01-2.73-1.05-2.76-4.16zM14.5 5.13c.72-.87 1.2-2.08 1.07-3.29-1.03.04-2.28.69-3.02 1.56-.66.77-1.24 2-1.09 3.18 1.15.09 2.32-.58 3.04-1.45z"/>
+            </svg>
+          </button>
+          <button type="submit" class="border border-gold-200 rounded-xl py-2.5 flex justify-center items-center hover:bg-gold-50 transition" title="Mit Facebook anmelden">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="#1877F2" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07c0 6.02 4.39 11.01 10.13 11.93v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.69.24 2.69.24v2.97h-1.52c-1.49 0-1.95.93-1.95 1.89v2.25h3.32l-.53 3.49h-2.79V24C19.61 23.08 24 18.09 24 12.07z"/>
+            </svg>
+          </button>
+        </div>
+
+        <p class="text-center text-xs text-gray-500 pt-2">
+          Noch kein Konto? <a href="#" class="text-gold-500 font-semibold hover:underline">Registrieren</a>
+        </p>
+      </form>
+
+      <p class="text-center text-[11px] text-gray-400 mt-6">
+        Demo-Version – melde dich mit einer beliebigen E-Mail und einem beliebigen Passwort an.
+      </p>
+    </div>
+  </div>
+
+  <!-- ====================== APP / PANEL ====================== -->
+  <div id="app-view" class="hidden min-h-screen">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gold-100">
+      <div class="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <img src="logo.png" alt="Logo" class="h-10 w-auto">
+        </div>
+        <button id="logout-btn" class="text-sm font-medium text-gray-500 hover:text-gold-500 transition flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+          </svg>
+          Abmelden
+        </button>
+      </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-6 py-10">
+
+      <!-- Tabs / Navigation -->
+      <div class="flex gap-2 mb-8 bg-white/70 backdrop-blur p-1.5 rounded-2xl shadow-sm overflow-x-auto">
+        <button id="tab-btn-generator" type="button" class="flex-shrink-0 flex items-center justify-center gap-2 text-sm font-semibold py-2.5 px-4 rounded-xl transition bg-gold-400 text-white shadow whitespace-nowrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>
+          Rezept
+        </button>
+        <button id="tab-btn-library" type="button" class="flex-shrink-0 flex items-center justify-center gap-2 text-sm font-semibold py-2.5 px-4 rounded-xl transition text-gray-500 whitespace-nowrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
+          Rezepte
+          <span id="fav-count" class="hidden ml-0.5 bg-gold-100 text-gold-600 text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+        </button>
+        <button id="tab-btn-nutrition" type="button" class="flex-shrink-0 flex items-center justify-center gap-2 text-sm font-semibold py-2.5 px-4 rounded-xl transition text-gray-500 whitespace-nowrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" /></svg>
+          Nutrition
+        </button>
+        <button id="tab-btn-community" type="button" class="flex-shrink-0 flex items-center justify-center gap-2 text-sm font-semibold py-2.5 px-4 rounded-xl transition text-gray-500 whitespace-nowrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
+          Community
+        </button>
+        <button id="tab-btn-coach" type="button" class="flex-shrink-0 flex items-center justify-center gap-2 text-sm font-semibold py-2.5 px-4 rounded-xl transition text-gray-500 whitespace-nowrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" /></svg>
+          Coach
+        </button>
+        <button id="tab-btn-scan" type="button" class="flex-shrink-0 flex items-center justify-center gap-2 text-sm font-semibold py-2.5 px-4 rounded-xl transition text-gray-500 whitespace-nowrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" /></svg>
+          Scan
+        </button>
+        <button id="tab-btn-planner" type="button" class="flex-shrink-0 flex items-center justify-center gap-2 text-sm font-semibold py-2.5 px-4 rounded-xl transition text-gray-500 whitespace-nowrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+          Planner
+        </button>
+      </div>
+
+      <!-- ===== TAB: Rezept erstellen ===== -->
+      <div id="tab-generator">
+
+      <!-- Begrüßung -->
+      <div class="mb-8">
+        <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800">Hallo! 🧚‍♀️</h1>
+        <p class="text-gray-600">Was hast du heute zu Hause? Gib deine Zutaten ein und ich zaubere dir ein Rezept.</p>
+      </div>
+
+      <!-- Eingabe -->
+      <div class="bg-white rounded-3xl shadow-sm p-6 md:p-8">
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Deine Zutaten</label>
+        <textarea id="ingredients-input" rows="3" placeholder="z. B. Mehl, Wasser, Hefe, Salz, Eier ..."
+          class="w-full border border-gold-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold-400 resize-none"></textarea>
+        <button id="generate-btn" class="mt-4 w-full bg-gold-400 hover:bg-gold-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-gold-200 transition flex items-center justify-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
+          </svg>
+          Rezept zaubern
+        </button>
+      </div>
+
+      <!-- Fehlermeldung -->
+      <div id="recipe-error" class="hidden mt-8 bg-white border border-gold-200 rounded-3xl shadow-sm p-6 text-center">
+        <p class="text-gold-500 font-semibold mb-1">Hoppla! 🧚‍♀️</p>
+        <p id="recipe-error-text" class="text-sm text-gray-600">Die Fee konnte gerade kein Rezept zaubern. Bitte versuche es erneut.</p>
+      </div>
+
+      <!-- Ergebnis -->
+      <div id="recipe-result" class="hidden mt-8 bg-white rounded-3xl shadow-sm overflow-hidden">
+        <img id="recipe-image" src="https://images.unsplash.com/photo-1556909212-d5b604d0c90d?w=900&h=500&fit=crop"
+             alt="Leckeres Gericht" class="w-full h-52 object-cover">
+        <div class="p-6 md:p-8">
+          <div class="flex items-center justify-between gap-4 mb-3">
+            <span class="inline-block bg-gold-100 text-gold-500 text-xs font-semibold px-3 py-1 rounded-full">Dein Rezept ✨</span>
+            <button id="fav-btn" type="button" class="flex items-center gap-1.5 px-3 py-2 rounded-full border border-gold-200 text-gray-400 hover:border-gold-400 transition" title="In Bibliothek speichern">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
+              <span class="text-sm font-semibold">Speichern</span>
+            </button>
+          </div>
+          <h2 id="recipe-title" class="text-2xl font-bold text-gray-800 mb-1">Frisches Bauernbrot</h2>
+          <p id="recipe-meta" class="text-gray-500 text-sm mb-6">⏱️ 15 Min. Zubereitung · 🔥 45 Min. Backzeit · 🍞 1 Laib</p>
+
+          <!-- Deine Zutaten -->
+          <div class="mb-6">
+            <h3 class="font-bold text-gray-800 mb-2 flex items-center gap-2">
+              <span class="text-gold-400">●</span> Deine Zutaten
+            </h3>
+            <div id="user-ingredients" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <!-- Zubereitung -->
+          <div class="mb-6">
+            <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <span class="text-gold-400">●</span> So gelingt's – Schritt für Schritt
+            </h3>
+            <ol id="recipe-steps" class="space-y-3 text-sm text-gray-600"></ol>
+          </div>
+
+          <!-- Nährwerte -->
+          <div>
+            <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <span class="text-gold-400">●</span> Nährwerte <span class="text-xs font-normal text-gray-400">(pro Scheibe, ca. 50 g)</span>
+            </h3>
+            <div class="grid grid-cols-4 gap-2 text-center">
+              <div class="bg-gold-50 rounded-xl py-3">
+                <p id="nutri-kcal" class="font-extrabold text-gold-500">120</p>
+                <p class="text-[11px] text-gray-500">kcal</p>
+              </div>
+              <div class="bg-gold-50 rounded-xl py-3">
+                <p id="nutri-protein" class="font-extrabold text-gold-500">4 g</p>
+                <p class="text-[11px] text-gray-500">Eiweiß</p>
+              </div>
+              <div class="bg-gold-50 rounded-xl py-3">
+                <p id="nutri-carbs" class="font-extrabold text-gold-500">23 g</p>
+                <p class="text-[11px] text-gray-500">Kohlenh.</p>
+              </div>
+              <div class="bg-gold-50 rounded-xl py-3">
+                <p id="nutri-fat" class="font-extrabold text-gold-500">1 g</p>
+                <p class="text-[11px] text-gray-500">Fett</p>
+              </div>
+            </div>
+            <p class="text-[11px] text-gray-400 mt-3">Die Nährwertangaben sind Durchschnittswerte und können je nach Zutaten leicht variieren.</p>
+          </div>
+        </div>
+      </div>
+
+      </div><!-- /tab-generator -->
+
+      <!-- ===== TAB: Meine Rezepte (Bibliothek) ===== -->
+      <div id="tab-library" class="hidden">
+        <div class="mb-8">
+          <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800">Meine Rezepte 📖</h1>
+          <p class="text-gray-600">Deine gespeicherten Lieblingsrezepte – jederzeit griffbereit.</p>
+        </div>
+
+        <!-- Leerer Zustand -->
+        <div id="favorites-empty" class="bg-white rounded-3xl shadow-sm p-10 text-center">
+          <div class="w-16 h-16 mx-auto bg-gold-100 text-gold-500 rounded-2xl flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
+          </div>
+          <h3 class="font-bold text-gray-800 mb-1">Noch keine Rezepte gespeichert</h3>
+          <p class="text-sm text-gray-500">Tippe bei einem Rezept auf <span class="font-semibold text-gold-500">„Speichern"</span>, um es hier in deiner Bibliothek zu sammeln.</p>
+        </div>
+
+        <!-- Rezept-Karten -->
+        <div id="favorites-grid" class="grid sm:grid-cols-2 gap-5"></div>
+      </div>
+
+      <!-- ===== TAB: HealthMe Nutrition (KI-Ernährungsberaterin) ===== -->
+      <div id="tab-nutrition" class="hidden">
+        <div class="mb-6">
+          <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800">HealthMe Nutrition 🥑</h1>
+          <p class="text-gray-600">Deine KI-Ernährungsberaterin – frag mich alles rund um Ernährung, Tag und Nacht.</p>
+        </div>
+        <div class="bg-white rounded-3xl shadow-sm overflow-hidden flex flex-col" style="height:62vh; min-height:440px;">
+          <div class="bg-gradient-to-r from-gold-400 to-gold-500 px-5 py-3.5 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-lg">🥑</div>
+            <div>
+              <p class="text-white font-bold text-sm leading-tight">HealthMe Nutrition</p>
+              <p class="text-gold-50 text-xs flex items-center gap-1"><span class="w-2 h-2 bg-green-300 rounded-full inline-block"></span> Online · antwortet sofort</p>
+            </div>
+          </div>
+          <div id="nutri-chat" class="flex-1 overflow-y-auto p-5 space-y-4 bg-gold-50/30"></div>
+          <form id="nutri-form" class="border-t border-gold-100 p-3 flex items-center gap-2 bg-white">
+            <input id="nutri-input" type="text" autocomplete="off" placeholder="Schreib deine Frage ..."
+              class="flex-1 border border-gold-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold-400">
+            <button id="nutri-send" type="submit" class="bg-gold-400 hover:bg-gold-500 text-white w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition" title="Senden">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" /></svg>
+            </button>
+          </form>
+        </div>
+        <p class="text-[11px] text-gray-400 mt-3 text-center max-w-xl mx-auto">
+          HealthMe Nutrition ersetzt keine ärztliche oder ernährungsmedizinische Beratung.
+          Bei gesundheitlichen Beschwerden wende dich bitte an eine qualifizierte Fachkraft.
+        </p>
+      </div>
+
+      <!-- ===== TAB: HealthMe Community (Live-Chat) ===== -->
+      <div id="tab-community" class="hidden">
+        <div class="mb-6 flex items-end justify-between gap-3">
+          <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800">HealthMe Community 💬</h1>
+            <p class="text-gray-600">Tausche dich live mit anderen Mitgliedern aus.</p>
+          </div>
+          <span class="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-green-600 bg-green-50 px-3 py-1.5 rounded-full whitespace-nowrap">
+            <span class="w-2 h-2 bg-green-400 rounded-full"></span> <span id="online-count">1482</span> online
+          </span>
+        </div>
+        <div class="bg-white rounded-3xl shadow-sm overflow-hidden flex flex-col" style="height:62vh; min-height:440px;">
+          <div id="community-chat" class="flex-1 overflow-y-auto p-5 space-y-4 bg-gold-50/30"></div>
+          <form id="community-form" class="border-t border-gold-100 p-3 flex items-center gap-2 bg-white">
+            <input id="community-input" type="text" autocomplete="off" placeholder="Schreib der Community ..."
+              class="flex-1 border border-gold-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold-400">
+            <button id="community-send" type="submit" class="bg-gold-400 hover:bg-gold-500 text-white w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition" title="Senden">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" /></svg>
+            </button>
+          </form>
+        </div>
+        <p class="text-[11px] text-gray-400 mt-3 text-center max-w-xl mx-auto">
+          Bitte sei respektvoll und teile keine sensiblen Daten. Beiträge, die gegen unsere Richtlinien
+          verstoßen, können entfernt werden.
+        </p>
+      </div>
+
+      <!-- ===== TAB: HealthMe Coach (Trainingsplan-Generator) ===== -->
+      <div id="tab-coach" class="hidden">
+        <div class="mb-6">
+          <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800">HealthMe Coach 💪</h1>
+          <p class="text-gray-600">Erstelle deinen persönlichen Trainingsplan für zu Hause – ganz ohne Geräte.</p>
+        </div>
+
+        <!-- Eingabe -->
+        <div class="bg-white rounded-3xl shadow-sm p-6 md:p-8">
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Dein Ziel</label>
+              <select id="coach-goal" class="w-full border border-gold-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gold-400">
+                <option>Abnehmen &amp; Fettverbrennung</option>
+                <option>Muskeln aufbauen</option>
+                <option>Fit &amp; beweglich werden</option>
+                <option>Ganzkörper straffen</option>
+                <option>Ausdauer verbessern</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Dein Level</label>
+              <select id="coach-level" class="w-full border border-gold-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gold-400">
+                <option>Anfänger</option>
+                <option>Fortgeschritten</option>
+                <option>Profi</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Zeit pro Einheit</label>
+              <select id="coach-time" class="w-full border border-gold-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gold-400">
+                <option>15 Minuten</option>
+                <option selected>20 Minuten</option>
+                <option>30 Minuten</option>
+                <option>45 Minuten</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Fokus</label>
+              <select id="coach-focus" class="w-full border border-gold-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gold-400">
+                <option>Ganzkörper</option>
+                <option>Bauch &amp; Core</option>
+                <option>Beine &amp; Po</option>
+                <option>Oberkörper &amp; Arme</option>
+                <option>Rücken &amp; Haltung</option>
+              </select>
+            </div>
+          </div>
+          <button id="coach-generate" class="mt-5 w-full bg-gold-400 hover:bg-gold-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-gold-200 transition flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" /></svg>
+            Trainingsplan erstellen
+          </button>
+        </div>
+
+        <!-- Fehlermeldung -->
+        <div id="coach-error" class="hidden mt-8 bg-white border border-gold-200 rounded-3xl shadow-sm p-6 text-center">
+          <p class="text-gold-500 font-semibold mb-1">Hoppla! 💪</p>
+          <p id="coach-error-text" class="text-sm text-gray-600">Der Coach konnte gerade keinen Plan erstellen. Bitte versuche es erneut.</p>
+        </div>
+
+        <!-- Ergebnis -->
+        <div id="coach-result" class="hidden mt-8 bg-white rounded-3xl shadow-sm overflow-hidden">
+          <div class="bg-gradient-to-r from-gold-400 to-gold-500 px-6 py-5 flex items-center justify-between gap-4">
+            <div class="min-w-0">
+              <h2 id="coach-title" class="text-xl font-bold text-white truncate">Dein Trainingsplan</h2>
+              <p id="coach-meta" class="text-gold-50 text-xs mt-0.5"></p>
+            </div>
+            <button id="coach-save" type="button" class="flex-shrink-0 bg-white/20 hover:bg-white/30 text-white text-sm font-semibold px-4 py-2 rounded-full transition">♡ Speichern</button>
+          </div>
+          <div class="p-6 md:p-8">
+            <div id="coach-exercises" class="mb-2"></div>
+            <div id="coach-tipps"></div>
+            <p class="text-[11px] text-gray-400 mt-5">
+              Bei gesundheitlichen Einschränkungen, Schmerzen oder Vorerkrankungen halte vor dem Training
+              bitte Rücksprache mit einer Ärztin oder einem Arzt.
+            </p>
+          </div>
+        </div>
+
+        <!-- Gespeicherte Trainingspläne -->
+        <div class="mt-10">
+          <h3 class="text-lg font-extrabold text-gray-800 mb-4">Gespeicherte Trainingspläne 🗂️</h3>
+          <div id="coach-empty" class="bg-white rounded-3xl shadow-sm p-10 text-center">
+            <div class="w-16 h-16 mx-auto bg-gold-100 text-gold-500 rounded-2xl flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58" /></svg>
+            </div>
+            <h3 class="font-bold text-gray-800 mb-1">Noch keine Pläne gespeichert</h3>
+            <p class="text-sm text-gray-500">Erstelle einen Trainingsplan und tippe auf <span class="font-semibold text-gold-500">„Speichern"</span>, um ihn hier zu sammeln.</p>
+          </div>
+          <div id="coach-grid" class="grid sm:grid-cols-2 gap-5"></div>
+        </div>
+      </div>
+
+      <!-- ===== TAB: HealthMe Scan (Kalorien-Scanner) ===== -->
+      <div id="tab-scan" class="hidden">
+        <div class="mb-6">
+          <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800">HealthMe Scan 📷</h1>
+          <p class="text-gray-600">Gib deine Mahlzeit ein und erhalte sofort Kalorien &amp; Nährwerte.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm p-6 md:p-8">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Deine Mahlzeit</label>
+          <textarea id="scan-input" rows="2" placeholder="z. B. Hähnchenbrust mit Reis und Brokkoli, 1 Portion"
+            class="w-full border border-gold-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold-400 resize-none"></textarea>
+          <button id="scan-analyze" class="mt-4 w-full bg-gold-400 hover:bg-gold-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-gold-200 transition flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" /></svg>
+            Mahlzeit analysieren
+          </button>
+        </div>
+
+        <div id="scan-error" class="hidden mt-8 bg-white border border-gold-200 rounded-3xl shadow-sm p-6 text-center">
+          <p class="text-gold-500 font-semibold mb-1">Hoppla! 📷</p>
+          <p id="scan-error-text" class="text-sm text-gray-600">Die Analyse hat gerade nicht geklappt. Bitte versuche es erneut.</p>
+        </div>
+
+        <div id="scan-result" class="hidden mt-8 bg-white rounded-3xl shadow-sm overflow-hidden">
+          <div class="bg-gradient-to-r from-gold-400 to-gold-500 px-6 py-5 flex items-center justify-between gap-4">
+            <div class="min-w-0">
+              <h2 id="scan-title" class="text-xl font-bold text-white truncate">Deine Mahlzeit</h2>
+              <p id="scan-portion" class="text-gold-50 text-xs mt-0.5"></p>
+            </div>
+            <button id="scan-save" type="button" class="flex-shrink-0 bg-white/20 hover:bg-white/30 text-white text-sm font-semibold px-4 py-2 rounded-full transition">♡ Speichern</button>
+          </div>
+          <div class="p-6 md:p-8">
+            <div class="grid grid-cols-4 gap-2 text-center">
+              <div class="bg-gold-50 rounded-xl py-3"><p id="scan-kcal" class="font-extrabold text-gold-500">–</p><p class="text-[11px] text-gray-500">kcal</p></div>
+              <div class="bg-gold-50 rounded-xl py-3"><p id="scan-protein" class="font-extrabold text-gold-500">–</p><p class="text-[11px] text-gray-500">Eiweiß</p></div>
+              <div class="bg-gold-50 rounded-xl py-3"><p id="scan-carbs" class="font-extrabold text-gold-500">–</p><p class="text-[11px] text-gray-500">Kohlenh.</p></div>
+              <div class="bg-gold-50 rounded-xl py-3"><p id="scan-fat" class="font-extrabold text-gold-500">–</p><p class="text-[11px] text-gray-500">Fett</p></div>
+            </div>
+            <div id="scan-hinweis" class="mt-5"></div>
+            <p class="text-[11px] text-gray-400 mt-5">Die Nährwertangaben sind KI-gestützte Schätzwerte und können je nach Zubereitung und Menge abweichen.</p>
+          </div>
+        </div>
+
+        <div class="mt-10">
+          <h3 class="text-lg font-extrabold text-gray-800 mb-4">Gespeicherte Analysen 🗂️</h3>
+          <div id="scan-empty" class="bg-white rounded-3xl shadow-sm p-10 text-center">
+            <div class="w-16 h-16 mx-auto bg-gold-100 text-gold-500 rounded-2xl flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" /></svg>
+            </div>
+            <h3 class="font-bold text-gray-800 mb-1">Noch keine Analysen gespeichert</h3>
+            <p class="text-sm text-gray-500">Analysiere eine Mahlzeit und tippe auf <span class="font-semibold text-gold-500">„Speichern"</span>, um sie hier zu sammeln.</p>
+          </div>
+          <div id="scan-grid" class="grid sm:grid-cols-2 gap-5"></div>
+        </div>
+      </div>
+
+      <!-- ===== TAB: HealthMe Planner (7-Tage-Ernährungsplan) ===== -->
+      <div id="tab-planner" class="hidden">
+        <div class="mb-6">
+          <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800">HealthMe Planner 📅</h1>
+          <p class="text-gray-600">Erstelle deinen kompletten 7-Tage-Ernährungsplan auf Knopfdruck.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm p-6 md:p-8">
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Dein Ziel</label>
+              <select id="planner-goal" class="w-full border border-gold-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gold-400">
+                <option>Abnehmen</option>
+                <option>Gewicht halten</option>
+                <option>Muskeln aufbauen</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Kalorien pro Tag</label>
+              <select id="planner-kcal" class="w-full border border-gold-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gold-400">
+                <option>1400 kcal</option>
+                <option selected>1600 kcal</option>
+                <option>1800 kcal</option>
+                <option>2000 kcal</option>
+                <option>2200 kcal</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Mahlzeiten pro Tag</label>
+              <select id="planner-meals" class="w-full border border-gold-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gold-400">
+                <option>3 Mahlzeiten</option>
+                <option selected>4 Mahlzeiten</option>
+                <option>5 Mahlzeiten</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Ernährungsform</label>
+              <select id="planner-diet" class="w-full border border-gold-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gold-400">
+                <option>Alles essen</option>
+                <option>Vegetarisch</option>
+                <option>Vegan</option>
+                <option>Low Carb</option>
+                <option>Eiweißreich</option>
+              </select>
+            </div>
+          </div>
+          <button id="planner-generate" class="mt-5 w-full bg-gold-400 hover:bg-gold-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-gold-200 transition flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+            Wochenplan erstellen
+          </button>
+        </div>
+
+        <div id="planner-error" class="hidden mt-8 bg-white border border-gold-200 rounded-3xl shadow-sm p-6 text-center">
+          <p class="text-gold-500 font-semibold mb-1">Hoppla! 📅</p>
+          <p id="planner-error-text" class="text-sm text-gray-600">Der Plan konnte gerade nicht erstellt werden. Bitte versuche es erneut.</p>
+        </div>
+
+        <div id="planner-result" class="hidden mt-8 bg-white rounded-3xl shadow-sm overflow-hidden">
+          <div class="bg-gradient-to-r from-gold-400 to-gold-500 px-6 py-5 flex items-center justify-between gap-4">
+            <div class="min-w-0">
+              <h2 id="planner-title" class="text-xl font-bold text-white truncate">Dein Wochenplan</h2>
+              <p id="planner-meta" class="text-gold-50 text-xs mt-0.5"></p>
+            </div>
+            <button id="planner-save" type="button" class="flex-shrink-0 bg-white/20 hover:bg-white/30 text-white text-sm font-semibold px-4 py-2 rounded-full transition">♡ Speichern</button>
+          </div>
+          <div class="p-6 md:p-8">
+            <div id="planner-days" class="space-y-3"></div>
+            <p class="text-[11px] text-gray-400 mt-5">Die Pläne sind KI-gestützte Vorschläge. Bei Allergien, Erkrankungen oder besonderen Bedürfnissen halte bitte Rücksprache mit einer Fachkraft.</p>
+          </div>
+        </div>
+
+        <div class="mt-10">
+          <h3 class="text-lg font-extrabold text-gray-800 mb-4">Gespeicherte Wochenpläne 🗂️</h3>
+          <div id="planner-empty" class="bg-white rounded-3xl shadow-sm p-10 text-center">
+            <div class="w-16 h-16 mx-auto bg-gold-100 text-gold-500 rounded-2xl flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+            </div>
+            <h3 class="font-bold text-gray-800 mb-1">Noch keine Pläne gespeichert</h3>
+            <p class="text-sm text-gray-500">Erstelle einen Wochenplan und tippe auf <span class="font-semibold text-gold-500">„Speichern"</span>, um ihn hier zu sammeln.</p>
+          </div>
+          <div id="planner-grid" class="grid sm:grid-cols-2 gap-5"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ====================== LOGIK ====================== -->
+  <script>
+    const loginView = document.getElementById('login-view');
+    const appView = document.getElementById('app-view');
+    const loginForm = document.getElementById('login-form');
+    const logoutBtn = document.getElementById('logout-btn');
+    const generateBtn = document.getElementById('generate-btn');
+    const ingredientsInput = document.getElementById('ingredients-input');
+    const recipeResult = document.getElementById('recipe-result');
+    const userIngredients = document.getElementById('user-ingredients');
+    const recipeError = document.getElementById('recipe-error');
+    const recipeErrorText = document.getElementById('recipe-error-text');
+    const recipeTitle = document.getElementById('recipe-title');
+    const recipeMeta = document.getElementById('recipe-meta');
+    const recipeSteps = document.getElementById('recipe-steps');
+    const nutriKcal = document.getElementById('nutri-kcal');
+    const nutriProtein = document.getElementById('nutri-protein');
+    const nutriCarbs = document.getElementById('nutri-carbs');
+    const nutriFat = document.getElementById('nutri-fat');
+
+    // ==== Grok (xAI) API ====
+    // Hinweis: Der Schlüssel ist im Browser sichtbar. Nur für Demo-Zwecke verwenden.
+    const GROK_API_KEY = 'xai-DEMO-KEY-ENTFERNT'; // echter Key entfernt – siehe APP-REAL (serverseitig)
+    const GROK_URL = 'https://api.x.ai/v1/chat/completions';
+    const GROK_MODEL = 'grok-3';
+
+    async function rezeptVonGrok(zutaten) {
+      const systemPrompt =
+        'Du bist eine freundliche deutsche Koch-Assistentin. ' +
+        'Erstelle aus den gegebenen Zutaten ein einfaches, leckeres Rezept. ' +
+        'Antworte AUSSCHLIESSLICH mit gültigem JSON, ohne Markdown, in folgendem Format: ' +
+        '{"titel": "Name des Gerichts", "meta": "z.B. ⏱️ 20 Min. · 🍽️ 2 Portionen", ' +
+        '"schritte": ["Schritt 1", "Schritt 2", "..."], ' +
+        '"naehrwerte": {"kcal": "250", "eiweiss": "12 g", "kohlenhydrate": "30 g", "fett": "8 g"}}. ' +
+        'Alle Texte auf Deutsch. Die Nährwerte beziehen sich auf eine Portion.';
+
+      const res = await fetch(GROK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + GROK_API_KEY
+        },
+        body: JSON.stringify({
+          model: GROK_MODEL,
+          response_format: { type: 'json_object' },
+          temperature: 0.7,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: 'Meine Zutaten: ' + zutaten.join(', ') }
+          ]
+        })
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error('API-Fehler ' + res.status + ': ' + txt);
+      }
+
+      const data = await res.json();
+      const content = data.choices[0].message.content;
+      return JSON.parse(content);
+    }
+
+    // Login (keine echte Validierung – jede Eingabe funktioniert)
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      loginView.classList.add('hidden');
+      appView.classList.remove('hidden');
+      window.scrollTo(0, 0);
+    });
+
+    // Abmelden
+    logoutBtn.addEventListener('click', function () {
+      appView.classList.add('hidden');
+      loginView.classList.remove('hidden');
+      recipeResult.classList.add('hidden');
+      ingredientsInput.value = '';
+      setTab('generator');
+      window.scrollTo(0, 0);
+    });
+
+    // Original-Inhalt des Buttons merken
+    const generateBtnHTML = generateBtn.innerHTML;
+
+    // Schritt-Liste rendern
+    function renderSteps(schritte) {
+      recipeSteps.innerHTML = '';
+      schritte.forEach((text, i) => {
+        const li = document.createElement('li');
+        li.className = 'flex gap-3';
+        const num = document.createElement('span');
+        num.className = 'flex-shrink-0 w-6 h-6 bg-gold-100 text-gold-500 rounded-full flex items-center justify-center text-xs font-bold';
+        num.textContent = (i + 1);
+        const span = document.createElement('span');
+        span.textContent = text;
+        li.appendChild(num);
+        li.appendChild(span);
+        recipeSteps.appendChild(li);
+      });
+    }
+
+    // Rezept "zaubern" – jetzt mit echter Grok-API
+    generateBtn.addEventListener('click', async function () {
+      const raw = ingredientsInput.value.trim();
+      const list = raw
+        ? raw.split(/[,\n;]+/).map(s => s.trim()).filter(Boolean)
+        : ['Mehl', 'Wasser', 'Hefe', 'Salz'];
+
+      // Ergebnis & Fehler ausblenden
+      recipeResult.classList.add('hidden');
+      recipeError.classList.add('hidden');
+
+      // Lade-Zustand
+      generateBtn.disabled = true;
+      generateBtn.classList.add('opacity-80', 'cursor-not-allowed');
+      generateBtn.innerHTML =
+        '<svg class="animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">' +
+        '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>' +
+        '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>' +
+        '</svg> Deine Fee zaubert dein Rezept ...';
+
+      try {
+        const rezept = await rezeptVonGrok(list);
+
+        currentRecipe = {
+          id: 'r_' + Date.now(),
+          titel: rezept.titel || 'Dein Rezept',
+          meta: rezept.meta || '',
+          zutaten: list,
+          schritte: Array.isArray(rezept.schritte) ? rezept.schritte : [],
+          naehrwerte: rezept.naehrwerte || {},
+          bild: bildFuer((rezept.titel || '') + list.join(' '))
+        };
+
+        showRecipe(currentRecipe);
+        recipeResult.classList.remove('hidden');
+        recipeResult.scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        recipeErrorText.textContent =
+          'Die Fee konnte gerade kein Rezept zaubern. Bitte versuche es erneut. (' + err.message + ')';
+        recipeError.classList.remove('hidden');
+        recipeError.scrollIntoView({ behavior: 'smooth' });
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+        generateBtn.innerHTML = generateBtnHTML;
+      }
+    });
+
+    // ====================== BIBLIOTHEK / FAVORITEN ======================
+    const FAV_KEY = 'healthme_rezepte';
+    let currentRecipe = null;
+
+    const recipeImage     = document.getElementById('recipe-image');
+    const favBtn          = document.getElementById('fav-btn');
+    const favCount        = document.getElementById('fav-count');
+    const tabGenerator    = document.getElementById('tab-generator');
+    const tabLibrary      = document.getElementById('tab-library');
+    const tabBtnGenerator = document.getElementById('tab-btn-generator');
+    const tabBtnLibrary   = document.getElementById('tab-btn-library');
+    const favoritesGrid   = document.getElementById('favorites-grid');
+    const favoritesEmpty  = document.getElementById('favorites-empty');
+
+    // Passendes Foto je Rezept (stabil pro Titel/Zutaten)
+    const foodImages = [
+      'https://images.unsplash.com/photo-1556909212-d5b604d0c90d?w=900&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=900&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=900&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=900&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=900&h=500&fit=crop'
+    ];
+    function bildFuer(seed) {
+      let h = 0;
+      for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+      return foodImages[h % foodImages.length];
+    }
+
+    // localStorage-Helfer
+    function getFavorites() {
+      try { return JSON.parse(localStorage.getItem(FAV_KEY)) || []; }
+      catch (e) { return []; }
+    }
+    function saveFavorites(arr) { localStorage.setItem(FAV_KEY, JSON.stringify(arr)); }
+    function isFavorite(id) { return getFavorites().some(r => r.id === id); }
+
+    function escapeHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = (s == null) ? '' : String(s);
+      return d.innerHTML;
+    }
+
+    function herzIcon(filled) {
+      return filled
+        ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.382.218l-.023.012-.007.004-.003.001a.752.752 0 01-.704 0z" /></svg>'
+        : '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>';
+    }
+
+    function updateFavCount() {
+      const c = getFavorites().length;
+      favCount.textContent = c;
+      favCount.classList.toggle('hidden', c === 0);
+    }
+
+    function updateFavButton() {
+      if (!currentRecipe) return;
+      const fav = isFavorite(currentRecipe.id);
+      favBtn.classList.toggle('bg-gold-100', fav);
+      favBtn.classList.toggle('border-gold-300', fav);
+      favBtn.classList.toggle('text-gold-500', fav);
+      favBtn.classList.toggle('text-gray-400', !fav);
+      favBtn.innerHTML = herzIcon(fav) +
+        '<span class="text-sm font-semibold">' + (fav ? 'Gespeichert' : 'Speichern') + '</span>';
+      favBtn.title = fav ? 'Aus Bibliothek entfernen' : 'In Bibliothek speichern';
+    }
+
+    function toggleFavorite() {
+      if (!currentRecipe) return;
+      let favs = getFavorites();
+      if (isFavorite(currentRecipe.id)) {
+        favs = favs.filter(r => r.id !== currentRecipe.id);
+      } else {
+        favs.unshift(currentRecipe);
+      }
+      saveFavorites(favs);
+      updateFavButton();
+      updateFavCount();
+      renderLibrary();
+    }
+
+    // Rezept in der Ergebnis-Ansicht darstellen (Generator + Bibliothek)
+    function showRecipe(rezept) {
+      if (rezept.bild) recipeImage.src = rezept.bild;
+      recipeTitle.textContent = rezept.titel || 'Dein Rezept';
+      recipeMeta.textContent = rezept.meta || '';
+
+      userIngredients.innerHTML = '';
+      (rezept.zutaten || []).forEach(item => {
+        const chip = document.createElement('span');
+        chip.className = 'bg-gold-100 text-gold-500 text-sm font-medium px-3 py-1 rounded-full';
+        chip.textContent = item;
+        userIngredients.appendChild(chip);
+      });
+
+      renderSteps(Array.isArray(rezept.schritte) ? rezept.schritte : []);
+
+      const n = rezept.naehrwerte || {};
+      nutriKcal.textContent    = n.kcal || '–';
+      nutriProtein.textContent = n.eiweiss || '–';
+      nutriCarbs.textContent   = n.kohlenhydrate || '–';
+      nutriFat.textContent     = n.fett || '–';
+
+      updateFavButton();
+    }
+
+    // Bibliothek (gespeicherte Rezepte) rendern
+    function renderLibrary() {
+      const favs = getFavorites();
+      favoritesEmpty.classList.toggle('hidden', favs.length > 0);
+      favoritesGrid.innerHTML = '';
+
+      favs.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-3xl shadow-sm overflow-hidden flex flex-col';
+        card.innerHTML =
+          '<img src="' + (r.bild || foodImages[0]) + '" alt="" class="w-full h-36 object-cover">' +
+          '<div class="p-5 flex flex-col flex-1">' +
+            '<h3 class="font-bold text-gray-800 mb-1">' + escapeHtml(r.titel) + '</h3>' +
+            '<p class="text-xs text-gray-500 mb-4">' + escapeHtml(r.meta || '') + '</p>' +
+            '<div class="mt-auto flex gap-2">' +
+              '<button class="view-btn flex-1 bg-gold-400 hover:bg-gold-500 text-white text-sm font-semibold py-2.5 rounded-xl transition">Ansehen</button>' +
+              '<button class="del-btn w-11 border border-gold-200 text-gold-500 hover:bg-gold-50 rounded-xl flex items-center justify-center transition" title="Aus Bibliothek entfernen">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>' +
+              '</button>' +
+            '</div>' +
+          '</div>';
+        card.querySelector('.view-btn').addEventListener('click', () => {
+          currentRecipe = r;
+          showRecipe(r);
+          setTab('generator');
+          recipeError.classList.add('hidden');
+          recipeResult.classList.remove('hidden');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          recipeResult.scrollIntoView({ behavior: 'smooth' });
+        });
+        card.querySelector('.del-btn').addEventListener('click', () => {
+          saveFavorites(getFavorites().filter(x => x.id !== r.id));
+          if (currentRecipe && currentRecipe.id === r.id) updateFavButton();
+          updateFavCount();
+          renderLibrary();
+        });
+        favoritesGrid.appendChild(card);
+      });
+    }
+
+    // Tab-Umschaltung
+    function setTabButton(btn, active) {
+      btn.classList.toggle('bg-gold-400', active);
+      btn.classList.toggle('text-white', active);
+      btn.classList.toggle('shadow', active);
+      btn.classList.toggle('text-gray-500', !active);
+    }
+    const TABS = {
+      generator: { content: tabGenerator, btn: tabBtnGenerator },
+      library:   { content: tabLibrary,   btn: tabBtnLibrary },
+      nutrition: { content: document.getElementById('tab-nutrition'), btn: document.getElementById('tab-btn-nutrition') },
+      community: { content: document.getElementById('tab-community'), btn: document.getElementById('tab-btn-community') },
+      coach:     { content: document.getElementById('tab-coach'),     btn: document.getElementById('tab-btn-coach') },
+      scan:      { content: document.getElementById('tab-scan'),      btn: document.getElementById('tab-btn-scan') },
+      planner:   { content: document.getElementById('tab-planner'),   btn: document.getElementById('tab-btn-planner') },
+    };
+
+    function setTab(which) {
+      Object.keys(TABS).forEach(key => {
+        const active = key === which;
+        TABS[key].content.classList.toggle('hidden', !active);
+        setTabButton(TABS[key].btn, active);
+      });
+      if (which === 'library')   renderLibrary();
+      if (which === 'coach')     renderWorkoutLibrary();
+      if (which === 'nutrition') { initNutritionChat(); }
+      if (which === 'community') { initCommunityChat(); }
+      if (which === 'scan')      renderScanHistory();
+      if (which === 'planner')   renderPlannerLibrary();
+    }
+
+    Object.keys(TABS).forEach(key => {
+      TABS[key].btn.addEventListener('click', () => setTab(key));
+    });
+    favBtn.addEventListener('click', toggleFavorite);
+
+    // Initialisierung
+    updateFavCount();
+  </script>
+
+  <!-- ====================== UPSELL-FUNKTIONEN: Nutrition · Community · Coach ====================== -->
+  <script>
+    function scrollChatBottom(el){ if(el) el.scrollTop = el.scrollHeight; }
+
+    // ============================================================
+    //  HealthMe Nutrition – KI-Ernährungsberaterin (Chat mit Grok)
+    // ============================================================
+    const nutriChat  = document.getElementById('nutri-chat');
+    const nutriForm  = document.getElementById('nutri-form');
+    const nutriInput = document.getElementById('nutri-input');
+    const NUTRI_KEY  = 'healthme_nutrition_chat';
+
+    function nutriBubble(role, text){
+      const wrap = document.createElement('div');
+      wrap.className = 'flex ' + (role === 'user' ? 'justify-end' : 'justify-start');
+      const b = document.createElement('div');
+      b.className = (role === 'user')
+        ? 'bg-gold-400 text-white text-sm px-4 py-2.5 rounded-2xl rounded-br-md max-w-[82%] shadow-sm whitespace-pre-wrap'
+        : 'bg-white text-gray-700 text-sm px-4 py-2.5 rounded-2xl rounded-bl-md max-w-[85%] shadow-sm border border-gold-100 whitespace-pre-wrap';
+      b.textContent = text;
+      wrap.appendChild(b);
+      return wrap;
+    }
+
+    function getNutriHistory(){ try { return JSON.parse(localStorage.getItem(NUTRI_KEY)) || []; } catch(e){ return []; } }
+    function saveNutriHistory(arr){ localStorage.setItem(NUTRI_KEY, JSON.stringify(arr.slice(-50))); }
+
+    let nutriInited = false;
+    function initNutritionChat(){
+      if(nutriInited){ scrollChatBottom(nutriChat); return; }
+      nutriInited = true;
+      const hist = getNutriHistory();
+      if(hist.length === 0){
+        hist.push({ role:'assistant', content:
+          'Hallo! 🥑 Ich bin deine HealthMe Ernährungsberaterin und für dich da – Tag und Nacht. ' +
+          'Frag mich alles rund um Ernährung, Kalorien, Lebensmittel oder deinen Diätplan. 💛' });
+        saveNutriHistory(hist);
+      }
+      nutriChat.innerHTML = '';
+      hist.forEach(m => nutriChat.appendChild(nutriBubble(m.role, m.content)));
+      scrollChatBottom(nutriChat);
+    }
+
+    async function nutriAsk(history){
+      const systemPrompt =
+        'Du bist eine freundliche, einfühlsame deutsche KI-Ernährungsberaterin der App HealthMe. ' +
+        'Du gibst alltagstaugliche, leicht verständliche Tipps zu Ernährung, Kalorien, Makronährstoffen, ' +
+        'Lebensmitteln, Diäten und gesunden Gewohnheiten. Antworte immer auf Deutsch, freundlich und ' +
+        'motivierend, in kurzen Absätzen. Du stellst KEINE medizinischen Diagnosen und verschreibst nichts. ' +
+        'Weise bei gesundheitlichen Beschwerden, Krankheiten, Schwangerschaft oder Medikamenten ausdrücklich ' +
+        'darauf hin, dass eine Ärztin/ein Arzt oder eine qualifizierte Ernährungsfachkraft aufgesucht werden sollte.';
+      const messages = [{ role:'system', content: systemPrompt }]
+        .concat(history.map(m => ({ role: m.role, content: m.content })));
+      const res = await fetch(GROK_URL, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + GROK_API_KEY },
+        body: JSON.stringify({ model: GROK_MODEL, temperature: 0.6, messages })
+      });
+      if(!res.ok){ throw new Error('API ' + res.status); }
+      const data = await res.json();
+      return data.choices[0].message.content;
+    }
+
+    if(nutriForm){
+      nutriForm.addEventListener('submit', async function(e){
+        e.preventDefault();
+        const text = nutriInput.value.trim();
+        if(!text) return;
+        const hist = getNutriHistory();
+        hist.push({ role:'user', content:text });
+        saveNutriHistory(hist);
+        nutriChat.appendChild(nutriBubble('user', text));
+        nutriInput.value = '';
+        scrollChatBottom(nutriChat);
+
+        const typing = document.createElement('div');
+        typing.className = 'flex justify-start';
+        typing.innerHTML = '<div class="bg-white text-gray-400 text-sm px-4 py-2.5 rounded-2xl rounded-bl-md shadow-sm border border-gold-100">schreibt …</div>';
+        nutriChat.appendChild(typing);
+        scrollChatBottom(nutriChat);
+        nutriInput.disabled = true;
+
+        try {
+          const answer = await nutriAsk(hist);
+          typing.remove();
+          hist.push({ role:'assistant', content: answer });
+          saveNutriHistory(hist);
+          nutriChat.appendChild(nutriBubble('assistant', answer));
+        } catch(err){
+          typing.remove();
+          nutriChat.appendChild(nutriBubble('assistant',
+            'Entschuldige, ich konnte gerade nicht antworten. Bitte versuche es gleich noch einmal. (' + err.message + ')'));
+        } finally {
+          nutriInput.disabled = false;
+          nutriInput.focus();
+          scrollChatBottom(nutriChat);
+        }
+      });
+    }
+
+    // ============================================================
+    //  HealthMe Community – Live-Chat (simuliert)
+    // ============================================================
+    const communityChat  = document.getElementById('community-chat');
+    const communityForm  = document.getElementById('community-form');
+    const communityInput = document.getElementById('community-input');
+    const onlineCount    = document.getElementById('online-count');
+    const COMMUNITY_KEY  = 'healthme_community_chat';
+
+    const communityMembers = [
+      { name:'Lena',   color:'bg-rose-100 text-rose-500' },
+      { name:'Markus', color:'bg-blue-100 text-blue-500' },
+      { name:'Sophie', color:'bg-purple-100 text-purple-500' },
+      { name:'Jonas',  color:'bg-emerald-100 text-emerald-500' },
+      { name:'Mia',    color:'bg-amber-100 text-amber-600' },
+      { name:'Tom',    color:'bg-cyan-100 text-cyan-600' },
+    ];
+    const communityLines = [
+      'Heute schon 10.000 Schritte geschafft! 🚶‍♀️',
+      'Das Lachs-Bowl Rezept aus der App ist der Hammer 😍',
+      'Wer hat Tipps gegen Heißhunger am Abend?',
+      'Woche 3 und ich fühle mich schon viel fitter 💪',
+      'Ich liebe diese Community – ihr motiviert mich jeden Tag 💛',
+      'Endlich mal Frühstück vorbereitet: Overnight Oats!',
+      'Kleiner Reminder: Trinkt genug Wasser heute 💧',
+      '2 kg in diesem Monat – ich bin so stolz 🎉',
+      'Welche Rezepte macht ihr am Wochenende?',
+      'Motivationstief heute … aber ihr gebt mir Kraft, danke!',
+    ];
+
+    function communityRow(member, text, isUser){
+      const wrap = document.createElement('div');
+      if(isUser){
+        wrap.className = 'flex gap-3 justify-end';
+        wrap.innerHTML =
+          '<div class="text-right max-w-[82%]"><p class="text-xs text-gray-400 mb-0.5">Du</p>' +
+          '<div class="bg-gold-400 text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-md shadow-sm inline-block break-words">' + escapeHtml(text) + '</div></div>' +
+          '<div class="w-8 h-8 rounded-full bg-white border border-gold-200 flex items-center justify-center text-sm flex-shrink-0">🙋</div>';
+      } else {
+        const initials = (member.name || '?').charAt(0).toUpperCase();
+        wrap.className = 'flex gap-3';
+        wrap.innerHTML =
+          '<div class="w-8 h-8 rounded-full ' + (member.color || 'bg-gold-100 text-gold-600') + ' flex items-center justify-center text-sm font-bold flex-shrink-0">' + initials + '</div>' +
+          '<div class="max-w-[82%]"><p class="text-xs text-gray-400 mb-0.5">' + escapeHtml(member.name) + '</p>' +
+          '<div class="bg-white text-gray-700 text-sm px-4 py-2.5 rounded-2xl rounded-tl-md shadow-sm border border-gold-100 inline-block break-words">' + escapeHtml(text) + '</div></div>';
+      }
+      return wrap;
+    }
+
+    function getCommunityHistory(){ try { return JSON.parse(localStorage.getItem(COMMUNITY_KEY)) || []; } catch(e){ return []; } }
+    function saveCommunityHistory(arr){ localStorage.setItem(COMMUNITY_KEY, JSON.stringify(arr.slice(-60))); }
+
+    let communityInited = false;
+    let communityTimer  = null;
+    let botIndex = 0;
+
+    function initCommunityChat(){
+      if(!communityInited){
+        communityInited = true;
+        let hist = getCommunityHistory();
+        if(hist.length === 0){
+          hist = [
+            { name:'Lena',   text:'Guten Morgen zusammen! ☀️ Auf einen gesunden Tag!' },
+            { name:'Markus', text:'Moin! Heute steht ein Ganzkörper-Workout an 💪' },
+            { name:'Sophie', text:'Die App hat mir gerade ein mega Rezept gezaubert 🤤' },
+          ].map(m => ({ name:m.name, text:m.text, isUser:false }));
+          saveCommunityHistory(hist);
+        }
+        communityChat.innerHTML = '';
+        hist.forEach(m => {
+          const member = communityMembers.find(x => x.name === m.name) || { name:m.name };
+          communityChat.appendChild(communityRow(member, m.text, m.isUser));
+        });
+        scrollChatBottom(communityChat);
+      } else {
+        scrollChatBottom(communityChat);
+      }
+      startCommunityLive();
+    }
+
+    function pushCommunityBot(){
+      const member = communityMembers[Math.floor(Math.random() * communityMembers.length)];
+      const text   = communityLines[botIndex % communityLines.length];
+      botIndex++;
+      const hist = getCommunityHistory();
+      hist.push({ name: member.name, text: text, isUser:false });
+      saveCommunityHistory(hist);
+      communityChat.appendChild(communityRow(member, text, false));
+      scrollChatBottom(communityChat);
+      if(onlineCount){ onlineCount.textContent = (1450 + Math.floor(Math.random()*90)); }
+    }
+
+    function startCommunityLive(){
+      if(communityTimer) return;
+      communityTimer = setInterval(() => {
+        const tab = document.getElementById('tab-community');
+        if(tab && !tab.classList.contains('hidden')) pushCommunityBot();
+      }, 14000);
+    }
+
+    if(communityForm){
+      communityForm.addEventListener('submit', function(e){
+        e.preventDefault();
+        const text = communityInput.value.trim();
+        if(!text) return;
+        const hist = getCommunityHistory();
+        hist.push({ name:'Du', text:text, isUser:true });
+        saveCommunityHistory(hist);
+        communityChat.appendChild(communityRow({ name:'Du' }, text, true));
+        communityInput.value = '';
+        scrollChatBottom(communityChat);
+        setTimeout(() => {
+          const member = communityMembers[Math.floor(Math.random()*communityMembers.length)];
+          const reactions = ['Stark! 💪','Das motiviert mich auch 🙌','Super, weiter so! 🎉','Sehe ich genauso 😊','Danke fürs Teilen 💛','Mega! 🔥'];
+          const r = reactions[Math.floor(Math.random()*reactions.length)];
+          const h = getCommunityHistory();
+          h.push({ name:member.name, text:r, isUser:false });
+          saveCommunityHistory(h);
+          communityChat.appendChild(communityRow(member, r, false));
+          scrollChatBottom(communityChat);
+        }, 2500 + Math.random()*2000);
+      });
+    }
+
+    // ============================================================
+    //  HealthMe Coach – Trainingsplan-Generator (Grok) + Bibliothek
+    // ============================================================
+    const coachGoal      = document.getElementById('coach-goal');
+    const coachLevel     = document.getElementById('coach-level');
+    const coachTime      = document.getElementById('coach-time');
+    const coachFocus     = document.getElementById('coach-focus');
+    const coachGenerate  = document.getElementById('coach-generate');
+    const coachResult    = document.getElementById('coach-result');
+    const coachError     = document.getElementById('coach-error');
+    const coachErrorText = document.getElementById('coach-error-text');
+    const coachTitle     = document.getElementById('coach-title');
+    const coachMeta      = document.getElementById('coach-meta');
+    const coachExercises = document.getElementById('coach-exercises');
+    const coachTipps     = document.getElementById('coach-tipps');
+    const coachSave      = document.getElementById('coach-save');
+    const coachGrid      = document.getElementById('coach-grid');
+    const coachEmpty     = document.getElementById('coach-empty');
+    const WORKOUT_KEY    = 'healthme_workouts';
+    const coachGenerateHTML = coachGenerate ? coachGenerate.innerHTML : '';
+    let currentWorkout = null;
+
+    async function workoutVonGrok(params){
+      const systemPrompt =
+        'Du bist ein erfahrener deutscher Personal Trainer der App HealthMe. ' +
+        'Erstelle einen sicheren, effektiven Trainingsplan für zu Hause OHNE Geräte ' +
+        '(nur Körpergewicht, optional Stuhl oder Matte). ' +
+        'Antworte AUSSCHLIESSLICH mit gültigem JSON, ohne Markdown, in folgendem Format: ' +
+        '{"titel":"Name des Plans","meta":"z.B. ⏱️ 20 Min · 🏠 ohne Geräte · 🎯 Abnehmen",' +
+        '"aufwaermen":["Übung 1","Übung 2"],' +
+        '"uebungen":[{"name":"Übung","saetze":"3 × 15","hinweis":"kurzer Ausführungs-Tipp"}],' +
+        '"tipps":["Tipp 1","Tipp 2"]}. ' +
+        'Alle Texte auf Deutsch. 4 bis 7 Hauptübungen. Passe Intensität an Level und Zeit an.';
+      const userPrompt = 'Ziel: ' + params.goal + '. Level: ' + params.level +
+        '. Zeit pro Einheit: ' + params.time + '. Fokus: ' + params.focus + '.';
+      const res = await fetch(GROK_URL, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + GROK_API_KEY },
+        body: JSON.stringify({
+          model: GROK_MODEL, response_format:{ type:'json_object' }, temperature:0.7,
+          messages:[ { role:'system', content:systemPrompt }, { role:'user', content:userPrompt } ]
+        })
+      });
+      if(!res.ok){ const t = await res.text(); throw new Error('API ' + res.status + ': ' + t); }
+      const data = await res.json();
+      return JSON.parse(data.choices[0].message.content);
+    }
+
+    function renderWorkout(w){
+      coachTitle.textContent = w.titel || 'Dein Trainingsplan';
+      coachMeta.textContent  = w.meta || '';
+      coachExercises.innerHTML = '';
+
+      if(Array.isArray(w.aufwaermen) && w.aufwaermen.length){
+        const head = document.createElement('p');
+        head.className = 'text-xs font-bold text-gold-500 uppercase tracking-wider mb-2';
+        head.textContent = 'Aufwärmen';
+        coachExercises.appendChild(head);
+        const chips = document.createElement('div');
+        chips.className = 'flex flex-wrap gap-2 mb-5';
+        w.aufwaermen.forEach(a => {
+          const chip = document.createElement('span');
+          chip.className = 'bg-gold-100 text-gold-600 text-xs font-medium px-3 py-1 rounded-full';
+          chip.textContent = a;
+          chips.appendChild(chip);
+        });
+        coachExercises.appendChild(chips);
+      }
+
+      const head2 = document.createElement('p');
+      head2.className = 'text-xs font-bold text-gold-500 uppercase tracking-wider mb-2';
+      head2.textContent = 'Workout';
+      coachExercises.appendChild(head2);
+
+      (w.uebungen || []).forEach((u, i) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-start gap-3 bg-gold-50 rounded-xl px-4 py-3 mb-2';
+        row.innerHTML =
+          '<span class="w-7 h-7 bg-white text-gold-500 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm">' + (i+1) + '</span>' +
+          '<div class="flex-1 min-w-0">' +
+            '<div class="flex items-center justify-between gap-2">' +
+              '<span class="text-sm font-semibold text-gray-800">' + escapeHtml(u.name || '') + '</span>' +
+              '<span class="text-xs text-gold-500 font-bold whitespace-nowrap">' + escapeHtml(u.saetze || '') + '</span>' +
+            '</div>' +
+            (u.hinweis ? '<p class="text-xs text-gray-500 mt-0.5">' + escapeHtml(u.hinweis) + '</p>' : '') +
+          '</div>';
+        coachExercises.appendChild(row);
+      });
+
+      coachTipps.innerHTML = '';
+      if(Array.isArray(w.tipps) && w.tipps.length){
+        const box = document.createElement('div');
+        box.className = 'mt-5 bg-white border border-gold-100 rounded-2xl p-4';
+        box.innerHTML = '<p class="text-xs font-bold text-gold-500 uppercase tracking-wider mb-2">Tipps</p>';
+        const ul = document.createElement('ul');
+        ul.className = 'space-y-1.5';
+        w.tipps.forEach(t => {
+          const li = document.createElement('li');
+          li.className = 'text-sm text-gray-600 flex gap-2';
+          li.innerHTML = '<span class="text-gold-400">•</span><span>' + escapeHtml(t) + '</span>';
+          ul.appendChild(li);
+        });
+        box.appendChild(ul);
+        coachTipps.appendChild(box);
+      }
+      updateWorkoutSaveBtn();
+    }
+
+    function getWorkouts(){ try { return JSON.parse(localStorage.getItem(WORKOUT_KEY)) || []; } catch(e){ return []; } }
+    function saveWorkouts(arr){ localStorage.setItem(WORKOUT_KEY, JSON.stringify(arr)); }
+    function isWorkoutSaved(id){ return getWorkouts().some(w => w.id === id); }
+
+    function updateWorkoutSaveBtn(){
+      if(!currentWorkout || !coachSave) return;
+      coachSave.innerHTML = isWorkoutSaved(currentWorkout.id) ? '✓ Gespeichert' : '♡ Speichern';
+    }
+
+    function toggleWorkoutSave(){
+      if(!currentWorkout) return;
+      let list = getWorkouts();
+      if(isWorkoutSaved(currentWorkout.id)) list = list.filter(w => w.id !== currentWorkout.id);
+      else list.unshift(currentWorkout);
+      saveWorkouts(list);
+      updateWorkoutSaveBtn();
+      renderWorkoutLibrary();
+    }
+
+    function renderWorkoutLibrary(){
+      if(!coachGrid) return;
+      const list = getWorkouts();
+      if(coachEmpty) coachEmpty.classList.toggle('hidden', list.length > 0);
+      coachGrid.innerHTML = '';
+      list.forEach(w => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-3xl shadow-sm overflow-hidden flex flex-col';
+        card.innerHTML =
+          '<div class="bg-gradient-to-r from-gold-400 to-gold-500 px-5 py-4">' +
+            '<h3 class="font-bold text-white">' + escapeHtml(w.titel) + '</h3>' +
+            '<p class="text-gold-50 text-xs mt-0.5">' + escapeHtml(w.meta || '') + '</p>' +
+          '</div>' +
+          '<div class="p-5 flex flex-col flex-1">' +
+            '<p class="text-xs text-gray-500 mb-4">' + (Array.isArray(w.uebungen) ? w.uebungen.length : 0) + ' Übungen</p>' +
+            '<div class="mt-auto flex gap-2">' +
+              '<button class="wview-btn flex-1 bg-gold-400 hover:bg-gold-500 text-white text-sm font-semibold py-2.5 rounded-xl transition">Ansehen</button>' +
+              '<button class="wdel-btn w-11 border border-gold-200 text-gold-500 hover:bg-gold-50 rounded-xl flex items-center justify-center transition" title="Löschen">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>' +
+              '</button>' +
+            '</div>' +
+          '</div>';
+        card.querySelector('.wview-btn').addEventListener('click', () => {
+          currentWorkout = w;
+          renderWorkout(w);
+          coachError.classList.add('hidden');
+          coachResult.classList.remove('hidden');
+          coachResult.scrollIntoView({ behavior:'smooth' });
+        });
+        card.querySelector('.wdel-btn').addEventListener('click', () => {
+          saveWorkouts(getWorkouts().filter(x => x.id !== w.id));
+          if(currentWorkout && currentWorkout.id === w.id) updateWorkoutSaveBtn();
+          renderWorkoutLibrary();
+        });
+        coachGrid.appendChild(card);
+      });
+    }
+
+    if(coachGenerate){
+      coachGenerate.addEventListener('click', async function(){
+        coachResult.classList.add('hidden');
+        coachError.classList.add('hidden');
+        coachGenerate.disabled = true;
+        coachGenerate.classList.add('opacity-80','cursor-not-allowed');
+        coachGenerate.innerHTML =
+          '<svg class="animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">' +
+          '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>' +
+          '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>' +
+          '</svg> Dein Plan wird erstellt ...';
+        try {
+          const w = await workoutVonGrok({
+            goal: coachGoal.value, level: coachLevel.value, time: coachTime.value, focus: coachFocus.value
+          });
+          currentWorkout = {
+            id: 'w_' + Date.now(),
+            titel: w.titel || 'Dein Trainingsplan',
+            meta: w.meta || '',
+            aufwaermen: Array.isArray(w.aufwaermen) ? w.aufwaermen : [],
+            uebungen: Array.isArray(w.uebungen) ? w.uebungen : [],
+            tipps: Array.isArray(w.tipps) ? w.tipps : []
+          };
+          renderWorkout(currentWorkout);
+          coachResult.classList.remove('hidden');
+          coachResult.scrollIntoView({ behavior:'smooth' });
+        } catch(err){
+          coachErrorText.textContent =
+            'Der Coach konnte gerade keinen Plan erstellen. Bitte versuche es erneut. (' + err.message + ')';
+          coachError.classList.remove('hidden');
+        } finally {
+          coachGenerate.disabled = false;
+          coachGenerate.classList.remove('opacity-80','cursor-not-allowed');
+          coachGenerate.innerHTML = coachGenerateHTML;
+        }
+      });
+    }
+    if(coachSave) coachSave.addEventListener('click', toggleWorkoutSave);
+  </script>
+
+  <!-- ====================== UPSELL-FUNKTIONEN: Scan · Planner ====================== -->
+  <script>
+    // ============================================================
+    //  HealthMe Scan – Mahlzeiten-Analyse (Grok) + Verlauf
+    // ============================================================
+    const scanInput    = document.getElementById('scan-input');
+    const scanAnalyze  = document.getElementById('scan-analyze');
+    const scanResult   = document.getElementById('scan-result');
+    const scanError    = document.getElementById('scan-error');
+    const scanErrorText= document.getElementById('scan-error-text');
+    const scanTitle    = document.getElementById('scan-title');
+    const scanPortion  = document.getElementById('scan-portion');
+    const scanKcal     = document.getElementById('scan-kcal');
+    const scanProtein  = document.getElementById('scan-protein');
+    const scanCarbs    = document.getElementById('scan-carbs');
+    const scanFat      = document.getElementById('scan-fat');
+    const scanHinweis  = document.getElementById('scan-hinweis');
+    const scanSave     = document.getElementById('scan-save');
+    const scanGrid     = document.getElementById('scan-grid');
+    const scanEmpty    = document.getElementById('scan-empty');
+    const SCAN_KEY     = 'healthme_scans';
+    const scanAnalyzeHTML = scanAnalyze ? scanAnalyze.innerHTML : '';
+    let currentScan = null;
+
+    async function scanVonGrok(text){
+      const systemPrompt =
+        'Du bist ein deutscher Ernährungsexperte der App HealthMe. ' +
+        'Schätze für die beschriebene Mahlzeit realistische Nährwerte. ' +
+        'Antworte AUSSCHLIESSLICH mit gültigem JSON, ohne Markdown, in folgendem Format: ' +
+        '{"gericht":"kurzer Name der Mahlzeit","portion":"z.B. 1 Portion (ca. 350 g)",' +
+        '"kcal":"462","eiweiss":"41 g","kohlenhydrate":"52 g","fett":"9 g",' +
+        '"hinweis":"kurzer, hilfreicher Ernährungstipp"}. Alle Texte auf Deutsch.';
+      const res = await fetch(GROK_URL, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + GROK_API_KEY },
+        body: JSON.stringify({
+          model: GROK_MODEL, response_format:{ type:'json_object' }, temperature:0.4,
+          messages:[ { role:'system', content:systemPrompt }, { role:'user', content:'Meine Mahlzeit: ' + text } ]
+        })
+      });
+      if(!res.ok){ const t = await res.text(); throw new Error('API ' + res.status + ': ' + t); }
+      const data = await res.json();
+      return JSON.parse(data.choices[0].message.content);
+    }
+
+    function renderScan(s){
+      scanTitle.textContent   = s.gericht || 'Deine Mahlzeit';
+      scanPortion.textContent = s.portion || '';
+      scanKcal.textContent    = s.kcal || '–';
+      scanProtein.textContent = s.eiweiss || '–';
+      scanCarbs.textContent   = s.kohlenhydrate || '–';
+      scanFat.textContent     = s.fett || '–';
+      scanHinweis.innerHTML   = s.hinweis
+        ? '<div class="bg-gold-50 border border-gold-100 rounded-2xl p-4 text-sm text-gray-600">💡 ' + escapeHtml(s.hinweis) + '</div>'
+        : '';
+      updateScanSaveBtn();
+    }
+
+    function getScans(){ try { return JSON.parse(localStorage.getItem(SCAN_KEY)) || []; } catch(e){ return []; } }
+    function saveScans(arr){ localStorage.setItem(SCAN_KEY, JSON.stringify(arr)); }
+    function isScanSaved(id){ return getScans().some(s => s.id === id); }
+
+    function updateScanSaveBtn(){
+      if(!currentScan || !scanSave) return;
+      scanSave.innerHTML = isScanSaved(currentScan.id) ? '✓ Gespeichert' : '♡ Speichern';
+    }
+
+    function toggleScanSave(){
+      if(!currentScan) return;
+      let list = getScans();
+      if(isScanSaved(currentScan.id)) list = list.filter(s => s.id !== currentScan.id);
+      else list.unshift(currentScan);
+      saveScans(list);
+      updateScanSaveBtn();
+      renderScanHistory();
+    }
+
+    function renderScanHistory(){
+      if(!scanGrid) return;
+      const list = getScans();
+      if(scanEmpty) scanEmpty.classList.toggle('hidden', list.length > 0);
+      scanGrid.innerHTML = '';
+      list.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-3xl shadow-sm p-5 flex flex-col';
+        card.innerHTML =
+          '<h3 class="font-bold text-gray-800 mb-1">' + escapeHtml(s.gericht) + '</h3>' +
+          '<p class="text-xs text-gray-500 mb-3">' + escapeHtml(s.portion || '') + '</p>' +
+          '<div class="grid grid-cols-4 gap-1.5 text-center mb-4">' +
+            '<div class="bg-gold-50 rounded-lg py-2"><p class="font-bold text-gold-500 text-sm">' + escapeHtml(s.kcal||'–') + '</p><p class="text-[10px] text-gray-500">kcal</p></div>' +
+            '<div class="bg-gold-50 rounded-lg py-2"><p class="font-bold text-gold-500 text-sm">' + escapeHtml(s.eiweiss||'–') + '</p><p class="text-[10px] text-gray-500">Eiw.</p></div>' +
+            '<div class="bg-gold-50 rounded-lg py-2"><p class="font-bold text-gold-500 text-sm">' + escapeHtml(s.kohlenhydrate||'–') + '</p><p class="text-[10px] text-gray-500">KH</p></div>' +
+            '<div class="bg-gold-50 rounded-lg py-2"><p class="font-bold text-gold-500 text-sm">' + escapeHtml(s.fett||'–') + '</p><p class="text-[10px] text-gray-500">Fett</p></div>' +
+          '</div>' +
+          '<button class="sdel-btn mt-auto w-full border border-gold-200 text-gold-500 hover:bg-gold-50 text-sm font-semibold py-2 rounded-xl transition">Entfernen</button>';
+        card.querySelector('.sdel-btn').addEventListener('click', () => {
+          saveScans(getScans().filter(x => x.id !== s.id));
+          if(currentScan && currentScan.id === s.id) updateScanSaveBtn();
+          renderScanHistory();
+        });
+        scanGrid.appendChild(card);
+      });
+    }
+
+    if(scanAnalyze){
+      scanAnalyze.addEventListener('click', async function(){
+        const text = (scanInput.value || '').trim();
+        if(!text){ scanInput.focus(); return; }
+        scanResult.classList.add('hidden');
+        scanError.classList.add('hidden');
+        scanAnalyze.disabled = true;
+        scanAnalyze.classList.add('opacity-80','cursor-not-allowed');
+        scanAnalyze.innerHTML =
+          '<svg class="animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">' +
+          '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>' +
+          '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>' +
+          '</svg> Wird analysiert ...';
+        try {
+          const s = await scanVonGrok(text);
+          currentScan = {
+            id: 's_' + Date.now(),
+            gericht: s.gericht || 'Deine Mahlzeit',
+            portion: s.portion || '',
+            kcal: s.kcal || '–', eiweiss: s.eiweiss || '–',
+            kohlenhydrate: s.kohlenhydrate || '–', fett: s.fett || '–',
+            hinweis: s.hinweis || ''
+          };
+          renderScan(currentScan);
+          scanResult.classList.remove('hidden');
+          scanResult.scrollIntoView({ behavior:'smooth' });
+        } catch(err){
+          scanErrorText.textContent = 'Die Analyse hat gerade nicht geklappt. Bitte versuche es erneut. (' + err.message + ')';
+          scanError.classList.remove('hidden');
+        } finally {
+          scanAnalyze.disabled = false;
+          scanAnalyze.classList.remove('opacity-80','cursor-not-allowed');
+          scanAnalyze.innerHTML = scanAnalyzeHTML;
+        }
+      });
+    }
+    if(scanSave) scanSave.addEventListener('click', toggleScanSave);
+
+    // ============================================================
+    //  HealthMe Planner – 7-Tage-Ernährungsplan (Grok) + Bibliothek
+    // ============================================================
+    const plannerGoal     = document.getElementById('planner-goal');
+    const plannerKcal     = document.getElementById('planner-kcal');
+    const plannerMeals    = document.getElementById('planner-meals');
+    const plannerDiet     = document.getElementById('planner-diet');
+    const plannerGenerate = document.getElementById('planner-generate');
+    const plannerResult   = document.getElementById('planner-result');
+    const plannerError    = document.getElementById('planner-error');
+    const plannerErrorText= document.getElementById('planner-error-text');
+    const plannerTitle    = document.getElementById('planner-title');
+    const plannerMeta     = document.getElementById('planner-meta');
+    const plannerDays     = document.getElementById('planner-days');
+    const plannerSave     = document.getElementById('planner-save');
+    const plannerGrid     = document.getElementById('planner-grid');
+    const plannerEmpty    = document.getElementById('planner-empty');
+    const PLANNER_KEY     = 'healthme_plans';
+    const plannerGenerateHTML = plannerGenerate ? plannerGenerate.innerHTML : '';
+    let currentPlan = null;
+
+    async function planVonGrok(p){
+      const systemPrompt =
+        'Du bist ein deutscher Ernährungscoach der App HealthMe. ' +
+        'Erstelle einen abwechslungsreichen, ausgewogenen 7-Tage-Ernährungsplan. ' +
+        'Antworte AUSSCHLIESSLICH mit gültigem JSON, ohne Markdown, in folgendem Format: ' +
+        '{"titel":"Name des Plans","meta":"z.B. 🎯 Abnehmen · ~1600 kcal/Tag · 4 Mahlzeiten",' +
+        '"tage":[{"tag":"Montag","mahlzeiten":[{"name":"Frühstück","gericht":"kurze Beschreibung"}]}]}. ' +
+        'Genau 7 Tage von Montag bis Sonntag. Alle Texte auf Deutsch. Halte die Gerichte einfach und alltagstauglich.';
+      const userPrompt = 'Ziel: ' + p.goal + '. Kalorien pro Tag: ' + p.kcal +
+        '. Mahlzeiten pro Tag: ' + p.meals + '. Ernährungsform: ' + p.diet + '.';
+      const res = await fetch(GROK_URL, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + GROK_API_KEY },
+        body: JSON.stringify({
+          model: GROK_MODEL, response_format:{ type:'json_object' }, temperature:0.7,
+          messages:[ { role:'system', content:systemPrompt }, { role:'user', content:userPrompt } ]
+        })
+      });
+      if(!res.ok){ const t = await res.text(); throw new Error('API ' + res.status + ': ' + t); }
+      const data = await res.json();
+      return JSON.parse(data.choices[0].message.content);
+    }
+
+    function renderPlan(plan){
+      plannerTitle.textContent = plan.titel || 'Dein Wochenplan';
+      plannerMeta.textContent  = plan.meta || '';
+      plannerDays.innerHTML = '';
+      (plan.tage || []).forEach(d => {
+        const card = document.createElement('div');
+        card.className = 'bg-gold-50 rounded-xl px-4 py-3';
+        let meals = (d.mahlzeiten || []).map(m =>
+          '<span class="block text-sm text-gray-700 mt-0.5"><span class="font-semibold text-gold-500">' +
+          escapeHtml(m.name || '') + ':</span> ' + escapeHtml(m.gericht || '') + '</span>'
+        ).join('');
+        card.innerHTML = '<p class="text-xs font-bold text-gold-500 uppercase tracking-wider mb-1">' +
+          escapeHtml(d.tag || '') + '</p>' + meals;
+        plannerDays.appendChild(card);
+      });
+      updatePlanSaveBtn();
+    }
+
+    function getPlans(){ try { return JSON.parse(localStorage.getItem(PLANNER_KEY)) || []; } catch(e){ return []; } }
+    function savePlans(arr){ localStorage.setItem(PLANNER_KEY, JSON.stringify(arr)); }
+    function isPlanSaved(id){ return getPlans().some(p => p.id === id); }
+
+    function updatePlanSaveBtn(){
+      if(!currentPlan || !plannerSave) return;
+      plannerSave.innerHTML = isPlanSaved(currentPlan.id) ? '✓ Gespeichert' : '♡ Speichern';
+    }
+
+    function togglePlanSave(){
+      if(!currentPlan) return;
+      let list = getPlans();
+      if(isPlanSaved(currentPlan.id)) list = list.filter(p => p.id !== currentPlan.id);
+      else list.unshift(currentPlan);
+      savePlans(list);
+      updatePlanSaveBtn();
+      renderPlannerLibrary();
+    }
+
+    function renderPlannerLibrary(){
+      if(!plannerGrid) return;
+      const list = getPlans();
+      if(plannerEmpty) plannerEmpty.classList.toggle('hidden', list.length > 0);
+      plannerGrid.innerHTML = '';
+      list.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-3xl shadow-sm overflow-hidden flex flex-col';
+        card.innerHTML =
+          '<div class="bg-gradient-to-r from-gold-400 to-gold-500 px-5 py-4">' +
+            '<h3 class="font-bold text-white">' + escapeHtml(p.titel) + '</h3>' +
+            '<p class="text-gold-50 text-xs mt-0.5">' + escapeHtml(p.meta || '') + '</p>' +
+          '</div>' +
+          '<div class="p-5 flex flex-col flex-1">' +
+            '<p class="text-xs text-gray-500 mb-4">' + (Array.isArray(p.tage) ? p.tage.length : 0) + ' Tage geplant</p>' +
+            '<div class="mt-auto flex gap-2">' +
+              '<button class="pview-btn flex-1 bg-gold-400 hover:bg-gold-500 text-white text-sm font-semibold py-2.5 rounded-xl transition">Ansehen</button>' +
+              '<button class="pdel-btn w-11 border border-gold-200 text-gold-500 hover:bg-gold-50 rounded-xl flex items-center justify-center transition" title="Löschen">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>' +
+              '</button>' +
+            '</div>' +
+          '</div>';
+        card.querySelector('.pview-btn').addEventListener('click', () => {
+          currentPlan = p;
+          renderPlan(p);
+          plannerError.classList.add('hidden');
+          plannerResult.classList.remove('hidden');
+          plannerResult.scrollIntoView({ behavior:'smooth' });
+        });
+        card.querySelector('.pdel-btn').addEventListener('click', () => {
+          savePlans(getPlans().filter(x => x.id !== p.id));
+          if(currentPlan && currentPlan.id === p.id) updatePlanSaveBtn();
+          renderPlannerLibrary();
+        });
+        plannerGrid.appendChild(card);
+      });
+    }
+
+    if(plannerGenerate){
+      plannerGenerate.addEventListener('click', async function(){
+        plannerResult.classList.add('hidden');
+        plannerError.classList.add('hidden');
+        plannerGenerate.disabled = true;
+        plannerGenerate.classList.add('opacity-80','cursor-not-allowed');
+        plannerGenerate.innerHTML =
+          '<svg class="animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">' +
+          '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>' +
+          '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>' +
+          '</svg> Dein Wochenplan wird erstellt ...';
+        try {
+          const plan = await planVonGrok({
+            goal: plannerGoal.value, kcal: plannerKcal.value, meals: plannerMeals.value, diet: plannerDiet.value
+          });
+          currentPlan = {
+            id: 'p_' + Date.now(),
+            titel: plan.titel || 'Dein Wochenplan',
+            meta: plan.meta || '',
+            tage: Array.isArray(plan.tage) ? plan.tage : []
+          };
+          renderPlan(currentPlan);
+          plannerResult.classList.remove('hidden');
+          plannerResult.scrollIntoView({ behavior:'smooth' });
+        } catch(err){
+          plannerErrorText.textContent = 'Der Plan konnte gerade nicht erstellt werden. Bitte versuche es erneut. (' + err.message + ')';
+          plannerError.classList.remove('hidden');
+        } finally {
+          plannerGenerate.disabled = false;
+          plannerGenerate.classList.remove('opacity-80','cursor-not-allowed');
+          plannerGenerate.innerHTML = plannerGenerateHTML;
+        }
+      });
+    }
+    if(plannerSave) plannerSave.addEventListener('click', togglePlanSave);
+  </script>
+
+</body>
+</html>
