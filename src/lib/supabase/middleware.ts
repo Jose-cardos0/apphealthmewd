@@ -19,9 +19,22 @@ const PUBLIC_PATHS = [
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  // Falls die Supabase-Variablen (noch) nicht gesetzt sind, das Middleware
+  // nicht crashen lassen – Request einfach durchlassen, statt die ganze Seite
+  // mit MIDDLEWARE_INVOCATION_FAILED zu blockieren.
+  if (!url || !anonKey) {
+    console.error(
+      "[middleware] NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY fehlen.",
+    );
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    anonKey,
     {
       cookies: {
         getAll() {
@@ -40,9 +53,15 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch (err) {
+    // Netzwerk-/Konfigurationsfehler nicht die ganze Seite lahmlegen lassen.
+    console.error("[middleware] auth.getUser fehlgeschlagen:", err);
+    return supabaseResponse;
+  }
 
   const path = request.nextUrl.pathname;
 
