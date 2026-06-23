@@ -10,7 +10,12 @@ export async function sendWelcomeEmail(opts: {
   password: string;
 }) {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM || "HealthMe A.I <onboarding@resend.dev>";
+  // Umschließende Anführungszeichen entfernen, falls EMAIL_FROM versehentlich
+  // mit "..." gesetzt wurde (Resend lehnt das sonst als ungültig ab).
+  const from = (process.env.EMAIL_FROM || "HealthMe A.I <onboarding@resend.dev>")
+    .trim()
+    .replace(/^["']+|["']+$/g, "")
+    .trim();
   if (!apiKey) {
     throw new Error("RESEND_API_KEY ist nicht konfiguriert.");
   }
