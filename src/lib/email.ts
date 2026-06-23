@@ -21,13 +21,23 @@ export async function sendWelcomeEmail(opts: {
   const html = welcomeHtml({ to, loginUrl, password });
   const text = welcomeText({ to, loginUrl, password });
 
-  return resend.emails.send({
+  const result = await resend.emails.send({
     from,
     to,
     subject: "🧚‍♀️ Willkommen bei HealthMe A.I – deine Zugangsdaten",
     html,
     text,
   });
+
+  // Resend wirft bei API-Fehlern keine Exception, sondern liefert { error }.
+  // Wir machen den Fehler sichtbar, damit der Webhook ihn meldet.
+  if (result.error) {
+    const e = result.error as { message?: string; name?: string };
+    throw new Error(`Resend: ${e.name || ""} ${e.message || JSON.stringify(result.error)}`.trim());
+  }
+
+  console.log("[email] Willkommens-E-Mail gesendet an", to, "id:", result.data?.id);
+  return result;
 }
 
 function welcomeText({ to, loginUrl, password }: { to: string; loginUrl: string; password: string }) {
