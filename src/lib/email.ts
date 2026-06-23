@@ -23,7 +23,11 @@ export async function sendWelcomeEmail(opts: {
   const resend = new Resend(apiKey);
   const { to, loginUrl, password } = opts;
 
-  const html = welcomeHtml({ to, loginUrl, password });
+  // Logo öffentlich von der Seite laden (z. B. https://app.../logo.png)
+  const base = (process.env.NEXT_PUBLIC_SITE_URL || "").trim().replace(/\/+$/, "");
+  const logoUrl = base ? `${base}/logo.png` : "";
+
+  const html = welcomeHtml({ to, loginUrl, password, logoUrl });
   const text = welcomeText({ to, loginUrl, password });
 
   const result = await resend.emails.send({
@@ -63,17 +67,31 @@ Viel Freude mit deiner kleinen Küchenfee!
 Dein HealthMe A.I Team`;
 }
 
-function welcomeHtml({ to, loginUrl, password }: { to: string; loginUrl: string; password: string }) {
+function welcomeHtml({
+  to,
+  loginUrl,
+  password,
+  logoUrl,
+}: {
+  to: string;
+  loginUrl: string;
+  password: string;
+  logoUrl: string;
+}) {
+  const logoBlock = logoUrl
+    ? `<img src="${escapeHtml(logoUrl)}" alt="HealthMe A.I" width="120" style="display:block;margin:0 auto 10px;width:120px;max-width:60%;height:auto;">`
+    : `<h1 style="margin:0 0 6px;color:#c8930a;font-size:24px;font-weight:800;">HealthMe A.I 🧚‍♀️</h1>`;
   return `<!DOCTYPE html>
 <html lang="de">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background:#fdf6e3;font-family:'Segoe UI',Arial,sans-serif;color:#374151;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     <div style="background:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 10px 30px rgba(200,147,10,0.12);">
-      <div style="background:linear-gradient(135deg,#e6b325,#c8930a);padding:32px;text-align:center;">
-        <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:800;">HealthMe A.I 🧚‍♀️</h1>
-        <p style="margin:8px 0 0;color:#fff7e0;font-size:14px;">Deine kleine Küchenfee</p>
+      <div style="background:#ffffff;padding:32px 32px 20px;text-align:center;border-bottom:1px solid #fdf4d9;">
+        ${logoBlock}
+        <p style="margin:0;color:#c8930a;font-size:14px;font-weight:500;">Deine kleine Küchenfee 🧚‍♀️</p>
       </div>
+      <div style="height:4px;background:linear-gradient(90deg,#f6d572,#e6b325,#c8930a);"></div>
       <div style="padding:32px;">
         <h2 style="margin:0 0 8px;font-size:20px;color:#1f2937;">Willkommen an Bord! 🎉</h2>
         <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#4b5563;">
