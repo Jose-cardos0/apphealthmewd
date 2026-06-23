@@ -92,13 +92,31 @@ export async function POST(req: NextRequest) {
     }
     // andere Events ignorieren wir bewusst.
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Unbekannter Fehler";
-    console.error("[digistore24] Fehler:", msg);
+    const msg = errorMessage(err);
+    console.error("[digistore24] Fehler:", msg, err);
     // Non-OK → Digistore24 versucht es erneut.
     return new Response("ERROR: " + msg, { status: 500 });
   }
 
   return new Response("OK", { status: 200 });
+}
+
+/** Extrahiert eine lesbare Fehlermeldung aus Error- ODER Supabase-Fehlerobjekten. */
+function errorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (err && typeof err === "object") {
+    const o = err as Record<string, unknown>;
+    const parts = [o.message, o.details, o.hint, o.code]
+      .filter(Boolean)
+      .map((x) => String(x));
+    if (parts.length) return parts.join(" | ");
+    try {
+      return JSON.stringify(err);
+    } catch {
+      return "Unbekannter Fehler";
+    }
+  }
+  return "Unbekannter Fehler";
 }
 
 type Admin = ReturnType<typeof createAdminClient>;
