@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { verifyDigistoreSignature } from "@/lib/digistore";
+import { verifyDigistoreSignature, digistoreSignatureDebug } from "@/lib/digistore";
 import { sendWelcomeEmail } from "@/lib/email";
 
 // Webhook muss dynamisch laufen (kein Caching) und den rohen Body lesen.
@@ -32,8 +32,18 @@ export async function POST(req: NextRequest) {
 
   // 3) Signatur prüfen (falls Passphrase gesetzt)
   const passphrase = process.env.DIGISTORE_PASSPHRASE;
-  if (passphrase) {
+  const skipSignature =
+    process.env.DIGISTORE_SKIP_SIGNATURE === "1" ||
+    process.env.DIGISTORE_SKIP_SIGNATURE === "true";
+
+  if (skipSignature) {
+    console.warn(
+      "[digistore24] DIGISTORE_SKIP_SIGNATURE aktiv – Signatur wird NICHT geprüft! Nur zum Testen verwenden.",
+    );
+  } else if (passphrase) {
     if (!verifyDigistoreSignature(params, passphrase)) {
+      // Diagnose in die Vercel-Logs schreiben (ohne Secrets)
+      console.error("[digistore24] Signatur ungültig:", digistoreSignatureDebug(params, passphrase));
       return new Response("INVALID SIGNATURE", { status: 403 });
     }
   } else {
