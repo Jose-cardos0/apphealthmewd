@@ -25,8 +25,15 @@ export async function POST(req: NextRequest) {
 
   const event = params.event || "";
 
+  // Optionales Voll-Logging des Payloads (zum Debuggen) – über Vercel-Logs sichtbar.
+  // Aktivieren mit Umgebungsvariable DIGISTORE_DEBUG=1.
+  if (process.env.DIGISTORE_DEBUG === "1" || process.env.DIGISTORE_DEBUG === "true") {
+    console.log("[digistore24] eingehender Payload:", JSON.stringify(params, null, 2));
+  }
+
   // 2) Verbindungstest von Digistore24 → einfach OK zurückgeben
   if (event === "connection_test" || params.connection_test) {
+    console.log("[digistore24] connection_test empfangen. Felder:", Object.keys(params));
     return new Response("OK", { status: 200 });
   }
 
@@ -44,6 +51,7 @@ export async function POST(req: NextRequest) {
     if (!verifyDigistoreSignature(params, passphrase)) {
       // Diagnose in die Vercel-Logs schreiben (ohne Secrets)
       console.error("[digistore24] Signatur ungültig:", digistoreSignatureDebug(params, passphrase));
+      console.error("[digistore24] Payload (Signatur ungültig):", JSON.stringify(params, null, 2));
       return new Response("INVALID SIGNATURE", { status: 403 });
     }
   } else {
