@@ -168,8 +168,9 @@ async function grantAccess(admin: Admin, email: string) {
     throw createErr;
   }
 
-  // Willkommens-E-Mail mit Zugangsdaten senden
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+  // Willkommens-E-Mail mit Zugangsdaten senden.
+  // Abschließende Slashes entfernen, damit kein "//login" entsteht.
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "").trim().replace(/\/+$/, "");
   await sendWelcomeEmail({
     to: email,
     loginUrl: `${siteUrl}/login`,
