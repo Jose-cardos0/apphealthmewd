@@ -58,6 +58,7 @@ export default function AppClient({ profile }: { profile: Profile | null }) {
               <span className="fab-btn">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img className="fab-img" src="/prato.png" alt="" />
+                <Icon name="ic-cam" className="i fab-svg" />
               </span>
               <span className="spark">
                 <Icon name="ic-cam" />

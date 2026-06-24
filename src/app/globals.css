@@ -65,6 +65,7 @@ h1.t { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; margin: 2px 0;
   color: #fff; border: 4px solid #fff; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18); }
 .tab.fab .fab-btn svg { width: 27px; height: 27px; position: relative; z-index: 2; }
 .tab.fab .fab-btn .fab-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; animation: fabSpin 14s linear infinite; }
+.tab.fab .fab-btn .fab-svg { display: none; }
 @keyframes fabSpin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .tab.fab .fab-btn .fab-img { animation: none; } }
 .tab.fab .spark { position: absolute; left: calc(50% + 14px); bottom: 76px; width: 22px; height: 22px; background: #fff; border-radius: 50%;
@@ -390,7 +391,8 @@ h1.t { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; margin: 2px 0;
   .tab.fab .fab-btn { position: static; transform: none; width: 22px; height: 22px; border: none; box-shadow: none; animation: none; background: none; color: inherit; overflow: visible; }
   .tab.fab .fab-btn .sweep { display: none; }
   .tab.fab .fab-btn svg { width: 22px; height: 22px; }
-  .tab.fab .fab-btn .fab-img { width: 24px; height: 24px; border-radius: 7px; animation: none; }
+  .tab.fab .fab-btn .fab-img { display: none; }
+  .tab.fab .fab-btn .fab-svg { display: block; width: 22px; height: 22px; }
   .tab.fab .spark { display: none; }
   .tab.fab > span { position: static; bottom: auto; }
   .nav-logout {
