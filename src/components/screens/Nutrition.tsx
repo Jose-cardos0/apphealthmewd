@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
+import { avatarSrc, avatarInitials } from "@/lib/avatar";
 import type { Profile } from "@/lib/types";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -10,6 +11,8 @@ const DOC_IMG = "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=
 
 export default function Nutrition({ active, profile }: { active: boolean; profile: Profile | null }) {
   const name = profile?.first_name || "";
+  const meSrc = avatarSrc(profile);
+  const meInit = avatarInitials(profile);
   const [messages, setMessages] = useState<Msg[]>([
     {
       role: "assistant",
@@ -66,7 +69,12 @@ export default function Nutrition({ active, profile }: { active: boolean; profil
         {messages.map((msg, i) =>
           msg.role === "user" ? (
             <div key={i} className="msg me">
-              <span className="av">{(name || "Du").charAt(0).toUpperCase()}</span>
+              {meSrc ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={meSrc} alt="" />
+              ) : (
+                <span className="av">{meInit}</span>
+              )}
               <div className="bub">{msg.content}</div>
             </div>
           ) : (

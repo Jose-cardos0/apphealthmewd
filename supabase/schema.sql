@@ -105,8 +105,30 @@ create table if not exists public.profiles (
   updated_at         timestamptz not null default now()
 );
 
--- Falls die Tabelle schon existierte: Spalte nachrüsten
+-- Falls die Tabelle schon existierte: Spalten nachrüsten
 alter table public.profiles add column if not exists plan jsonb;
+alter table public.profiles add column if not exists avatar_url text;
+
+-- ------------------------------------------------------------
+--  Storage-Bucket für Profilfotos (öffentlich lesbar)
+-- ------------------------------------------------------------
+insert into storage.buckets (id, name, public)
+values ('avatars', 'avatars', true)
+on conflict (id) do nothing;
+
+-- Jeder darf Avatare lesen (öffentlich)
+drop policy if exists "avatars_public_read" on storage.objects;
+create policy "avatars_public_read" on storage.objects
+  for select using (bucket_id = 'avatars');
+
+-- Nutzer dürfen nur ihren eigenen Ordner (= user_id) beschreiben
+drop policy if exists "avatars_insert_own" on storage.objects;
+create policy "avatars_insert_own" on storage.objects
+  for insert with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists "avatars_update_own" on storage.objects;
+create policy "avatars_update_own" on storage.objects
+  for update using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
 
 alter table public.profiles enable row level security;
 

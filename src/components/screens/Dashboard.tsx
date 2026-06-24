@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil } from "lucide-react";
+import { Pencil, Camera } from "lucide-react";
 import Icon from "@/components/Icon";
 import { dashboardMetrics, bmiCategory, de } from "@/lib/metrics";
+import { avatarSrc, avatarInitials } from "@/lib/avatar";
+import { uploadAvatar } from "@/lib/uploadAvatar";
 import type { Profile } from "@/lib/types";
 
 export default function Dashboard({
@@ -40,9 +42,27 @@ export default function Dashboard({
   const kcalText = profile?.plan?.daily_kcal != null ? profile.plan.daily_kcal.toLocaleString("de-DE") : kcalTarget(profile);
   const waterText = de(profile?.plan?.water_liters ?? 2.5, 1);
 
-  const gender = profile?.gender;
-  const avatarSrc = gender === "Mann" ? "/avatar-mann.jpg" : gender === "Frau" ? "/avatar-frau.jpg" : null;
-  const initials = [profile?.first_name?.[0], profile?.last_name?.[0]].filter(Boolean).join("").toUpperCase() || "?";
+  const [avatarOverride, setAvatarOverride] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const avatarInput = useRef<HTMLInputElement>(null);
+  const src = avatarOverride ?? avatarSrc(profile);
+  const initials = avatarInitials(profile);
+
+  async function onAvatarFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadAvatar(file);
+      setAvatarOverride(url);
+      router.refresh();
+    } catch {
+      /* ignoriert */
+    } finally {
+      setUploading(false);
+    }
+  }
 
   return (
     <section className={`screen${active ? " active" : ""}`} id="s-dashboard">
@@ -91,12 +111,16 @@ export default function Dashboard({
               </div>
             )}
           </div>
-          {avatarSrc ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img className="ava" src={avatarSrc} alt="" />
-          ) : (
-            <span className="ava-initials">{initials}</span>
-          )}
+          <div className="av-edit" onClick={() => avatarInput.current?.click()} title="Foto ändern">
+            <input ref={avatarInput} type="file" accept="image/*" style={{ display: "none" }} onChange={onAvatarFile} />
+            {src ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img className="ava" src={src} alt="" />
+            ) : (
+              <span className="ava-initials">{initials}</span>
+            )}
+            <span className="av-cam">{uploading ? <span className="av-spin" /> : <Camera size={14} />}</span>
+          </div>
         </div>
 
         <div className="grid2">

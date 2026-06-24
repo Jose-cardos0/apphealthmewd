@@ -25,6 +25,7 @@ export type Profile = {
   glp1_frequency: string | null;
   glp1_start_date: string | null;
   plan: GrokPlan | null;
+  avatar_url: string | null;
 };
 
 /** Eingaben aus dem Onboarding-Quiz. */

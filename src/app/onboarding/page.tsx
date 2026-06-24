@@ -6,6 +6,7 @@ import {
   Hand, Cake, User, Ruler, Scale, Target, Activity, Syringe, CalendarDays,
   Pill, Clock, Sun, Sofa, Footprints, Dumbbell, ArrowLeft, type LucideIcon,
 } from "lucide-react";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 type Data = {
   first_name: string; last_name: string; age: string; city: string; gender: string;
@@ -93,6 +94,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="quiz">
+      {saving && <LoadingOverlay text="Dein persönlicher Plan wird erstellt …" />}
       <div className="qz-inner">
         <div className="qz-prog"><i style={{ width: `${((step + 1) / TOTAL) * 100}%` }} /></div>
         <div className="qz-step">Schritt {step + 1} von {TOTAL}</div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
+import { avatarSrc, avatarInitials } from "@/lib/avatar";
 import type { Profile } from "@/lib/types";
 
 const PEOPLE = [
@@ -29,6 +30,8 @@ type Row = { name: string; text: string; me?: boolean; img?: string };
 
 export default function Community({ active, profile }: { active: boolean; profile: Profile | null }) {
   const myName = profile?.first_name || "Du";
+  const meSrc = avatarSrc(profile);
+  const meInit = avatarInitials(profile);
   const [rows, setRows] = useState<Row[]>(() =>
     Array.from({ length: 5 }, (_, k) => ({ name: PEOPLE[k % PEOPLE.length].n, img: PEOPLE[k % PEOPLE.length].img, text: LINES[k] })),
   );
@@ -74,7 +77,12 @@ export default function Community({ active, profile }: { active: boolean; profil
         {rows.map((r, i) =>
           r.me ? (
             <div key={i} className="msg me">
-              <span className="av">{myName.charAt(0).toUpperCase()}</span>
+              {meSrc ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={meSrc} alt="" />
+              ) : (
+                <span className="av">{meInit}</span>
+              )}
               <div><p className="who">{myName}</p><div className="bub">{r.text}</div></div>
             </div>
           ) : (

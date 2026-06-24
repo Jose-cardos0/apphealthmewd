@@ -17,8 +17,18 @@ export default function Scan({ active }: { active: boolean }) {
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [handOn, setHandOn] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
+
+  // Desktop: kein Kamera-Aufruf, sondern Datei-Upload
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 900px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   // Tipp-Hand nur im Ausgangszustand animieren
   useEffect(() => {
@@ -83,7 +93,7 @@ export default function Scan({ active }: { active: boolean }) {
       </div>
 
       <div className="scr-body scan-body" ref={bodyRef}>
-        <input ref={fileRef} type="file" accept="image/*" capture="environment" style={{ display: "none" }} onChange={onFile} />
+        <input ref={fileRef} type="file" accept="image/*" {...(isDesktop ? {} : { capture: "environment" as const })} style={{ display: "none" }} onChange={onFile} />
 
         <div className="vf" onClick={phase === "idle" || phase === "error" ? openCamera : undefined} style={{ cursor: phase === "idle" || phase === "error" ? "pointer" : "default" }}>
           <div className="reticle" />
@@ -111,9 +121,9 @@ export default function Scan({ active }: { active: boolean }) {
         </div>
 
         <p className="scan-hint">
-          {phase === "idle" && "Tippe auf den Teller, um zu fotografieren"}
+          {phase === "idle" && (isDesktop ? "Klicke auf den Teller, um ein Foto hochzuladen" : "Tippe auf den Teller, um zu fotografieren")}
           {phase === "analyzing" && "Analysiere dein Foto …"}
-          {phase === "error" && "Tippe, um ein neues Foto aufzunehmen"}
+          {phase === "error" && (isDesktop ? "Klicke, um ein neues Foto hochzuladen" : "Tippe, um ein neues Foto aufzunehmen")}
           {phase === "result" && result?.gericht}
         </p>
 

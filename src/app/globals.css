@@ -291,6 +291,27 @@ h1.t { font-size: 25px; font-weight: 800; letter-spacing: -0.4px; margin: 2px 0;
 .qz-next { flex: 1; height: 56px; border: none; border-radius: 16px; background: linear-gradient(135deg, #d9b441, var(--accent2)); color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 12px 24px rgba(200, 147, 10, 0.35); }
 .qz-next:disabled { opacity: 0.45; box-shadow: none; cursor: not-allowed; }
 
+/* Profil bearbeiten */
+.pe-inner { max-width: 480px; }
+.pe-form { display: flex; flex-direction: column; overflow-y: auto; flex: 1; padding-right: 2px; }
+.pe-sec { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 800; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.4px; margin: 6px 0 12px; }
+.pe-cols { display: block; }
+@media (min-width: 900px) {
+  .pe-inner { max-width: 940px; }
+  .pe-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; }
+}
+
+/* Editierbarer Avatar (Foto hochladen) */
+.av-edit { position: relative; cursor: pointer; flex-shrink: 0; display: inline-flex; }
+.av-edit .av-cam { position: absolute; right: -2px; bottom: -2px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent2); border: 3px solid #fff; color: #fff; display: flex; align-items: center; justify-content: center; }
+.av-spin { width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.4); border-top-color: #fff; animation: spinBall 0.7s linear infinite; }
+
+/* Lade-Overlay (Esfera) */
+.spin-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(250, 249, 245, 0.9); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+.spin-ball { width: 62px; height: 62px; border-radius: 50%; background: conic-gradient(from 0deg, rgba(163, 124, 31, 0) 0%, var(--accent2) 90%, var(--gold-l) 100%); -webkit-mask: radial-gradient(circle 23px at center, transparent 98%, #000 100%); mask: radial-gradient(circle 23px at center, transparent 98%, #000 100%); animation: spinBall 0.85s linear infinite; }
+@keyframes spinBall { to { transform: rotate(360deg); } }
+.spin-text { color: var(--accent2); font-weight: 700; font-size: 14.5px; }
+
 /* ============ APP SHELL (responsiv) ============ */
 .appshell {
   width: 100%; max-width: 430px; min-height: 100vh; height: 100dvh; max-height: 940px;
@@ -350,7 +371,9 @@ h1.t { font-size: 25px; font-weight: 800; letter-spacing: -0.4px; margin: 2px 0;
   /* etwas luftiger auf dem Desktop */
   .grid2 { grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .grid { grid-template-columns: repeat(4, 1fr); }
-  .vf { max-width: 440px; margin: 18px auto 0; }
+  .vf { width: 440px; max-width: calc(100% - 32px); margin: 18px auto 0; }
+  .result { width: 440px; max-width: calc(100% - 32px); margin-left: auto; margin-right: auto; border-radius: 26px; }
+  .scan-hint { max-width: 440px; margin-left: auto; margin-right: auto; }
   .msg { max-width: 560px; }
 
   /* Auth/Quiz: Inhalt zentriert, kein Phone-Rahmen */
