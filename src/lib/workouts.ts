@@ -2,13 +2,40 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { todayStr } from "@/lib/logs";
-import type { Workout, SavedWorkout, WorkoutLog } from "@/lib/types";
+import type { Workout, SavedWorkout, WorkoutLog, WeeklyPlan, SavedPlan } from "@/lib/types";
 
 async function uid(): Promise<string> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Nicht angemeldet.");
   return user.id;
+}
+
+/** Speichert den Wochenplan (ersetzt den vorherigen) und gibt ihn zurück. */
+export async function saveWeeklyPlan(plan: WeeklyPlan): Promise<SavedPlan> {
+  const supabase = createClient();
+  const user_id = await uid();
+  await supabase.from("workouts").delete().eq("user_id", user_id);
+  const { data, error } = await supabase
+    .from("workouts")
+    .insert({ user_id, title: plan.titel || "Trainingswoche", data: plan })
+    .select("id, data")
+    .single();
+  if (error) throw error;
+  return data as SavedPlan;
+}
+
+/** Lädt den aktuellen (neuesten) Wochenplan, falls vorhanden. */
+export async function getWeeklyPlan(): Promise<SavedPlan | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("workouts")
+    .select("id, data")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as SavedPlan) ?? null;
 }
 
 export async function listWorkouts(): Promise<SavedWorkout[]> {

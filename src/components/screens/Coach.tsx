@@ -1,54 +1,58 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Sparkles, Dumbbell, Trash2, Check, Clock, Flame, Bookmark } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Dumbbell, Check, Flame, Clock, RotateCcw, Moon } from "lucide-react";
 import Icon from "@/components/Icon";
 import Modal from "@/components/Modal";
-import { listWorkouts, addWorkout, removeWorkout, logWorkoutDone, getTodayWorkoutLogs } from "@/lib/workouts";
-import type { Profile, Workout, SavedWorkout, WorkoutLog } from "@/lib/types";
+import LoadingOverlay from "@/components/LoadingOverlay";
+import { saveWeeklyPlan, getWeeklyPlan, logWorkoutDone, getTodayWorkoutLogs } from "@/lib/workouts";
+import type { Profile, WeeklyPlan, WorkoutDay, WorkoutLog } from "@/lib/types";
+
+const DAYS_SHORT = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+const todayIdx = () => (new Date().getDay() + 6) % 7; // Mo=0 … So=6
 
 export default function Coach({ active, profile }: { active: boolean; profile: Profile | null }) {
-  const [wish, setWish] = useState("");
+  const [plan, setPlan] = useState<WeeklyPlan | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<Workout | null>(null);
-  const [resultSavedId, setResultSavedId] = useState<string | null>(null);
-  const [saved, setSaved] = useState<SavedWorkout[]>([]);
+  const [dayIdx, setDayIdx] = useState(todayIdx());
   const [doneToday, setDoneToday] = useState<WorkoutLog[]>([]);
+  const [bigGif, setBigGif] = useState<{ url: string; name: string } | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [busyDone, setBusyDone] = useState(false);
-  const [bigGif, setBigGif] = useState<{ url: string; name: string } | null>(null);
-  const topRef = useRef<HTMLDivElement>(null);
 
   const reload = useCallback(async () => {
     try {
-      const [ws, logs] = await Promise.all([listWorkouts(), getTodayWorkoutLogs()]);
-      setSaved(ws);
+      const [sp, logs] = await Promise.all([getWeeklyPlan(), getTodayWorkoutLogs()]);
+      if (sp?.data) setPlan(sp.data);
       setDoneToday(logs);
     } catch {
       /* offline */
+    } finally {
+      setLoaded(true);
     }
   }, []);
 
   useEffect(() => {
-    if (active) reload();
-  }, [active, reload]);
+    if (active && !loaded) reload();
+  }, [active, loaded, reload]);
 
   async function generate() {
     setError(null);
     setLoading(true);
-    setResult(null);
-    setResultSavedId(null);
     try {
       const res = await fetch("/api/grok/coach", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wish }),
+        body: JSON.stringify({ wish: "" }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Fehler");
-      setResult(normalize(data));
-      setTimeout(() => topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+      const wp = normalize(data);
+      await saveWeeklyPlan(wp).catch(() => {});
+      setPlan(wp);
+      setDayIdx(todayIdx());
     } catch (err) {
       setError("Flufy konnte gerade keinen Plan erstellen. Bitte versuche es erneut. (" + (err instanceof Error ? err.message : "") + ")");
     } finally {
@@ -56,43 +60,19 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
     }
   }
 
-  async function saveResult() {
-    if (!result || resultSavedId) return;
-    try {
-      const row = await addWorkout(result.titel, result);
-      setSaved((p) => [row, ...p]);
-      setResultSavedId(row.id);
-      flash("Trainingsplan gespeichert");
-    } catch {
-      /* ignoriert */
-    }
-  }
-
-  async function markDone(w: Workout, id?: string) {
-    if (busyDone) return;
+  async function markDone(d: WorkoutDay) {
+    if (busyDone || d.rest) return;
     setBusyDone(true);
     try {
-      const log = await logWorkoutDone({ id, title: w.titel, burned_kcal: w.kcal_verbrennung });
+      const kcal = d.kcal_verbrennung || 0;
+      const log = await logWorkoutDone({ title: d.titel || d.tag, burned_kcal: kcal });
       setDoneToday((p) => [log, ...p]);
-      flash(`Stark! ${w.kcal_verbrennung} kcal verbrannt – im Start angerechnet.`);
+      flash(`Stark! ${kcal} kcal verbrannt – im Start angerechnet.`);
     } catch {
       /* ignoriert */
     } finally {
       setBusyDone(false);
     }
-  }
-
-  async function removeSaved(id: string) {
-    setSaved((p) => p.filter((x) => x.id !== id));
-    if (resultSavedId === id) setResultSavedId(null);
-    try { await removeWorkout(id); } catch { /* ignoriert */ }
-  }
-
-  function view(w: SavedWorkout) {
-    setResult(w.data);
-    setResultSavedId(w.id);
-    setError(null);
-    setTimeout(() => topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 40);
   }
 
   function flash(msg: string) {
@@ -102,22 +82,28 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
 
   const burnedToday = doneToday.reduce((s, l) => s + (l.burned_kcal || 0), 0);
   const name = profile?.first_name || "";
+  const day = plan?.tage?.[dayIdx];
 
   return (
     <section className={`screen${active ? " active" : ""}`} id="s-coach">
-      <div className="scr-head">
-        <h1 className="t">Coach</h1>
-        <div className="muted" style={{ fontSize: 13 }}>
-          Flufy erstellt dir ein Workout zum Abnehmen – mit leichtem Cardio.
+      {loading && <LoadingOverlay text="Flufy baut deine Trainingswoche …" />}
+
+      <div className="scr-head" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div>
+          <h1 className="t">Coach</h1>
+          <div className="muted" style={{ fontSize: 13 }}>Dein Wochenplan zum Abnehmen – von Flufy.</div>
         </div>
+        {plan && (
+          <button onClick={generate} style={{ flexShrink: 0, height: 38, padding: "0 14px", borderRadius: 12, border: "1px solid var(--line)", background: "#fff", color: "var(--ink)", fontWeight: 600, fontSize: 13, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <RotateCcw size={15} /> Neue Woche
+          </button>
+        )}
       </div>
 
-      <div className="scr-body" ref={topRef}>
+      <div className="scr-body">
         {burnedToday > 0 && (
           <div className="card" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ width: 38, height: 38, borderRadius: 12, background: "#eef4ef", color: "var(--green)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <Flame size={19} />
-            </span>
+            <span style={{ width: 38, height: 38, borderRadius: 12, background: "#eef4ef", color: "var(--green)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Flame size={19} /></span>
             <div>
               <div style={{ fontSize: 12.5, color: "var(--muted)" }}>Heute verbrannt</div>
               <div style={{ fontWeight: 800, fontSize: 16 }}>{burnedToday.toLocaleString("de-DE")} kcal · {doneToday.length} Training{doneToday.length > 1 ? "s" : ""}</div>
@@ -125,126 +111,89 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
           </div>
         )}
 
-        {/* Eingabe */}
-        <div className="card">
-          <div className="lg-label">Was möchtest du trainieren? (optional)</div>
-          <input
-            className="qz-input"
-            placeholder='z. B. "Ganzkörper 30 Min, zu Hause" oder "Beine & Po"'
-            value={wish}
-            onChange={(e) => setWish(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") generate(); }}
-          />
-          <button className="lg-btn" style={{ marginTop: 14 }} onClick={generate} disabled={loading}>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 8, justifyContent: "center" }}>
-              <Sparkles size={18} /> {loading ? "Flufy erstellt deinen Plan …" : "Trainingsplan erstellen"}
-            </span>
-          </button>
-        </div>
+        {error && <div className="card" style={{ color: "#c0392b", fontSize: 14, fontWeight: 600 }}>{error}</div>}
 
-        {error && (
-          <div className="card" style={{ color: "#c0392b", fontSize: 14, fontWeight: 600 }}>{error}</div>
-        )}
-
-        {/* Ergebnis */}
-        {result && (
-          <div className="card" style={{ animation: "scanIn .35s ease both" }}>
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
-              <div>
-                <h3 style={{ margin: "0 0 6px", fontSize: 18, fontWeight: 800 }}>{result.titel}</h3>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <span className="pill">{result.fokus}</span>
-                  <span className="pill" style={{ background: "#f3f2ef", color: "#3d3a35" }}><Clock size={13} /> {result.dauer_min} Min</span>
-                  <span className="pill" style={{ background: "#fdeeee", color: "#e0484b" }}><Flame size={13} /> ~{result.kcal_verbrennung} kcal</span>
-                </div>
-              </div>
-            </div>
-
-            {result.uebungen.length > 0 && (
-              <>
-                <p className="pe-sec" style={{ marginTop: 18 }}>Übungen</p>
-                {result.uebungen.map((u, i) => (
-                  <div key={i} className="dose" style={{ alignItems: "center" }}>
-                    <span className="di" style={{ background: "#f4f3f0", color: "#3d3a35" }}>{i + 1}</span>
-                    <div className="dinfo">
-                      <div className="dn">{u.name}</div>
-                      <div className="dd">{u.saetze} × {u.wdh}{u.pause_sek ? ` · ${u.pause_sek}s Pause` : ""}{u.hinweis ? ` · ${u.hinweis}` : ""}</div>
-                    </div>
-                    {u.gifUrl && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img className="ex-gif" src={u.gifUrl} alt={u.name} onClick={() => setBigGif({ url: u.gifUrl as string, name: u.name })} />
-                    )}
-                  </div>
-                ))}
-              </>
-            )}
-
-            {result.cardio.length > 0 && (
-              <>
-                <p className="pe-sec" style={{ marginTop: 16 }}>Cardio (leicht)</p>
-                {result.cardio.map((c, i) => (
-                  <div key={i} className="dose" style={{ alignItems: "flex-start" }}>
-                    <span className="di" style={{ background: "#eef4ef", color: "var(--green)" }}><Icon name="ic-flame" /></span>
-                    <div className="dinfo">
-                      <div className="dn">{c.name}</div>
-                      <div className="dd">{c.dauer}{c.hinweis ? ` · ${c.hinweis}` : ""}</div>
-                    </div>
-                  </div>
-                ))}
-              </>
-            )}
-
-            {result.tipps.length > 0 && (
-              <div style={{ marginTop: 14, background: "#faf9f7", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px" }}>
-                {result.tipps.map((t, i) => (
-                  <div key={i} style={{ display: "flex", gap: 9, padding: "4px 0", fontSize: 13.5, color: "var(--ink)" }}>
-                    <span style={{ color: "var(--accent2)", flexShrink: 0 }}>•</span> {t}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-              <button className="lg-btn" style={{ flex: 1, marginTop: 0, height: 50 }} onClick={() => markDone(result, resultSavedId ?? undefined)} disabled={busyDone}>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 8, justifyContent: "center" }}><Check size={18} /> Heute erledigt</span>
-              </button>
-              <button
-                onClick={saveResult}
-                disabled={!!resultSavedId}
-                style={{ flex: "0 0 auto", height: 50, padding: "0 16px", borderRadius: 14, border: "1px solid var(--line)", background: resultSavedId ? "#eef4ef" : "#fff", color: resultSavedId ? "var(--green)" : "var(--ink)", fontWeight: 600, fontSize: 14, cursor: resultSavedId ? "default" : "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}
-              >
-                <Bookmark size={17} /> {resultSavedId ? "Gespeichert" : "Speichern"}
-              </button>
-            </div>
+        {/* Leerer Zustand: runder Button */}
+        {!plan && loaded && !loading && (
+          <div style={{ textAlign: "center", padding: "30px 18px 10px" }}>
+            <button className="coach-fab" onClick={generate} aria-label="Trainingswoche erstellen">
+              <Dumbbell size={42} />
+            </button>
+            <h3 style={{ margin: "20px 0 4px", fontSize: 18, fontWeight: 800 }}>Trainingswoche erstellen</h3>
+            <p className="muted" style={{ fontSize: 14, margin: 0, maxWidth: 300, marginLeft: "auto", marginRight: "auto" }}>
+              Flufy baut dir{ name ? ` ${name}` : "" } eine komplette Woche – basierend auf deinen Angaben, immer mit Fokus aufs Abnehmen.
+            </p>
           </div>
         )}
 
-        {/* Gespeicherte Pläne */}
-        {saved.length > 0 && (
+        {/* Wochenplan */}
+        {plan && (
           <>
-            <div className="sec-title"><span className="h">Meine Trainingspläne</span></div>
-            {saved.map((w) => (
-              <div className="card" key={w.id} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ width: 40, height: 40, borderRadius: 12, background: "#f4f3f0", color: "#3d3a35", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Dumbbell size={19} />
-                </span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: 14.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{w.data.titel}</div>
-                  <div className="muted" style={{ fontSize: 12 }}>{w.data.fokus} · ~{w.data.kcal_verbrennung} kcal</div>
+            <div className="coach-days">
+              {plan.tage.map((d, i) => (
+                <button
+                  key={i}
+                  className={`coach-day${i === dayIdx ? " active" : ""}${d.rest ? " rest" : ""}`}
+                  onClick={() => setDayIdx(i)}
+                >
+                  {DAYS_SHORT[i] ?? d.tag?.slice(0, 2)}
+                  {i === todayIdx() && <span className="coach-today-dot" />}
+                </button>
+              ))}
+            </div>
+
+            {day && (day.rest ? (
+              <div className="card" style={{ textAlign: "center", padding: "30px 18px" }}>
+                <span style={{ display: "inline-flex", width: 46, height: 46, borderRadius: 14, background: "#f4f3f0", color: "#3d3a35", alignItems: "center", justifyContent: "center" }}><Moon size={22} /></span>
+                <h3 style={{ margin: "12px 0 2px", fontSize: 17, fontWeight: 800 }}>{day.tag} · Ruhetag</h3>
+                <p className="muted" style={{ fontSize: 13.5, margin: 0 }}>Erholung gehört dazu. Trink genug Wasser und beweg dich locker.</p>
+              </div>
+            ) : (
+              <div className="card" key={dayIdx} style={{ animation: "scanIn .3s ease both" }}>
+                <h3 style={{ margin: "0 0 6px", fontSize: 18, fontWeight: 800 }}>{day.tag}{day.titel ? ` · ${day.titel}` : ""}</h3>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+                  {day.fokus && <span className="pill">{day.fokus}</span>}
+                  {day.dauer_min ? <span className="pill" style={{ background: "#f3f2ef", color: "#3d3a35" }}><Clock size={13} /> {day.dauer_min} Min</span> : null}
+                  {day.kcal_verbrennung ? <span className="pill" style={{ background: "#fdeeee", color: "#e0484b" }}><Flame size={13} /> ~{day.kcal_verbrennung} kcal</span> : null}
                 </div>
-                <button onClick={() => view(w)} style={{ flexShrink: 0, height: 38, padding: "0 14px", borderRadius: 11, border: "1px solid var(--line)", background: "#fff", color: "var(--ink)", fontWeight: 600, fontSize: 13.5, cursor: "pointer" }}>Ansehen</button>
-                <button onClick={() => markDone(w.data, w.id)} aria-label="Heute erledigt" style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 11, border: "none", background: "var(--btn)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><Check size={17} /></button>
-                <button onClick={() => removeSaved(w.id)} aria-label="Löschen" style={{ flexShrink: 0, border: "none", background: "none", color: "#c6bca2", cursor: "pointer" }}><Trash2 size={17} /></button>
+
+                {(day.uebungen ?? []).length > 0 && (
+                  <>
+                    <p className="pe-sec" style={{ marginTop: 14 }}>Übungen</p>
+                    {(day.uebungen ?? []).map((u, i) => (
+                      <div key={i} className="dose" style={{ alignItems: "center" }}>
+                        <span className="di" style={{ background: "#f4f3f0", color: "#3d3a35" }}>{i + 1}</span>
+                        <div className="dinfo">
+                          <div className="dn">{u.name}</div>
+                          <div className="dd">{u.saetze} × {u.wdh}{u.pause_sek ? ` · ${u.pause_sek}s Pause` : ""}{u.hinweis ? ` · ${u.hinweis}` : ""}</div>
+                        </div>
+                        {u.gifUrl && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img className="ex-gif" src={u.gifUrl} alt={u.name} onClick={() => setBigGif({ url: u.gifUrl as string, name: u.name })} />
+                        )}
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {(day.cardio ?? []).length > 0 && (
+                  <>
+                    <p className="pe-sec" style={{ marginTop: 14 }}>Cardio (leicht)</p>
+                    {(day.cardio ?? []).map((c, i) => (
+                      <div key={i} className="dose" style={{ alignItems: "center" }}>
+                        <span className="di" style={{ background: "#eef4ef", color: "var(--green)" }}><Icon name="ic-flame" /></span>
+                        <div className="dinfo"><div className="dn">{c.name}</div><div className="dd">{c.dauer}{c.hinweis ? ` · ${c.hinweis}` : ""}</div></div>
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                <button className="lg-btn" style={{ marginTop: 16, height: 50 }} onClick={() => markDone(day)} disabled={busyDone}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 8, justifyContent: "center" }}><Check size={18} /> Training erledigt</span>
+                </button>
               </div>
             ))}
           </>
-        )}
-
-        {!result && saved.length === 0 && !loading && (
-          <div className="card" style={{ textAlign: "center", padding: "28px 18px", color: "var(--muted)" }}>
-            <Dumbbell size={28} style={{ opacity: 0.5 }} />
-            <p style={{ margin: "10px 0 0", fontSize: 14 }}>Noch kein Trainingsplan. Lass Flufy einen für dich erstellen{name ? `, ${name}` : ""}!</p>
-          </div>
         )}
 
         <p className="note-disc" style={{ marginTop: 16 }}>
@@ -267,14 +216,20 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
   );
 }
 
-function normalize(d: Partial<Workout>): Workout {
+function normalize(d: Partial<WeeklyPlan>): WeeklyPlan {
+  const tage = Array.isArray(d.tage) ? d.tage : [];
   return {
-    titel: d.titel || "Dein Workout",
+    titel: d.titel || "Deine Trainingswoche",
     fokus: d.fokus || "Abnehmen",
-    dauer_min: Math.max(5, Math.round(Number(d.dauer_min) || 30)),
-    kcal_verbrennung: Math.max(0, Math.round(Number(d.kcal_verbrennung) || 250)),
-    uebungen: Array.isArray(d.uebungen) ? d.uebungen : [],
-    cardio: Array.isArray(d.cardio) ? d.cardio : [],
-    tipps: Array.isArray(d.tipps) ? d.tipps : [],
+    tage: tage.map((t) => ({
+      tag: t.tag || "",
+      rest: !!t.rest,
+      titel: t.titel,
+      fokus: t.fokus,
+      dauer_min: t.dauer_min ? Math.round(Number(t.dauer_min)) : undefined,
+      kcal_verbrennung: t.kcal_verbrennung ? Math.round(Number(t.kcal_verbrennung)) : undefined,
+      uebungen: Array.isArray(t.uebungen) ? t.uebungen : [],
+      cardio: Array.isArray(t.cardio) ? t.cardio : [],
+    })),
   };
 }

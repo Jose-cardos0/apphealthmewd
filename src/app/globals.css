@@ -162,6 +162,20 @@ h1.t { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; margin: 2px 0;
 .ex-gif { width: 54px; height: 54px; border-radius: 11px; object-fit: cover; background: #fff; border: 1px solid var(--line); flex-shrink: 0; cursor: pointer; transition: transform 0.15s; }
 .ex-gif:hover { transform: scale(1.05); }
 
+/* Coach: runder „Montar treino"-Button */
+.coach-fab { width: 120px; height: 120px; border-radius: 50%; border: none; background: var(--btn); color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22); transition: transform 0.15s; }
+.coach-fab:hover { transform: scale(1.04); }
+.coach-fab:active { transform: scale(0.97); }
+
+/* Coach: Wochentage */
+.coach-days { display: flex; gap: 7px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 2px; }
+.coach-day { position: relative; flex: 1 0 42px; height: 46px; border-radius: 13px; border: 1px solid var(--line); background: #fff; color: var(--muted); font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.15s; }
+.coach-day.active { background: var(--btn); color: #fff; border-color: var(--btn); }
+.coach-day.rest { color: #c2bbae; }
+.coach-day.active.rest { color: #fff; }
+.coach-today-dot { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: var(--accent2); }
+.coach-day.active .coach-today-dot { background: #fff; }
+
 /* Coach-Toast */
 .coach-toast { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 160;
   background: var(--btn); color: #fff; font-size: 13.5px; font-weight: 600; padding: 11px 18px; border-radius: 14px;

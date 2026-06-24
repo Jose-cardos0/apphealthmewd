@@ -43,6 +43,20 @@ export type Workout = {
 export type SavedWorkout = { id: string; title: string | null; data: Workout };
 export type WorkoutLog = { id: string; title: string | null; burned_kcal: number; done_on: string };
 
+/** Ein Tag im Wochenplan (Training oder Ruhetag). */
+export type WorkoutDay = {
+  tag: string;
+  rest: boolean;
+  titel?: string;
+  fokus?: string;
+  dauer_min?: number;
+  kcal_verbrennung?: number;
+  uebungen?: WorkoutExercise[];
+  cardio?: WorkoutCardio[];
+};
+export type WeeklyPlan = { titel: string; fokus: string; tage: WorkoutDay[] };
+export type SavedPlan = { id: string; data: WeeklyPlan };
+
 /** Eingaben aus dem Onboarding-Quiz. */
 export type OnboardingData = {
   first_name: string;

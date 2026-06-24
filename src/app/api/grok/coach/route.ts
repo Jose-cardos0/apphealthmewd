@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callGrokJson, requireUser } from "@/lib/grok";
 import { createClient } from "@/lib/supabase/server";
-import type { Workout } from "@/lib/types";
+import type { WeeklyPlan } from "@/lib/types";
 
 export const maxDuration = 60;
 
@@ -25,16 +25,19 @@ async function fetchExerciseGif(term: string): Promise<string | null> {
 const SYSTEM_PROMPT =
   "Du bist Flufy, der KI-Fitness-Coach der App HealthMe GLP-1. Du bist eine KI und stützt dich auf allgemein " +
   "verfügbare Informationen – keine ärztliche oder physiotherapeutische Beratung. " +
-  "Erstelle ein sicheres, alltagstaugliches Trainings-Workout mit Fokus auf ABNEHMEN und LEICHTES CARDIO, " +
+  "Erstelle einen kompletten 7-Tage-Trainingsplan (Montag bis Sonntag) mit Fokus auf ABNEHMEN und LEICHTES CARDIO, " +
   "passend zu den Nutzerdaten (Alter, Geschlecht, Gewicht, Zielgewicht, Aktivitätslevel). " +
-  "Wähle moderate, gelenkschonende Übungen; bei höherem Gewicht/Anfängern entsprechend sanfter. " +
+  "Plane sinnvoll Trainingstage UND Ruhetage (je nach Level 3–5 Trainingstage, der Rest sind Ruhetage). " +
+  "Wähle moderate, gelenkschonende Übungen; bei höherem Gewicht/Anfängern sanfter. " +
   "Antworte AUSSCHLIESSLICH mit gültigem JSON, ohne Markdown, in folgendem Format: " +
-  '{"titel":"Name des Workouts","fokus":"z. B. Ganzkörper · Abnehmen","dauer_min":35,"kcal_verbrennung":280,' +
-  '"uebungen":[{"name":"Übung auf Deutsch","en":"englischer Name der Übung für die Bildsuche, z. B. squat, push up, lunge, plank","saetze":"3","wdh":"12","pause_sek":"45","hinweis":"kurzer Ausführungstipp"}],' +
-  '"cardio":[{"name":"Zügiges Gehen","dauer":"10 Min","hinweis":"locker, du kannst dich noch unterhalten"}],' +
-  '"tipps":["kurzer Tipp 1","kurzer Tipp 2"]}. ' +
-  "kcal_verbrennung = realistische geschätzte Kalorien für die ganze Einheit (ganze Zahl). " +
-  "5–7 Übungen, 1–2 Cardio-Einheiten. Alle Texte auf Deutsch.";
+  '{"titel":"Deine Trainingswoche","fokus":"z. B. Abnehmen · Ganzkörper","tage":[' +
+  '{"tag":"Montag","rest":false,"titel":"Ganzkörper","fokus":"Beine & Core","dauer_min":35,"kcal_verbrennung":280,' +
+  '"uebungen":[{"name":"Übung auf Deutsch","en":"english name for image search, e.g. squat, push up, lunge","saetze":"3","wdh":"12","pause_sek":"45","hinweis":"kurzer Tipp"}],' +
+  '"cardio":[{"name":"Zügiges Gehen","dauer":"10 Min","hinweis":"locker"}]},' +
+  '{"tag":"Dienstag","rest":true}]}. ' +
+  "GENAU 7 Tage von Montag bis Sonntag. Trainingstage: 4–6 Übungen + 1 Cardio-Einheit. " +
+  "Ruhetage nur als {\"tag\":\"...\",\"rest\":true}. kcal_verbrennung = realistische ganze Zahl pro Trainingseinheit. " +
+  "Alle Texte auf Deutsch, nur das Feld en in Englisch.";
 
 export async function POST(req: NextRequest) {
   const user = await requireUser();
@@ -57,10 +60,10 @@ export async function POST(req: NextRequest) {
       : "Keine Profildaten vorhanden.";
 
     const userPrompt =
-      `Nutzerprofil: ${profilLine}` +
-      (wish && wish.trim() ? ` Wunsch des Nutzers: "${wish.trim()}".` : " Erstelle ein passendes Workout zum Abnehmen.");
+      `Nutzerprofil: ${profilLine} Erstelle den kompletten Wochenplan zum Abnehmen.` +
+      (wish && wish.trim() ? ` Zusätzlicher Wunsch: "${wish.trim()}".` : "");
 
-    const workout = await callGrokJson<Workout>({
+    const plan = await callGrokJson<WeeklyPlan>({
       temperature: 0.6,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
@@ -68,16 +71,18 @@ export async function POST(req: NextRequest) {
       ],
     });
 
-    // Animierte GIFs aus der ExerciseDB anreichern (nur wenn RAPIDAPI_KEY gesetzt)
-    if (process.env.RAPIDAPI_KEY && Array.isArray(workout?.uebungen)) {
-      await Promise.all(
-        workout.uebungen.map(async (u) => {
-          u.gifUrl = await fetchExerciseGif(u.en || u.name);
-        }),
-      );
+    // GIFs anreichern – Übungen über alle Tage sammeln, pro Suchbegriff nur EINMAL abfragen.
+    if (process.env.RAPIDAPI_KEY && Array.isArray(plan?.tage)) {
+      const allEx = plan.tage.flatMap((d) => (Array.isArray(d.uebungen) ? d.uebungen : []));
+      const terms = Array.from(new Set(allEx.map((u) => (u.en || u.name || "").toLowerCase()).filter(Boolean)));
+      const gifMap = new Map<string, string | null>();
+      await Promise.all(terms.map(async (t) => gifMap.set(t, await fetchExerciseGif(t))));
+      for (const u of allEx) {
+        u.gifUrl = gifMap.get((u.en || u.name || "").toLowerCase()) ?? null;
+      }
     }
 
-    return NextResponse.json(workout);
+    return NextResponse.json(plan);
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unbekannter Fehler";
     return NextResponse.json({ error: msg }, { status: 502 });
