@@ -16,31 +16,6 @@ body {
   background: radial-gradient(120% 85% at 50% 0%, #fffdf6 0%, #fdf6e3 45%, #faedc6 100%);
 }
 
-.lux-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(70px);
-  opacity: 0.45;
-  background: radial-gradient(circle at 30% 30%, #fbe8a8, #e6b325 60%, transparent 75%);
-  will-change: transform;
-}
-.orb1 { width: 440px; height: 440px; top: -130px; left: -110px; animation: floatA 16s ease-in-out infinite; }
-.orb2 { width: 360px; height: 360px; top: 26%; right: -130px; opacity: 0.34; animation: floatB 20s ease-in-out infinite; }
-.orb3 { width: 300px; height: 300px; bottom: 6%; left: 6%; opacity: 0.30; animation: floatA 24s ease-in-out infinite reverse; }
-
-.lux-shimmer {
-  position: absolute;
-  top: -20%;
-  left: 0;
-  width: 55%;
-  height: 140%;
-  background: linear-gradient(100deg, transparent 0%, rgba(255, 248, 224, 0.65) 50%, transparent 100%);
-  transform: translateX(-140%) rotate(8deg);
-  mix-blend-mode: screen;
-  animation: shimmer 11s ease-in-out infinite;
-  will-change: transform;
-}
-
 /* ===== Goldene Lichtwellen (Gold Rays) ===== */
 .gold-rays {
   position: absolute;
@@ -64,10 +39,6 @@ body {
   display: block;
 }
 
-@keyframes floatA { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(42px, -32px); } }
-@keyframes floatB { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-52px, 30px); } }
-@keyframes shimmer { 0% { transform: translateX(-140%) rotate(8deg); } 60%, 100% { transform: translateX(260%) rotate(8deg); } }
-
 @media (prefers-reduced-motion: reduce) {
-  .lux-orb, .lux-shimmer, .gold-rays use { animation: none !important; }
+  .gold-rays use { animation: none !important; }
 }

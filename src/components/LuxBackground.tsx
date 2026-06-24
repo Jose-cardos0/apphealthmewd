@@ -5,11 +5,6 @@
 export default function LuxBackground() {
   return (
     <div id="lux-bg" aria-hidden="true">
-      <div className="lux-orb orb1" />
-      <div className="lux-orb orb2" />
-      <div className="lux-orb orb3" />
-      <div className="lux-shimmer" />
-
       {/* Goldene Lichtwellen */}
       <div className="gold-rays">
         <svg viewBox="0 95 1440 110">
