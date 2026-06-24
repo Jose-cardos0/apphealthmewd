@@ -57,10 +57,10 @@ export default function AppClient({ profile }: { profile: Profile | null }) {
             >
               <span className="fab-btn">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="fab-img" src="/camera1.png" alt="" />
+                <img className="fab-img" src="/prato.png" alt="" />
               </span>
               <span className="spark">
-                <Icon name="ic-spark" className="i fill" />
+                <Icon name="ic-cam" />
               </span>
               <span>{t.label}</span>
             </button>
