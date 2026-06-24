@@ -7,7 +7,7 @@ import type { Profile } from "@/lib/types";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const FLUFY_IMG = "/mascote/flufyfeliz.png";
+const FLUFY_IMG = "/mascote/fluflyhappy.png";
 
 export default function Nutrition({ active, profile }: { active: boolean; profile: Profile | null }) {
   const name = profile?.first_name || "";
