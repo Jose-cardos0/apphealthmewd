@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Hand, Cake, User, Ruler, Scale, Target, Activity, Syringe, CalendarDays,
+  Hand, Cake, User, Ruler, Scale, Activity, Syringe, CalendarDays,
   Pill, Clock, Sun, Sofa, Footprints, Dumbbell, ArrowLeft, type LucideIcon,
 } from "lucide-react";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import { defaultAvatar } from "@/lib/avatar";
 
 type Data = {
   first_name: string; last_name: string; age: string; city: string; gender: string;
@@ -118,7 +119,13 @@ export default function OnboardingPage() {
           )}
 
           {step === 2 && (
-            <Step icon={User} q="Dein Geschlecht" hint="Für eine genauere Berechnung deiner Werte.">
+            <Step icon={User} q="Dein Geschlecht" hint="Wir wählen dafür ein passendes Profilbild – ändern kannst du es später jederzeit.">
+              {(d.gender === "Mann" || d.gender === "Frau") && (
+                <div style={{ textAlign: "center", marginBottom: 18 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={defaultAvatar(d.gender, Number(d.age)) ?? ""} alt="" style={{ width: 124, height: 124, borderRadius: "50%", objectFit: "cover", boxShadow: "0 10px 24px rgba(0,0,0,0.14)" }} />
+                </div>
+              )}
               <Options options={GENDERS.map((v) => ({ value: v }))} selected={d.gender} onSelect={(v) => set({ gender: v })} />
             </Step>
           )}
@@ -136,7 +143,7 @@ export default function OnboardingPage() {
           )}
 
           {step === 5 && (
-            <Step icon={Target} q="Dein Wunschgewicht" hint="Dein Ziel in Kilogramm.">
+            <Step image="/mascote/foguete1.png" q="Dein Wunschgewicht" hint="Dein Ziel in Kilogramm.">
               <Unit suffix="kg"><input className="qz-input" type="number" inputMode="decimal" placeholder="z. B. 70" value={d.goal_weight_kg} onChange={(e) => set({ goal_weight_kg: e.target.value })} autoFocus /></Unit>
             </Step>
           )}
@@ -188,10 +195,17 @@ export default function OnboardingPage() {
   );
 }
 
-function Step({ icon: I, q, hint, children, animate }: { icon: LucideIcon; q: string; hint: string; children: React.ReactNode; animate?: boolean }) {
+function Step({ icon: I, image, q, hint, children, animate }: { icon?: LucideIcon; image?: string; q: string; hint: string; children: React.ReactNode; animate?: boolean }) {
   return (
     <div>
-      <div className={`qz-ico${animate ? " wave" : ""}`}><I size={30} /></div>
+      {image ? (
+        <div className="qz-ico-img">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={image} alt="" className="qz-float-img" />
+        </div>
+      ) : I ? (
+        <div className={`qz-ico${animate ? " wave" : ""}`}><I size={30} /></div>
+      ) : null}
       <h2 className="qz-q">{q}</h2>
       <p className="qz-hint">{hint}</p>
       {children}
