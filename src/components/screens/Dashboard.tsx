@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Pencil } from "lucide-react";
 import Icon from "@/components/Icon";
 import { dashboardMetrics, bmiCategory, de } from "@/lib/metrics";
 import type { Profile } from "@/lib/types";
@@ -14,6 +16,7 @@ export default function Dashboard({
   profile: Profile | null;
   onScan: () => void;
 }) {
+  const router = useRouter();
   const m = dashboardMetrics(profile);
   const cat = bmiCategory(m.bmi);
   const firstName = profile?.first_name || "willkommen";
@@ -57,7 +60,17 @@ export default function Dashboard({
       <div className="scr-body">
         <div className="hero">
           <div className="info">
-            <div className="name">{fullName}</div>
+            <div className="name" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {fullName}
+              <button
+                onClick={() => router.push("/profil")}
+                aria-label="Daten bearbeiten"
+                title="Daten bearbeiten"
+                style={{ border: "none", background: "#f5eed9", color: "var(--accent2)", width: 28, height: 28, borderRadius: 9, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
+              >
+                <Pencil size={15} />
+              </button>
+            </div>
             {sub && <div className="sub">{sub}</div>}
             {m.goalDiff > 0 && (
               <span className="pill" style={{ marginTop: 8 }}>

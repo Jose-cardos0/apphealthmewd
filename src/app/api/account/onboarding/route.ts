@@ -28,6 +28,17 @@ export async function POST(req: NextRequest) {
     return Number.isFinite(n) ? n : null;
   };
 
+  // Bei einer Bearbeitung das ursprüngliche Startgewicht erhalten,
+  // damit der Fortschritt nicht zurückgesetzt wird.
+  const { data: existing } = await supabase
+    .from("profiles")
+    .select("start_weight_kg")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const enteredWeight = num(body.start_weight_kg);
+  const startWeight = existing?.start_weight_kg ?? enteredWeight;
+
   const profile = {
     user_id: user.id,
     first_name: (body.first_name || "").trim() || null,
@@ -36,8 +47,8 @@ export async function POST(req: NextRequest) {
     city: (body.city || "").trim() || null,
     gender: body.gender || null,
     height_cm: num(body.height_cm),
-    start_weight_kg: num(body.start_weight_kg),
-    current_weight_kg: num(body.start_weight_kg),
+    start_weight_kg: startWeight,
+    current_weight_kg: enteredWeight,
     goal_weight_kg: num(body.goal_weight_kg),
     activity_level: body.activity_level || null,
     glp1_medication: body.glp1_medication || null,

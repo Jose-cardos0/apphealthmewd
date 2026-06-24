@@ -38,7 +38,7 @@ export default function AuthDecor() {
       </div>
 
       <div className="lg-rays" aria-hidden="true">
-        <svg viewBox="0 0 760 240" preserveAspectRatio="xMidYMax meet">
+        <svg viewBox="0 0 760 240" preserveAspectRatio="none">
           <defs>
             <linearGradient id="rg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="360" y2="0" spreadMethod="repeat">
               <stop offset="0" stopColor="#e6962f" stopOpacity=".35" />
