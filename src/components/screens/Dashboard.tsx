@@ -210,13 +210,13 @@ export default function Dashboard({
                   >
                     {de(m.current ?? m.start)}&nbsp;kg <Pencil size={12} style={{ opacity: 0.6 }} />
                   </b>
-                  <span className="arrow" style={{ alignSelf: "center" }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={rocket === 0 ? "/mascote/foguete0.png" : "/mascote/foguete1.png"} alt="" style={{ width: 42, height: 42, objectFit: "contain", display: "block" }} />
-                  </span>
                   <b>{de(m.goal)}&nbsp;kg</b>
                 </div>
-                <div className="track"><i style={{ width: `${trackW}%` }} /></div>
+                <div className="track-wrap">
+                  <div className="track"><i style={{ width: `${trackW}%` }} /></div>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className="weight-rocket" src={rocket === 0 ? "/mascote/foguete0.png" : "/mascote/foguete1.png"} alt="" style={{ left: `${trackW}%` }} />
+                </div>
                 <div className="muted" style={{ fontSize: 11.5, marginTop: 5 }}>
                   {de(m.lost)}&nbsp;kg geschafft · noch {de(m.toGo)}&nbsp;kg
                 </div>
