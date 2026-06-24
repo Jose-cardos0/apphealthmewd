@@ -338,10 +338,15 @@ h1.t { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; margin: 2px 0;
 .qz-step { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 22px; }
 .qz-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; }
 .qz-ico { width: 56px; height: 56px; border-radius: 16px; background: #fdf2d6; color: var(--accent2); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
-.qz-ico-img { margin-bottom: 12px; }
-.qz-float-img { width: 70px; height: auto; display: block; animation: qzFloat 2.6s ease-in-out infinite; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.14)); }
-@keyframes qzFloat { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-11px) rotate(2deg); } }
-@media (prefers-reduced-motion: reduce) { .qz-float-img { animation: none; } }
+.qz-ico-img { margin-bottom: 12px; text-align: center; }
+.qz-float-img { width: 108px; height: auto; margin: 0 auto; display: block; animation: qzFloat 2.6s ease-in-out infinite; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.16)); }
+@keyframes qzFloat { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-12px) rotate(2deg); } }
+
+/* Avatar im Quiz (Geschlecht) – Pop-Animation aus dem Hintergrund */
+.qz-avatar { width: 116px; margin: 0 auto 14px; }
+.qz-avatar img { width: 116px; height: 116px; border-radius: 50%; object-fit: cover; display: block; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16); animation: qzAvatarIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@keyframes qzAvatarIn { 0% { opacity: 0; transform: scale(0.3); } 60% { opacity: 1; transform: scale(1.08); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .qz-float-img, .qz-avatar img { animation: none; } }
 .qz-ico.wave svg { transform-origin: 55% 80%; animation: handWave 2.4s ease-in-out infinite; }
 @keyframes handWave {
   0%, 55%, 100% { transform: rotate(0deg); }

@@ -119,13 +119,12 @@ export default function OnboardingPage() {
           )}
 
           {step === 2 && (
-            <Step icon={User} q="Dein Geschlecht" hint="Wir wählen dafür ein passendes Profilbild – ändern kannst du es später jederzeit.">
-              {(d.gender === "Mann" || d.gender === "Frau") && (
-                <div style={{ textAlign: "center", marginBottom: 18 }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={defaultAvatar(d.gender, Number(d.age)) ?? ""} alt="" style={{ width: 124, height: 124, borderRadius: "50%", objectFit: "cover", boxShadow: "0 10px 24px rgba(0,0,0,0.14)" }} />
-                </div>
-              )}
+            <Step
+              icon={User}
+              avatar={d.gender === "Mann" || d.gender === "Frau" ? defaultAvatar(d.gender, Number(d.age)) ?? undefined : undefined}
+              q="Dein Geschlecht"
+              hint="Wir wählen dafür ein passendes Profilbild – ändern kannst du es später jederzeit."
+            >
               <Options options={GENDERS.map((v) => ({ value: v }))} selected={d.gender} onSelect={(v) => set({ gender: v })} />
             </Step>
           )}
@@ -195,10 +194,15 @@ export default function OnboardingPage() {
   );
 }
 
-function Step({ icon: I, image, q, hint, children, animate }: { icon?: LucideIcon; image?: string; q: string; hint: string; children: React.ReactNode; animate?: boolean }) {
+function Step({ icon: I, image, avatar, q, hint, children, animate }: { icon?: LucideIcon; image?: string; avatar?: string; q: string; hint: string; children: React.ReactNode; animate?: boolean }) {
   return (
     <div>
-      {image ? (
+      {avatar ? (
+        <div className="qz-avatar">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img key={avatar} src={avatar} alt="" />
+        </div>
+      ) : image ? (
         <div className="qz-ico-img">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={image} alt="" className="qz-float-img" />
