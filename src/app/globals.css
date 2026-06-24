@@ -350,10 +350,22 @@ h1.t { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; margin: 2px 0;
 .av-spin { width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.4); border-top-color: #fff; animation: spinBall 0.7s linear infinite; }
 
 /* Lade-Overlay (Esfera) */
-.spin-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(250, 249, 245, 0.9); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
-.spin-ball { width: 62px; height: 62px; border-radius: 50%; background: conic-gradient(from 0deg, rgba(163, 124, 31, 0) 0%, var(--accent2) 90%, var(--gold-l) 100%); -webkit-mask: radial-gradient(circle 23px at center, transparent 98%, #000 100%); mask: radial-gradient(circle 23px at center, transparent 98%, #000 100%); animation: spinBall 0.85s linear infinite; }
+.spin-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(250, 249, 245, 0.92); -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
 @keyframes spinBall { to { transform: rotate(360deg); } }
-.spin-text { color: var(--accent2); font-weight: 700; font-size: 14.5px; }
+.spin-text { color: var(--accent2); font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; }
+
+/* Hüpfendes Maskottchen-Loader */
+.loader-mascot { position: relative; width: 130px; height: 130px; display: flex; align-items: flex-end; justify-content: center; }
+.loader-mascot img { width: 100px; height: auto; position: relative; z-index: 1; animation: mascotBob 1.25s ease-in-out infinite; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.12)); }
+.loader-glow { position: absolute; left: 50%; bottom: 6px; width: 78px; height: 16px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(ellipse, rgba(163, 124, 31, 0.28), transparent 70%); animation: loaderShadow 1.25s ease-in-out infinite; }
+@keyframes mascotBob { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-16px) rotate(3deg); } }
+@keyframes loaderShadow { 0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.85; } 50% { transform: translateX(-50%) scale(0.7); opacity: 0.4; } }
+.loader-dots { display: inline-flex; gap: 3px; margin-left: 5px; }
+.loader-dots i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: 0.3; animation: dotFade 1.3s ease-in-out infinite; }
+.loader-dots i:nth-child(2) { animation-delay: 0.18s; }
+.loader-dots i:nth-child(3) { animation-delay: 0.36s; }
+@keyframes dotFade { 0%, 100% { opacity: 0.25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .loader-mascot img, .loader-glow, .loader-dots i { animation: none; } }
 
 /* Modal */
 .modal-overlay { position: fixed; inset: 0; z-index: 150; background: rgba(20, 18, 16, 0.45); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 22px; animation: scrIn 0.25s ease both; }
