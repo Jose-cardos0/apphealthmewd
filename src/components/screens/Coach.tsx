@@ -25,7 +25,8 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
   const reload = useCallback(async () => {
     try {
       const [sp, logs] = await Promise.all([getWeeklyPlan(), getTodayWorkoutLogs()]);
-      if (sp?.data) setPlan(sp.data);
+      // Nur gültige Wochenpläne übernehmen (alte Einzel-Workouts ignorieren)
+      if (sp?.data && Array.isArray(sp.data.tage) && sp.data.tage.length > 0) setPlan(sp.data);
       setDoneToday(logs);
     } catch {
       /* offline */
@@ -130,7 +131,7 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
         {plan && (
           <>
             <div className="coach-days">
-              {plan.tage.map((d, i) => (
+              {(plan.tage ?? []).map((d, i) => (
                 <button
                   key={i}
                   className={`coach-day${i === dayIdx ? " active" : ""}${d.rest ? " rest" : ""}`}
