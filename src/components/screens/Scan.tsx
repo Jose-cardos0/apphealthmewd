@@ -135,6 +135,8 @@ export default function Scan({ active, profile }: { active: boolean; profile: Pr
       <div className="scr-body scan-body" ref={bodyRef}>
         <input ref={fileRef} type="file" accept="image/*" {...(isDesktop ? {} : { capture: "environment" as const })} style={{ display: "none" }} onChange={onFile} />
 
+        <div className={`scan-layout${phase === "result" || phase === "error" ? " has-side" : ""}`}>
+        <div className="scan-left">
         <div className="vf" onClick={phase === "idle" || phase === "error" ? openCamera : undefined} style={{ cursor: phase === "idle" || phase === "error" ? "pointer" : "default" }}>
           <div className="reticle" />
           <div className="c2" />
@@ -163,6 +165,10 @@ export default function Scan({ active, profile }: { active: boolean; profile: Pr
           {phase === "error" && (isDesktop ? "Klicke, um ein neues Foto hochzuladen" : "Tippe, um ein neues Foto aufzunehmen")}
           {phase === "result" && result?.gericht}
         </p>
+        </div>
+
+        {(phase === "result" || phase === "error") && (
+        <div className="scan-right">
 
         {phase === "error" && error && (
           <div className="result" style={{ borderTop: "1px solid var(--line)" }}>
@@ -217,6 +223,10 @@ export default function Scan({ active, profile }: { active: boolean; profile: Pr
             </button>
           </div>
         )}
+
+        </div>
+        )}
+        </div>
       </div>
 
       {alert && <Alert title={alert.title} message={alert.message} onClose={() => setAlert(null)} />}
