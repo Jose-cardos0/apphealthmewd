@@ -52,12 +52,6 @@ export default function Dashboard({
   const [flash, setFlash] = useState<{ key: number; text: string; color: string } | null>(null);
   const flashKey = useRef(0);
   const [alert, setAlert] = useState<{ title: string; message: string; tone: "warn" | "info" } | null>(null);
-  const [rocket, setRocket] = useState(0);
-
-  useEffect(() => {
-    const t = setInterval(() => setRocket((r) => (r === 0 ? 1 : 0)), 500);
-    return () => clearInterval(t);
-  }, []);
 
   const reload = useCallback(async () => {
     try {
@@ -215,7 +209,7 @@ export default function Dashboard({
                 <div className="track-wrap">
                   <div className="track"><i style={{ width: `${trackW}%` }} /></div>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="weight-rocket" src={rocket === 0 ? "/mascote/foguete0.png" : "/mascote/foguete1.png"} alt="" style={{ left: `${trackW}%` }} />
+                  <img className="weight-rocket" src="/mascote/fluflyhappy.png" alt="" style={{ left: `${trackW}%` }} />
                 </div>
                 <div className="muted" style={{ fontSize: 11.5, marginTop: 5 }}>
                   {de(m.lost)}&nbsp;kg geschafft · noch {de(m.toGo)}&nbsp;kg
