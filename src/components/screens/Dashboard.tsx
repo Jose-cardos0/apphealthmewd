@@ -159,6 +159,7 @@ export default function Dashboard({
   }
 
   const waterL = water / 1000;
+  const overKcal = kcal > kcalGoal;
 
   return (
     <section className={`screen${active ? " active" : ""}`} id="s-dashboard">
@@ -232,10 +233,23 @@ export default function Dashboard({
             <span className={`tag ${cat.tag}`}>{cat.label}</span>
           </div>
 
-          <div className="stat">
+          <div
+            className="stat"
+            style={overKcal ? {
+              backgroundColor: "#fdeeee",
+              borderColor: "#f1c2c2",
+              backgroundImage: "url(/mascote/flyfibravo.png)",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right -6px bottom -6px",
+              backgroundSize: "76px",
+            } : undefined}
+          >
             <button className="stat-add" onClick={() => setModal("kcal")} aria-label="Kalorien hinzufügen"><Plus size={17} /></button>
             <div className="h"><span className="ic" style={{ background: "#f4f3f0", color: "#3d3a35" }}><Icon name="ic-flame" style={{ width: 16 }} /></span> Kalorien heute</div>
-            <div className="v">{kcal.toLocaleString("de-DE")} <small>/ {kcalGoal.toLocaleString("de-DE")}</small></div>
+            <div className="v">
+              <span style={{ color: overKcal ? "#e0484b" : undefined }}>{kcal.toLocaleString("de-DE")}</span>{" "}
+              <small>/ {kcalGoal.toLocaleString("de-DE")}</small>
+            </div>
           </div>
 
           <div className="stat">
