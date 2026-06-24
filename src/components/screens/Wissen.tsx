@@ -33,10 +33,10 @@ export default function Wissen({ active, profile }: { active: boolean; profile: 
       </div>
       <div className="scr-body">
         <div className="grid">
-          <Mcard active={active} icon="ic-flame" iconBg="#fde2e1" title="Kalorien" sub="Tagesziel" num={kcal} color="var(--red)" p={78} />
-          <Mcard active={active} icon="ic-bolt" iconBg="#ffe9cc" title="Protein" sub="Magermasse" num={protein} suffix="g" color="var(--orange)" p={72} />
-          <Mcard active={active} icon="ic-grain" iconBg="#e3f6e6" title="Kohlenhydrate" sub="Energie" num={carbs} suffix="g" color="var(--green)" p={60} />
-          <Mcard active={active} icon="ic-drop" iconBg="#fff3cc" title="Fett" sub="Hormone" num={fat} suffix="g" color="var(--yellow)" p={55} />
+          <Mcard active={active} icon="ic-flame" iconBg="#f4f3f0" title="Kalorien" sub="Tagesziel" num={kcal} color="var(--red)" p={78} />
+          <Mcard active={active} icon="ic-bolt" iconBg="#f4f3f0" title="Protein" sub="Magermasse" num={protein} suffix="g" color="var(--orange)" p={72} />
+          <Mcard active={active} icon="ic-grain" iconBg="#f4f3f0" title="Kohlenhydrate" sub="Energie" num={carbs} suffix="g" color="var(--green)" p={60} />
+          <Mcard active={active} icon="ic-drop" iconBg="#f4f3f0" title="Fett" sub="Hormone" num={fat} suffix="g" color="var(--yellow)" p={55} />
         </div>
 
         <div className="card">

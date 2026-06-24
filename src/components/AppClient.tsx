@@ -56,8 +56,8 @@ export default function AppClient({ profile }: { profile: Profile | null }) {
               onClick={() => setScreen(t.key)}
             >
               <span className="fab-btn">
-                <span className="sweep" />
-                <Icon name={t.icon} />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="fab-img" src="/camera1.png" alt="" />
               </span>
               <span className="spark">
                 <Icon name="ic-spark" className="i fill" />

@@ -165,7 +165,7 @@ export default function Dashboard({
                 onClick={() => router.push("/profil")}
                 aria-label="Daten bearbeiten"
                 title="Daten bearbeiten"
-                style={{ border: "none", background: "#f5eed9", color: "var(--accent2)", width: 28, height: 28, borderRadius: 9, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
+                style={{ border: "1px solid var(--line)", background: "#fff", color: "#3d3a35", width: 28, height: 28, borderRadius: 9, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
               >
                 <Pencil size={15} />
               </button>
@@ -210,25 +210,25 @@ export default function Dashboard({
 
         <div className="grid2">
           <div className="stat">
-            <div className="h"><span className="ic" style={{ background: "#fde2e1", color: "#e0484b" }}><Icon name="ic-body" style={{ width: 16 }} /></span> BMI</div>
+            <div className="h"><span className="ic" style={{ background: "#f4f3f0", color: "#3d3a35" }}><Icon name="ic-body" style={{ width: 16 }} /></span> BMI</div>
             <div className="v">{m.bmi != null ? de(m.bmi) : "—"}</div>
             <span className={`tag ${cat.tag}`}>{cat.label}</span>
           </div>
 
           <div className="stat">
             <button className="stat-add" onClick={() => setModal("kcal")} aria-label="Kalorien hinzufügen"><Plus size={17} /></button>
-            <div className="h"><span className="ic" style={{ background: "#fde2e1", color: "#ff6b3d" }}><Icon name="ic-flame" style={{ width: 16 }} /></span> Kalorien heute</div>
+            <div className="h"><span className="ic" style={{ background: "#f4f3f0", color: "#3d3a35" }}><Icon name="ic-flame" style={{ width: 16 }} /></span> Kalorien heute</div>
             <div className="v">{kcal.toLocaleString("de-DE")} <small>/ {kcalGoal.toLocaleString("de-DE")}</small></div>
           </div>
 
           <div className="stat">
             <button className="stat-add" onClick={() => setModal("water")} aria-label="Wasser hinzufügen"><Plus size={17} /></button>
-            <div className="h"><span className="ic" style={{ background: "#d9f0fb", color: "#2b9fd6" }}><Icon name="ic-drop" style={{ width: 16 }} /></span> Wasser</div>
+            <div className="h"><span className="ic" style={{ background: "#f4f3f0", color: "#3d3a35" }}><Icon name="ic-drop" style={{ width: 16 }} /></span> Wasser</div>
             <div className="v">{de(waterL, 1)} <small>/ {de(waterGoalL, 1)} L</small></div>
           </div>
 
           <div className="stat">
-            <div className="h"><span className="ic" style={{ background: "#f5eed9", color: "var(--accent2)" }}><Icon name="ic-spark" style={{ width: 16 }} /></span> Dosen</div>
+            <div className="h"><span className="ic" style={{ background: "#f4f3f0", color: "#3d3a35" }}><Icon name="ic-spark" style={{ width: 16 }} /></span> Dosen</div>
             <div className="v">{doses.length} <small>gesamt</small></div>
           </div>
         </div>
@@ -242,7 +242,7 @@ export default function Dashboard({
         <div className="card">
           {med && (
             <div className="dose next">
-              <span className="di"><Icon name="ic-syringe" /></span>
+              <span className="di di-vial">{/* eslint-disable-next-line @next/next/no-img-element */}<img className="di-img" src="/glp1.png" alt="" /></span>
               <div className="dinfo">
                 <div className="dn">Nächste Dosis · {med}</div>
                 <div className="dd">{freq} · {profDose}</div>
@@ -253,7 +253,7 @@ export default function Dashboard({
 
           {doses.map((d) => (
             <div className="dose done" key={d.id}>
-              <span className="di"><Icon name="ic-check-c" /></span>
+              <span className="di di-vial">{/* eslint-disable-next-line @next/next/no-img-element */}<img className="di-img" src="/glp1.png" alt="" /></span>
               <div className="dinfo">
                 <div className="dn">{d.medication || "Dosis"} · {d.dose || ""}</div>
                 <div className="dd">genommen am {formatDate(d.taken_on)}</div>
@@ -266,7 +266,7 @@ export default function Dashboard({
 
           {!med && doses.length === 0 && (
             <div className="dose next">
-              <span className="di"><Icon name="ic-syringe" /></span>
+              <span className="di di-vial">{/* eslint-disable-next-line @next/next/no-img-element */}<img className="di-img" src="/glp1.png" alt="" /></span>
               <div className="dinfo">
                 <div className="dn">Noch keine Dosis eingetragen</div>
                 <div className="dd">Tippe oben auf „+ Dosis“, um deine erste Injektion zu protokollieren.</div>
@@ -295,10 +295,9 @@ export default function Dashboard({
           </>
         )}
 
-        <button onClick={onScan} className="card" style={{ width: "100%", textAlign: "left", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 14, background: "linear-gradient(140deg,#fff,#fbf6ea)" }}>
-          <span style={{ width: 44, height: 44, borderRadius: 13, background: "linear-gradient(140deg,#e8ce78,var(--accent2))", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Icon name="ic-camai" style={{ width: 22, height: 22 }} />
-          </span>
+        <button onClick={onScan} className="card" style={{ width: "100%", textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 14, background: "#fff" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/camera1.png" alt="" style={{ width: 46, height: 46, borderRadius: 14, objectFit: "cover", flexShrink: 0 }} />
           <span style={{ flex: 1 }}>
             <span style={{ display: "block", fontWeight: 800, fontSize: 14.5 }}>Mahlzeit scannen</span>
             <span className="muted" style={{ fontSize: 12 }}>Kalorien & Nährwerte in Sekunden</span>
