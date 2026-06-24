@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Check, Plus } from "lucide-react";
 import Icon from "@/components/Icon";
+import { getDailyLog, saveDailyLog } from "@/lib/logs";
 
 type Food = { name: string; kcal: number; detail: string };
 type Summe = { kcal: number; protein_g: number; kohlenhydrate_g: number; fett_g: number; ballaststoffe_g?: number };
@@ -9,7 +11,22 @@ type Result = { erkannt: boolean; gericht?: string; lebensmittel?: Food[]; summe
 
 type Phase = "idle" | "analyzing" | "result" | "error";
 
-const FOOD_COLORS = ["#ffcaa8", "#8fd6a0", "#6fc27a", "#e8c071", "#f0a35a", "#a06bd6", "#5ac8fa"];
+/** Ordnet einem Lebensmittel anhand des Namens Icon + Farbe zu. */
+function categorize(name: string): { icon: string; bg: string } {
+  const n = name.toLowerCase();
+  const has = (...w: string[]) => w.some((x) => n.includes(x));
+  if (has("fleisch", "hähnch", "hahnch", "rind", "pute", "huhn", "fisch", "lachs", "thunfisch", "ei", "schinken", "wurst", "steak", "schwein"))
+    return { icon: "ic-bolt", bg: "#ffcaa8" };
+  if (has("reis", "nudel", "pasta", "kartoffel", "pommes", "brot", "brötchen", "bulgur", "couscous", "quinoa", "haferfl", "müsli", "teig"))
+    return { icon: "ic-grain", bg: "#e8c071" };
+  if (has("gemüse", "gemuse", "brokkoli", "salat", "paprika", "zwiebel", "karotte", "möhre", "mohre", "spinat", "erbsen", "tomate", "gurke", "bohnen", "mais", "avocado", "pilz"))
+    return { icon: "ic-leaf", bg: "#8fd6a0" };
+  if (has("apfel", "banane", "beere", "obst", "frucht", "orange", "mango", "ananas"))
+    return { icon: "ic-carrot", bg: "#f0a35a" };
+  if (has("käse", "kase", "joghurt", "milch", "quark", "sahne", "butter", "öl", "ol"))
+    return { icon: "ic-drop", bg: "#a06bd6" };
+  return { icon: "ic-leaf", bg: "#6fc27a" };
+}
 
 export default function Scan({ active }: { active: boolean }) {
   const [phase, setPhase] = useState<Phase>("idle");
@@ -18,6 +35,7 @@ export default function Scan({ active }: { active: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [handOn, setHandOn] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [added, setAdded] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
 
@@ -81,6 +99,17 @@ export default function Scan({ active }: { active: boolean }) {
     setShot(null);
     setResult(null);
     setError(null);
+    setAdded(false);
+  }
+
+  async function addToToday(kcal: number) {
+    setAdded(true);
+    try {
+      const log = await getDailyLog();
+      await saveDailyLog(log.water_ml, log.kcal + kcal);
+    } catch {
+      /* ignoriert */
+    }
   }
 
   const s = result?.summe;
@@ -139,28 +168,58 @@ export default function Scan({ active }: { active: boolean }) {
             <div className="rt"><Icon name="ic-check-c" style={{ color: "var(--accent2)" }} /> {result.gericht || "Mahlzeit erkannt"}</div>
             <div className="ai"><Icon name="ic-spark" style={{ width: 14, color: "var(--accent2)" }} /> Analysiert von HealthMe KI</div>
 
-            {(result.lebensmittel || []).map((f, i) => (
-              <div className="food" key={i}>
-                <span className="fi" style={{ background: FOOD_COLORS[i % FOOD_COLORS.length] }}><Icon name="ic-leaf" /></span>
-                <span className="fn">{f.name}</span>
-                <span className="fk">{f.kcal} kcal · {f.detail}</span>
-              </div>
-            ))}
+            {(result.lebensmittel || []).map((f, i) => {
+              const c = categorize(f.name);
+              return (
+                <div className="food" key={i}>
+                  <span className="fi" style={{ background: c.bg }}><Icon name={c.icon} /></span>
+                  <span className="fn">{f.name}</span>
+                  <span className="fk">{f.kcal} kcal · {f.detail}</span>
+                </div>
+              );
+            })}
 
             {s && (
               <div className="tot">
-                <div><b>{s.kcal}</b><small>kcal</small></div>
-                <div><b>{s.protein_g} g</b><small>Protein</small></div>
-                <div><b>{s.kohlenhydrate_g} g</b><small>Kohlenh.</small></div>
-                <div><b>{s.fett_g} g</b><small>Fett</small></div>
+                <Macro bg="#fde2e1" color="#e0484b" value={`${s.kcal}`} label="kcal" />
+                <Macro bg="#ffe9cc" color="#d98324" value={`${s.protein_g} g`} label="Protein" />
+                <Macro bg="#e3f6e6" color="#1f9d4d" value={`${s.kohlenhydrate_g} g`} label="Kohlenh." />
+                <Macro bg="#fff3cc" color="#b58a00" value={`${s.fett_g} g`} label="Fett" />
               </div>
             )}
 
-            <button className="lg-btn" style={{ height: 50, marginTop: 16 }} onClick={reset}>Neue Mahlzeit scannen</button>
+            {s && (
+              <button
+                className="lg-btn"
+                style={{ height: 52, marginTop: 16, background: added ? "linear-gradient(135deg,#34c759,#1f9d4d)" : undefined }}
+                onClick={() => addToToday(s.kcal)}
+                disabled={added}
+              >
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8, justifyContent: "center" }}>
+                  {added ? (<><Check size={18} /> Zu heute hinzugefügt</>) : (<><Plus size={18} /> {s.kcal} kcal zu heute hinzufügen</>)}
+                </span>
+              </button>
+            )}
+
+            <button
+              onClick={reset}
+              style={{ width: "100%", height: 48, marginTop: 10, border: "1.5px solid var(--line)", background: "#fff", borderRadius: 16, color: "var(--accent2)", fontSize: 15, fontWeight: 700, cursor: "pointer" }}
+            >
+              Neue Mahlzeit scannen
+            </button>
           </div>
         )}
       </div>
     </section>
+  );
+}
+
+function Macro({ bg, color, value, label }: { bg: string; color: string; value: string; label: string }) {
+  return (
+    <div style={{ background: bg, borderRadius: 14, padding: "10px 4px" }}>
+      <b style={{ color, fontSize: 15, fontWeight: 800 }}>{value}</b>
+      <small style={{ display: "block", fontSize: 10, color: "var(--muted)", marginTop: 1 }}>{label}</small>
+    </div>
   );
 }
 
