@@ -22,8 +22,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="de">
+    <html lang="de" translate="no">
       <head>
+        {/* Browser-Übersetzung deaktivieren – sie kollidiert mit Reacts DOM
+            (NotFoundError: removeChild). Die App ist auf Deutsch. */}
+        <meta name="google" content="notranslate" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

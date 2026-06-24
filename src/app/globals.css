@@ -198,7 +198,7 @@ h1.t { font-size: 25px; font-weight: 800; letter-spacing: -0.4px; margin: 2px 0;
 .mhead .mi { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
 .mhead .mi svg { width: 17px; height: 17px; color: #2c2c30; }
 .mhead .mt { font-weight: 800; font-size: 14.5px; line-height: 1.1; } .mhead .ms { font-size: 11px; color: var(--muted); margin-top: 1px; }
-.ring { width: 96px; height: 96px; border-radius: 50%; margin: 2px auto; display: flex; align-items: center; justify-content: center; position: relative; --p: 0; --c: var(--accent); background: conic-gradient(var(--c) calc(var(--p) * 1%), #ececef 0); transition: --p 1.2s cubic-bezier(0.25, 0.85, 0.35, 1); }
+.ring { width: 96px; height: 96px; border-radius: 50%; margin: 2px auto; display: flex; align-items: center; justify-content: center; position: relative; --p: 0; --c: var(--accent); background: conic-gradient(var(--c) calc(var(--p) * 1%), #ece7dc 0); transition: --p 1.2s cubic-bezier(0.25, 0.85, 0.35, 1); }
 .ring::before { content: ""; position: absolute; inset: 10px; background: #fff; border-radius: 50%; }
 .ring b { position: relative; z-index: 1; font-size: 20px; font-weight: 800; }
 .bmi-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
@@ -311,6 +311,20 @@ h1.t { font-size: 25px; font-weight: 800; letter-spacing: -0.4px; margin: 2px 0;
 .spin-ball { width: 62px; height: 62px; border-radius: 50%; background: conic-gradient(from 0deg, rgba(163, 124, 31, 0) 0%, var(--accent2) 90%, var(--gold-l) 100%); -webkit-mask: radial-gradient(circle 23px at center, transparent 98%, #000 100%); mask: radial-gradient(circle 23px at center, transparent 98%, #000 100%); animation: spinBall 0.85s linear infinite; }
 @keyframes spinBall { to { transform: rotate(360deg); } }
 .spin-text { color: var(--accent2); font-weight: 700; font-size: 14.5px; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; z-index: 150; background: rgba(20, 18, 16, 0.45); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 22px; animation: scrIn 0.25s ease both; }
+.modal-card { width: 100%; max-width: 380px; background: #fff; border-radius: 24px; padding: 20px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25); }
+.modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.modal-head h3 { margin: 0; font-size: 18px; font-weight: 800; }
+.modal-x { border: none; background: #f3f0e7; color: var(--muted); width: 34px; height: 34px; border-radius: 11px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.modal-quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 8px; }
+.modal-quick button { border: 1.5px solid var(--line); background: #fff; border-radius: 14px; padding: 14px 6px; font-size: 14px; font-weight: 700; color: var(--ink); cursor: pointer; transition: 0.15s; }
+.modal-quick button:hover { border-color: var(--accent); background: #fdf7e6; }
+
+/* Karten-Plus-Button */
+.stat-add { position: absolute; top: 12px; right: 12px; width: 30px; height: 30px; border-radius: 10px; border: none; background: #f5eed9; color: var(--accent2); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.stat { position: relative; }
 
 /* ============ APP SHELL (responsiv) ============ */
 .appshell {

@@ -140,3 +140,42 @@ create policy "profiles_insert_own" on public.profiles for insert with check (au
 
 drop policy if exists "profiles_update_own" on public.profiles;
 create policy "profiles_update_own" on public.profiles for update using (auth.uid() = user_id);
+
+-- ------------------------------------------------------------
+--  Tagesprotokoll: Wasser & Kalorien pro Tag
+-- ------------------------------------------------------------
+create table if not exists public.daily_logs (
+  user_id    uuid not null references auth.users (id) on delete cascade,
+  log_date   date not null default current_date,
+  water_ml   int not null default 0,
+  kcal       int not null default 0,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, log_date)
+);
+alter table public.daily_logs enable row level security;
+drop policy if exists "daily_logs_select_own" on public.daily_logs;
+create policy "daily_logs_select_own" on public.daily_logs for select using (auth.uid() = user_id);
+drop policy if exists "daily_logs_insert_own" on public.daily_logs;
+create policy "daily_logs_insert_own" on public.daily_logs for insert with check (auth.uid() = user_id);
+drop policy if exists "daily_logs_update_own" on public.daily_logs;
+create policy "daily_logs_update_own" on public.daily_logs for update using (auth.uid() = user_id);
+
+-- ------------------------------------------------------------
+--  GLP-1 Dosen-Protokoll
+-- ------------------------------------------------------------
+create table if not exists public.doses (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null references auth.users (id) on delete cascade,
+  medication text,
+  dose       text,
+  taken_on   date not null default current_date,
+  created_at timestamptz not null default now()
+);
+create index if not exists doses_user_idx on public.doses (user_id, taken_on desc);
+alter table public.doses enable row level security;
+drop policy if exists "doses_select_own" on public.doses;
+create policy "doses_select_own" on public.doses for select using (auth.uid() = user_id);
+drop policy if exists "doses_insert_own" on public.doses;
+create policy "doses_insert_own" on public.doses for insert with check (auth.uid() = user_id);
+drop policy if exists "doses_delete_own" on public.doses;
+create policy "doses_delete_own" on public.doses for delete using (auth.uid() = user_id);

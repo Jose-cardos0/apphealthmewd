@@ -6,10 +6,10 @@ import { calcBmi, bmiCategory, bmiScalePos, de } from "@/lib/metrics";
 import type { Profile } from "@/lib/types";
 
 const SOURCES = [
-  { a: "Wirksamkeit & Risiken von GLP-1", b: "Nature Medicine" },
-  { a: "Die Zukunft der Adipositas-Behandlung", b: "Harvard Magazine" },
-  { a: "Messung von Körperfett & BMI", b: "Harvard T.H. Chan" },
-  { a: "Forschung zu GLP-1-Medikamenten", b: "UChicago Medicine" },
+  { a: "Wirksamkeit & Risiken von GLP-1", b: "Nature Medicine", href: "https://www.nature.com/subjects/glp-1" },
+  { a: "Die Zukunft der Adipositas-Behandlung", b: "Harvard Magazine", href: "https://www.harvardmagazine.com/topics/health-medicine" },
+  { a: "Messung von Körperfett & BMI", b: "Harvard T.H. Chan", href: "https://www.hsph.harvard.edu/obesity-prevention-source/obesity-definition/" },
+  { a: "Forschung zu GLP-1-Medikamenten", b: "UChicago Medicine", href: "https://www.uchicagomedicine.org/forefront/gastrointestinal-articles" },
 ];
 
 export default function Wissen({ active, profile }: { active: boolean; profile: Profile | null }) {
@@ -61,11 +61,11 @@ export default function Wissen({ active, profile }: { active: boolean; profile: 
         <div className="card">
           <div className="cardTitle"><div className="ic"><Icon name="ic-book" /></div><h3>Medizinische Quellen</h3></div>
           {SOURCES.map((s, i) => (
-            <div className="src" key={i}>
+            <a className="src" key={i} href={s.href} target="_blank" rel="noopener noreferrer">
               <span className="doc"><Icon name="ic-doc" /></span>
               <div><div className="a">{s.a}</div><div className="b">{s.b}</div></div>
               <span className="chev"><Icon name="ic-chev" /></span>
-            </div>
+            </a>
           ))}
         </div>
       </div>

@@ -1,13 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil, Camera } from "lucide-react";
+import { Pencil, Camera, Plus, Trash2 } from "lucide-react";
 import Icon from "@/components/Icon";
+import Modal from "@/components/Modal";
 import { dashboardMetrics, bmiCategory, de } from "@/lib/metrics";
 import { avatarSrc, avatarInitials } from "@/lib/avatar";
 import { uploadAvatar } from "@/lib/uploadAvatar";
+import { getDailyLog, saveDailyLog, listDoses, addDose, removeDose, todayStr, type Dose } from "@/lib/logs";
 import type { Profile } from "@/lib/types";
+
+const MEDS = ["Ozempic", "Wegovy", "Mounjaro", "Saxenda", "Rybelsus"];
+const DOSES = ["0,25 mg", "0,5 mg", "1,0 mg", "1,7 mg", "2,4 mg"];
 
 export default function Dashboard({
   active,
@@ -25,6 +30,37 @@ export default function Dashboard({
   const fullName = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || "Mein Profil";
   const sub = [profile?.age ? `${profile.age} Jahre` : null, profile?.city].filter(Boolean).join(" · ");
 
+  const med = profile?.glp1_medication && profile.glp1_medication !== "Noch keins" ? profile.glp1_medication : null;
+  const profDose = profile?.glp1_dose || "0,25 mg";
+  const freq = profile?.glp1_frequency || "Wöchentlich";
+
+  const kcalGoal = profile?.plan?.daily_kcal ?? kcalTargetNum(profile);
+  const waterGoalL = profile?.plan?.water_liters ?? 2.5;
+
+  // Tagesprotokoll + Dosen
+  const [water, setWater] = useState(0);
+  const [kcal, setKcal] = useState(0);
+  const [doses, setDoses] = useState<Dose[]>([]);
+  const [modal, setModal] = useState<null | "water" | "kcal" | "dose">(null);
+  const [kcalInput, setKcalInput] = useState("");
+  const [doseForm, setDoseForm] = useState({ medication: med ?? "Ozempic", dose: profDose, taken_on: todayStr() });
+
+  const reload = useCallback(async () => {
+    try {
+      const [log, ds] = await Promise.all([getDailyLog(), listDoses()]);
+      setWater(log.water_ml);
+      setKcal(log.kcal);
+      setDoses(ds);
+    } catch {
+      /* offline / nicht eingeloggt */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (active) reload();
+  }, [active, reload]);
+
+  // Fortschrittsbalken animieren
   const [trackW, setTrackW] = useState(0);
   const filled = useRef(false);
   useEffect(() => {
@@ -34,18 +70,11 @@ export default function Dashboard({
     }
   }, [active, m.progressPct]);
 
-  const med = profile?.glp1_medication && profile.glp1_medication !== "Noch keins" ? profile.glp1_medication : null;
-  const dose = profile?.glp1_dose || "0,25 mg";
-  const freq = profile?.glp1_frequency || "Wöchentlich";
-
-  // Werte aus dem Grok-Plan (Fallback: lokale Schätzung)
-  const kcalText = profile?.plan?.daily_kcal != null ? profile.plan.daily_kcal.toLocaleString("de-DE") : kcalTarget(profile);
-  const waterText = de(profile?.plan?.water_liters ?? 2.5, 1);
-
+  // Avatar-Upload
   const [avatarOverride, setAvatarOverride] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const avatarInput = useRef<HTMLInputElement>(null);
-  const src = avatarOverride ?? avatarSrc(profile);
+  const avSrc = avatarOverride ?? avatarSrc(profile);
   const initials = avatarInitials(profile);
 
   async function onAvatarFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -63,6 +92,37 @@ export default function Dashboard({
       setUploading(false);
     }
   }
+
+  async function changeWater(deltaMl: number) {
+    const next = Math.max(0, water + deltaMl);
+    setWater(next);
+    try { await saveDailyLog(next, kcal); } catch { /* ignoriert */ }
+  }
+
+  async function submitKcal() {
+    const add = Math.round(parseFloat(kcalInput.replace(",", ".")) || 0);
+    if (add <= 0) { setModal(null); return; }
+    const next = kcal + add;
+    setKcal(next);
+    setKcalInput("");
+    setModal(null);
+    try { await saveDailyLog(water, next); } catch { /* ignoriert */ }
+  }
+
+  async function submitDose() {
+    setModal(null);
+    try {
+      const row = await addDose(doseForm);
+      setDoses((p) => [row, ...p]);
+    } catch { /* ignoriert */ }
+  }
+
+  async function deleteDose(id: string) {
+    setDoses((p) => p.filter((x) => x.id !== id));
+    try { await removeDose(id); } catch { /* ignoriert */ }
+  }
+
+  const waterL = water / 1000;
 
   return (
     <section className={`screen${active ? " active" : ""}`} id="s-dashboard">
@@ -113,9 +173,9 @@ export default function Dashboard({
           </div>
           <div className="av-edit" onClick={() => avatarInput.current?.click()} title="Foto ändern">
             <input ref={avatarInput} type="file" accept="image/*" style={{ display: "none" }} onChange={onAvatarFile} />
-            {src ? (
+            {avSrc ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img className="ava" src={src} alt="" />
+              <img className="ava" src={avSrc} alt="" />
             ) : (
               <span className="ava-initials">{initials}</span>
             )}
@@ -129,57 +189,62 @@ export default function Dashboard({
             <div className="v">{m.bmi != null ? de(m.bmi) : "—"}</div>
             <span className={`tag ${cat.tag}`}>{cat.label}</span>
           </div>
+
           <div className="stat">
+            <button className="stat-add" onClick={() => setModal("kcal")} aria-label="Kalorien hinzufügen"><Plus size={17} /></button>
             <div className="h"><span className="ic" style={{ background: "#fde2e1", color: "#ff6b3d" }}><Icon name="ic-flame" style={{ width: 16 }} /></span> Kalorien heute</div>
-            <div className="v">0 <small>/ {kcalText}</small></div>
+            <div className="v">{kcal.toLocaleString("de-DE")} <small>/ {kcalGoal.toLocaleString("de-DE")}</small></div>
           </div>
+
           <div className="stat">
+            <button className="stat-add" onClick={() => setModal("water")} aria-label="Wasser hinzufügen"><Plus size={17} /></button>
             <div className="h"><span className="ic" style={{ background: "#d9f0fb", color: "#2b9fd6" }}><Icon name="ic-drop" style={{ width: 16 }} /></span> Wasser</div>
-            <div className="v">0,0 <small>/ {waterText} L</small></div>
+            <div className="v">{de(waterL, 1)} <small>/ {de(waterGoalL, 1)} L</small></div>
           </div>
+
           <div className="stat">
-            <div className="h"><span className="ic" style={{ background: "#f5eed9", color: "var(--accent2)" }}><Icon name="ic-spark" style={{ width: 16 }} /></span> Streak</div>
-            <div className="v">1 <small>Tag</small></div>
+            <div className="h"><span className="ic" style={{ background: "#f5eed9", color: "var(--accent2)" }}><Icon name="ic-spark" style={{ width: 16 }} /></span> Dosen</div>
+            <div className="v">{doses.length} <small>gesamt</small></div>
           </div>
         </div>
 
         <div className="sec-title">
           <span className="h">Dein Behandlungsplan</span>
-          <span className="more">{med ? `GLP-1 · ${freq.toLowerCase()}` : "GLP-1"}</span>
+          <button className="more" onClick={() => { setDoseForm({ medication: med ?? "Ozempic", dose: profDose, taken_on: todayStr() }); setModal("dose"); }} style={{ border: "none", background: "none", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <Plus size={15} /> Dosis
+          </button>
         </div>
         <div className="card">
-          {med ? (
-            <>
-              <div className="dose next">
-                <span className="di"><Icon name="ic-syringe" /></span>
-                <div className="dinfo">
-                  <div className="dn">Nächste Dosis · {med}</div>
-                  <div className="dd">{freq} · {dose}</div>
-                </div>
-                <span className="pill">Bereit</span>
-              </div>
-              <div className="dose future">
-                <span className="di"><Icon name="ic-syringe" /></span>
-                <div className="dinfo">
-                  <div className="dn">Folgedosis</div>
-                  <div className="dd">{freq === "Täglich" ? "morgen" : "in 7 Tagen"} · {dose}</div>
-                </div>
-                <span className="wait">geplant</span>
-              </div>
-              <div className="dose-total">
-                <span className="ti"><Icon name="ic-spark" className="i fill" /></span>
-                <div>
-                  <div className="tt">Dein Start</div>
-                  <div className="tv">Auf dem Weg zu <b>{m.goal != null ? `${de(m.goal)} kg` : "deinem Ziel"}</b></div>
-                </div>
-              </div>
-            </>
-          ) : (
+          {med && (
             <div className="dose next">
               <span className="di"><Icon name="ic-syringe" /></span>
               <div className="dinfo">
-                <div className="dn">Noch kein Medikament hinterlegt</div>
-                <div className="dd">Du kannst deinen Plan jederzeit ergänzen.</div>
+                <div className="dn">Nächste Dosis · {med}</div>
+                <div className="dd">{freq} · {profDose}</div>
+              </div>
+              <span className="pill">Bereit</span>
+            </div>
+          )}
+
+          {doses.map((d) => (
+            <div className="dose done" key={d.id}>
+              <span className="di"><Icon name="ic-check-c" /></span>
+              <div className="dinfo">
+                <div className="dn">{d.medication || "Dosis"} · {d.dose || ""}</div>
+                <div className="dd">genommen am {formatDate(d.taken_on)}</div>
+              </div>
+              <button onClick={() => deleteDose(d.id)} aria-label="Löschen" style={{ border: "none", background: "none", color: "#c6bca2", cursor: "pointer", flexShrink: 0 }}>
+                <Trash2 size={17} />
+              </button>
+            </div>
+          ))}
+
+          {!med && doses.length === 0 && (
+            <div className="dose next">
+              <span className="di"><Icon name="ic-syringe" /></span>
+              <div className="dinfo">
+                <div className="dn">Noch keine Dosis eingetragen</div>
+                <div className="dd">Tippe oben auf „+ Dosis“, um deine erste Injektion zu protokollieren.</div>
               </div>
             </div>
           )}
@@ -193,9 +258,7 @@ export default function Dashboard({
             </div>
             <div className="card">
               {profile.plan.motivation && (
-                <p style={{ margin: "0 0 12px", fontSize: 14.5, fontWeight: 700, color: "var(--accent2)" }}>
-                  {profile.plan.motivation}
-                </p>
+                <p style={{ margin: "0 0 12px", fontSize: 14.5, fontWeight: 700, color: "var(--accent2)" }}>{profile.plan.motivation}</p>
               )}
               {profile.plan.tips.map((tip, i) => (
                 <div key={i} style={{ display: "flex", gap: 11, padding: "10px 0", borderTop: i === 0 ? "none" : "1px solid var(--line)" }}>
@@ -207,11 +270,7 @@ export default function Dashboard({
           </>
         )}
 
-        <button
-          onClick={onScan}
-          className="card"
-          style={{ width: "100%", textAlign: "left", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 14, background: "linear-gradient(140deg,#fff,#fbf6ea)" }}
-        >
+        <button onClick={onScan} className="card" style={{ width: "100%", textAlign: "left", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 14, background: "linear-gradient(140deg,#fff,#fbf6ea)" }}>
           <span style={{ width: 44, height: 44, borderRadius: 13, background: "linear-gradient(140deg,#e8ce78,var(--accent2))", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <Icon name="ic-camai" style={{ width: 22, height: 22 }} />
           </span>
@@ -222,15 +281,65 @@ export default function Dashboard({
           <span className="muted"><Icon name="ic-chev" /></span>
         </button>
       </div>
+
+      {/* ===== Modals ===== */}
+      {modal === "water" && (
+        <Modal title="Wasser hinzufügen" onClose={() => setModal(null)}>
+          <p className="muted" style={{ marginTop: 0, fontSize: 13 }}>Heute: {de(waterL, 1)} L von {de(waterGoalL, 1)} L</p>
+          <div className="modal-quick">
+            <button onClick={() => changeWater(250)}>+250 ml</button>
+            <button onClick={() => changeWater(500)}>+500 ml</button>
+            <button onClick={() => changeWater(750)}>+750 ml</button>
+          </div>
+          <button className="qz-next" style={{ width: "100%", marginTop: 6 }} onClick={() => setModal(null)}>Fertig</button>
+          <button onClick={() => changeWater(-250)} style={{ width: "100%", marginTop: 10, border: "none", background: "none", color: "var(--muted)", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>−250 ml rückgängig</button>
+        </Modal>
+      )}
+
+      {modal === "kcal" && (
+        <Modal title="Kalorien hinzufügen" onClose={() => setModal(null)}>
+          <p className="muted" style={{ marginTop: 0, fontSize: 13 }}>Heute: {kcal.toLocaleString("de-DE")} / {kcalGoal.toLocaleString("de-DE")} kcal</p>
+          <input
+            className="qz-input"
+            type="number"
+            inputMode="numeric"
+            placeholder="z. B. 450"
+            value={kcalInput}
+            onChange={(e) => setKcalInput(e.target.value)}
+            autoFocus
+            onKeyDown={(e) => { if (e.key === "Enter") submitKcal(); }}
+          />
+          <button className="qz-next" style={{ width: "100%", marginTop: 14 }} onClick={submitKcal}>Hinzufügen</button>
+        </Modal>
+      )}
+
+      {modal === "dose" && (
+        <Modal title="Dosis eintragen" onClose={() => setModal(null)}>
+          <div className="lg-label">Medikament</div>
+          <select className="qz-input" value={doseForm.medication} onChange={(e) => setDoseForm((p) => ({ ...p, medication: e.target.value }))} style={{ appearance: "auto", marginBottom: 12 }}>
+            {MEDS.map((mm) => <option key={mm}>{mm}</option>)}
+          </select>
+          <div className="lg-label">Dosis</div>
+          <select className="qz-input" value={doseForm.dose} onChange={(e) => setDoseForm((p) => ({ ...p, dose: e.target.value }))} style={{ appearance: "auto", marginBottom: 12 }}>
+            {DOSES.map((dd) => <option key={dd}>{dd}</option>)}
+          </select>
+          <div className="lg-label">Datum</div>
+          <input className="qz-input" type="date" value={doseForm.taken_on} onChange={(e) => setDoseForm((p) => ({ ...p, taken_on: e.target.value }))} style={{ marginBottom: 4 }} />
+          <button className="qz-next" style={{ width: "100%", marginTop: 14 }} onClick={submitDose}>Eintragen</button>
+        </Modal>
+      )}
     </section>
   );
 }
 
-function kcalTarget(p: Profile | null): string {
-  // grobe Schätzung: Mifflin-St Jeor, leichtes Defizit
-  if (!p?.current_weight_kg || !p?.height_cm || !p?.age) return "1.800";
+function formatDate(iso: string): string {
+  const [y, m, d] = iso.split("-");
+  return d && m && y ? `${d}.${m}.${y}` : iso;
+}
+
+function kcalTargetNum(p: Profile | null): number {
+  if (!p?.current_weight_kg || !p?.height_cm || !p?.age) return 1800;
   const w = p.current_weight_kg, h = p.height_cm, a = p.age;
   const base = p.gender === "Mann" ? 10 * w + 6.25 * h - 5 * a + 5 : 10 * w + 6.25 * h - 5 * a - 161;
-  const target = Math.round((base * 1.3 - 400) / 10) * 10;
-  return target.toLocaleString("de-DE");
+  return Math.round((base * 1.3 - 400) / 10) * 10;
 }
