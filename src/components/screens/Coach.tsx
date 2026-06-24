@@ -87,7 +87,7 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
 
   return (
     <section className={`screen${active ? " active" : ""}`} id="s-coach">
-      {loading && <LoadingOverlay text="Flufy baut deine Trainingswoche …" />}
+      {loading && <LoadingOverlay text="Flufy baut deine Trainingswoche …" image="/mascote/fluflycoach.png" />}
 
       <div className="scr-head" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
@@ -161,16 +161,19 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
                 {(day.uebungen ?? []).length > 0 && (
                   <>
                     <p className="pe-sec" style={{ marginTop: 14 }}>Übungen</p>
-                    {(day.uebungen ?? []).map((u, i) => (
-                      <div key={i} className="dose ex-row" onClick={() => setBigEx(u)}>
-                        <ExChip term={u.en || u.name} n={i + 1} />
-                        <div className="dinfo">
-                          <div className="dn">{u.name}</div>
-                          <div className="dd">{u.saetze} × {u.wdh}{u.pause_sek ? ` · ${u.pause_sek}s Pause` : ""}{u.hinweis ? ` · ${u.hinweis}` : ""}</div>
+                    <div className="ex-cards">
+                      {(day.uebungen ?? []).map((u, i) => (
+                        <div key={i} className="ex-card" onClick={() => setBigEx(u)}>
+                          <ExThumb term={u.en || u.name} n={i + 1} />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div className="ex-name">{u.name}</div>
+                            <div className="ex-meta">{u.saetze} × {u.wdh}{u.pause_sek ? ` · ${u.pause_sek}s Pause` : ""}</div>
+                            {u.hinweis && <div className="ex-meta">{u.hinweis}</div>}
+                          </div>
+                          <span className="muted" style={{ flexShrink: 0 }}><Icon name="ic-chev" /></span>
                         </div>
-                        <span className="muted" style={{ flexShrink: 0 }}><Icon name="ic-chev" /></span>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </>
                 )}
 
@@ -223,16 +226,17 @@ function gifUrlFor(term: string): string {
   return `/api/exercise-gif?q=${encodeURIComponent(term)}`;
 }
 
-/** Chip-Nummer mit Übungs-GIF (fällt auf die Nummer zurück, wenn kein GIF existiert). */
-function ExChip({ term, n }: { term: string; n: number }) {
+/** Karten-Thumbnail mit Übungs-GIF (fällt auf die Nummer zurück, wenn kein GIF existiert). */
+function ExThumb({ term, n }: { term: string; n: number }) {
   const [err, setErr] = useState(false);
-  if (!term || err) {
-    return <span className="di" style={{ background: "#f4f3f0", color: "#3d3a35" }}>{n}</span>;
-  }
   return (
-    <span className="di ex-di">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="ex-di-gif" src={gifUrlFor(term)} alt="" onError={() => setErr(true)} />
+    <span className="ex-thumb">
+      {!term || err ? (
+        <span className="ex-num">{n}</span>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={gifUrlFor(term)} alt="" onError={() => setErr(true)} />
+      )}
     </span>
   );
 }

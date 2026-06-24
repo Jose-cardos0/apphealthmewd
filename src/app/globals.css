@@ -170,10 +170,16 @@ h1.t { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; margin: 2px 0;
 .chat-input button svg { width: 20px; height: 20px; }
 .note-disc { font-size: 11px; color: var(--muted); text-align: center; padding: 0 24px 6px; }
 
-.ex-row { cursor: pointer; transition: background 0.15s; border-radius: 10px; }
-.ex-row:hover { background: #faf9f7; }
-.di.ex-di { padding: 0; overflow: hidden; background: #fff; border: 1px solid var(--line); }
-.ex-di-gif { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Übungs-Karten */
+.ex-cards { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 6px 0 4px; }
+@media (min-width: 760px) { .ex-cards { grid-template-columns: 1fr 1fr; } }
+.ex-card { display: flex; align-items: center; gap: 13px; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 11px; cursor: pointer; transition: 0.15s; text-align: left; }
+.ex-card:hover { border-color: #e0ddd6; box-shadow: 0 5px 16px rgba(0, 0, 0, 0.05); transform: translateY(-1px); }
+.ex-thumb { width: 74px; height: 74px; border-radius: 13px; overflow: hidden; background: #f4f3f0; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.ex-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ex-num { font-weight: 800; color: #bdb6a8; font-size: 20px; }
+.ex-name { font-weight: 700; font-size: 14.5px; line-height: 1.2; }
+.ex-meta { font-size: 12.5px; color: var(--muted); margin-top: 3px; line-height: 1.35; }
 
 /* Coach: runder „Montar treino"-Button */
 .coach-fab { width: 120px; height: 120px; border-radius: 50%; border: none; background: var(--btn); color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22); transition: transform 0.15s; }
