@@ -54,7 +54,7 @@ export default function LoginPage() {
               priority
               className="h-28 w-auto mx-auto mb-3"
             />
-            <p className="text-sm text-gray-500 mt-1">Deine kleine Küchenfee 🧚‍♀️</p>
+           
           </div>
 
           <form
