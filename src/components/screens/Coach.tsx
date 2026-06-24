@@ -103,7 +103,7 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
 
       <div className="scr-body">
         {burnedToday > 0 && (
-          <div className="card" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div className="card" style={{ display: "flex", alignItems: "center", gap: 12, position: "relative", overflow: "hidden", backgroundImage: "url(/mascote/foguete1.png)", backgroundRepeat: "no-repeat", backgroundPosition: "right -8px bottom -12px", backgroundSize: "88px" }}>
             <span style={{ width: 38, height: 38, borderRadius: 12, background: "#eef4ef", color: "var(--green)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Flame size={19} /></span>
             <div>
               <div style={{ fontSize: 12.5, color: "var(--muted)" }}>Heute verbrannt</div>

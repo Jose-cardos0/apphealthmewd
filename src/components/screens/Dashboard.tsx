@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil, Camera, Plus, Trash2, GlassWater, Milk } from "lucide-react";
+import { Pencil, Camera, Plus, Trash2, GlassWater, Milk, Flame, Dumbbell, Syringe, CheckCircle2 } from "lucide-react";
 import Icon from "@/components/Icon";
 import Modal from "@/components/Modal";
 import Alert from "@/components/Alert";
@@ -54,6 +54,7 @@ export default function Dashboard({
   const [flash, setFlash] = useState<{ key: number; text: string; color: string } | null>(null);
   const flashKey = useRef(0);
   const [alert, setAlert] = useState<{ title: string; message: string; tone: "warn" | "info" } | null>(null);
+  const [showNotif, setShowNotif] = useState(false);
 
   const reload = useCallback(async () => {
     try {
@@ -165,6 +166,14 @@ export default function Dashboard({
   const netKcal = kcal - burned;
   const overKcal = netKcal > kcalGoal;
 
+  // Hinweise (Glocke)
+  const notifs: { icon: React.ReactNode; bg: string; color: string; title: string; text: string }[] = [];
+  if (overKcal) notifs.push({ icon: <Flame size={18} />, bg: "#fdeeee", color: "#e0484b", title: "Kalorienziel überschritten", text: `Du liegst ${(netKcal - kcalGoal).toLocaleString("de-DE")} kcal über deinem Tagesziel. Plane den Rest des Tages etwas leichter.` });
+  const restWater = waterGoalL - waterL;
+  if (restWater > 0.1) notifs.push({ icon: <GlassWater size={18} />, bg: "#e6f3fb", color: "#2b9fd6", title: "Trink mehr Wasser", text: `Dir fehlen noch ${de(restWater, 1)} L bis zu deinem Tagesziel von ${de(waterGoalL, 1)} L.` });
+  if (med && doses.length === 0) notifs.push({ icon: <Syringe size={18} />, bg: "#f5f1e7", color: "var(--accent2)", title: "GLP-1 Dosis", text: "Du hast heute noch keine Dosis eingetragen." });
+  if (burned === 0) notifs.push({ icon: <Dumbbell size={18} />, bg: "#f3f2ef", color: "#3d3a35", title: "Noch kein Training", text: "Heute noch nichts trainiert – schau im Coach vorbei!" });
+
   return (
     <section className={`screen${active ? " active" : ""}`} id="s-dashboard">
       <div className="scr-head" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -172,9 +181,9 @@ export default function Dashboard({
           <div className="muted" style={{ fontSize: 13 }}>Willkommen zurück</div>
           <h1 className="t">Hallo, {firstName}</h1>
         </div>
-        <button className="bell" aria-label="Benachrichtigungen">
+        <button className="bell" aria-label="Benachrichtigungen" onClick={() => setShowNotif(true)}>
           <Icon name="ic-bell" />
-          <span className="bdot">3</span>
+          {notifs.length > 0 && <span className="bdot">{notifs.length}</span>}
         </button>
       </div>
 
@@ -427,6 +436,30 @@ export default function Dashboard({
       )}
 
       {alert && <Alert title={alert.title} message={alert.message} tone={alert.tone} onClose={() => setAlert(null)} />}
+
+      {showNotif && (
+        <Modal title="Hinweise" onClose={() => setShowNotif(false)}>
+          {notifs.length === 0 ? (
+            <div style={{ display: "flex", gap: 12, alignItems: "center", padding: "6px 0" }}>
+              <span style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 12, background: "#eef4ef", color: "var(--green)", display: "flex", alignItems: "center", justifyContent: "center" }}><CheckCircle2 size={20} /></span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14.5 }}>Alles im grünen Bereich!</div>
+                <div className="muted" style={{ fontSize: 13, marginTop: 2 }}>Keine offenen Hinweise für heute.</div>
+              </div>
+            </div>
+          ) : (
+            notifs.map((n, i) => (
+              <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "11px 0", borderTop: i === 0 ? "none" : "1px solid var(--line)" }}>
+                <span style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 12, background: n.bg, color: n.color, display: "flex", alignItems: "center", justifyContent: "center" }}>{n.icon}</span>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 14.5 }}>{n.title}</div>
+                  <div className="muted" style={{ fontSize: 13, marginTop: 2, lineHeight: 1.4 }}>{n.text}</div>
+                </div>
+              </div>
+            ))
+          )}
+        </Modal>
+      )}
     </section>
   );
 }

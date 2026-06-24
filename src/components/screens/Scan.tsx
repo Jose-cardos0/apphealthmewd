@@ -137,7 +137,7 @@ export default function Scan({ active, profile }: { active: boolean; profile: Pr
 
         <div className={`scan-layout${phase === "result" || phase === "error" ? " has-side" : ""}`}>
         <div className="scan-left">
-        <div className="vf" onClick={phase === "idle" || phase === "error" ? openCamera : undefined} style={{ cursor: phase === "idle" || phase === "error" ? "pointer" : "default" }}>
+        <div className={`vf${phase === "analyzing" ? " scanning" : ""}`} onClick={phase === "idle" || phase === "error" ? openCamera : undefined} style={{ cursor: phase === "idle" || phase === "error" ? "pointer" : "default" }}>
           <div className="reticle" />
           <div className="c2" />
 
@@ -151,7 +151,12 @@ export default function Scan({ active, profile }: { active: boolean; profile: Pr
             </>
           )}
 
-          {phase === "analyzing" && <span className="scanline" />}
+          {phase === "analyzing" && (
+            <div className="scan-fx">
+              <span className="scan-grid" />
+              <span className="scan-band" />
+            </div>
+          )}
           {phase === "idle" && <span className="tap-ring" />}
           {phase === "idle" && (
             // eslint-disable-next-line @next/next/no-img-element
