@@ -52,6 +52,12 @@ export default function Dashboard({
   const [flash, setFlash] = useState<{ key: number; text: string; color: string } | null>(null);
   const flashKey = useRef(0);
   const [alert, setAlert] = useState<{ title: string; message: string; tone: "warn" | "info" } | null>(null);
+  const [rocket, setRocket] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setRocket((r) => (r === 0 ? 1 : 0)), 500);
+    return () => clearInterval(t);
+  }, []);
 
   const reload = useCallback(async () => {
     try {
@@ -204,7 +210,10 @@ export default function Dashboard({
                   >
                     {de(m.current ?? m.start)}&nbsp;kg <Pencil size={12} style={{ opacity: 0.6 }} />
                   </b>
-                  <span className="arrow"><Icon name="ic-chev" style={{ width: 18, height: 18 }} /></span>
+                  <span className="arrow" style={{ alignSelf: "center" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={rocket === 0 ? "/mascote/foguete0.png" : "/mascote/foguete1.png"} alt="" style={{ width: 42, height: 42, objectFit: "contain", display: "block" }} />
+                  </span>
                   <b>{de(m.goal)}&nbsp;kg</b>
                 </div>
                 <div className="track"><i style={{ width: `${trackW}%` }} /></div>
