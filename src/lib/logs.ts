@@ -69,3 +69,14 @@ export async function removeDose(id: string): Promise<void> {
   const { error } = await supabase.from("doses").delete().eq("id", id);
   if (error) throw error;
 }
+
+/** Aktualisiert das aktuelle Gewicht (für die Fortschrittsberechnung). */
+export async function updateCurrentWeight(weightKg: number): Promise<void> {
+  const supabase = createClient();
+  const user_id = await uid();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ current_weight_kg: weightKg, updated_at: new Date().toISOString() })
+    .eq("user_id", user_id);
+  if (error) throw error;
+}

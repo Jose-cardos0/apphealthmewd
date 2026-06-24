@@ -8,7 +8,7 @@ import Modal from "@/components/Modal";
 import { dashboardMetrics, bmiCategory, de } from "@/lib/metrics";
 import { avatarSrc, avatarInitials } from "@/lib/avatar";
 import { uploadAvatar } from "@/lib/uploadAvatar";
-import { getDailyLog, saveDailyLog, listDoses, addDose, removeDose, todayStr, type Dose } from "@/lib/logs";
+import { getDailyLog, saveDailyLog, listDoses, addDose, removeDose, updateCurrentWeight, todayStr, type Dose } from "@/lib/logs";
 import type { Profile } from "@/lib/types";
 
 const MEDS = ["Ozempic", "Wegovy", "Mounjaro", "Saxenda", "Rybelsus"];
@@ -24,7 +24,10 @@ export default function Dashboard({
   onScan: () => void;
 }) {
   const router = useRouter();
-  const m = dashboardMetrics(profile);
+  // Aktuelles Gewicht lokal halten, damit der Fortschritt sofort neu rechnet
+  const [currentWeight, setCurrentWeight] = useState<number | null>(profile?.current_weight_kg ?? null);
+  const effProfile = profile ? { ...profile, current_weight_kg: currentWeight } : null;
+  const m = dashboardMetrics(effProfile);
   const cat = bmiCategory(m.bmi);
   const firstName = profile?.first_name || "willkommen";
   const fullName = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || "Mein Profil";
@@ -41,8 +44,9 @@ export default function Dashboard({
   const [water, setWater] = useState(0);
   const [kcal, setKcal] = useState(0);
   const [doses, setDoses] = useState<Dose[]>([]);
-  const [modal, setModal] = useState<null | "water" | "kcal" | "dose">(null);
+  const [modal, setModal] = useState<null | "water" | "kcal" | "dose" | "weight">(null);
   const [kcalInput, setKcalInput] = useState("");
+  const [weightInput, setWeightInput] = useState("");
   const [doseForm, setDoseForm] = useState({ medication: med ?? "Ozempic", dose: profDose, taken_on: todayStr() });
   const [flash, setFlash] = useState<{ key: number; text: string; color: string } | null>(null);
   const flashKey = useRef(0);
@@ -62,14 +66,12 @@ export default function Dashboard({
     if (active) reload();
   }, [active, reload]);
 
-  // Fortschrittsbalken animieren
+  // Fortschrittsbalken animieren (auch neu, wenn sich das Gewicht ändert)
   const [trackW, setTrackW] = useState(0);
-  const filled = useRef(false);
   useEffect(() => {
-    if (active && !filled.current) {
-      filled.current = true;
-      setTimeout(() => setTrackW(m.progressPct), 250);
-    }
+    if (!active) return;
+    const t = setTimeout(() => setTrackW(m.progressPct), 250);
+    return () => clearTimeout(t);
   }, [active, m.progressPct]);
 
   // Avatar-Upload
@@ -130,6 +132,15 @@ export default function Dashboard({
     try { await removeDose(id); } catch { /* ignoriert */ }
   }
 
+  async function submitWeight() {
+    const v = parseFloat(weightInput.replace(",", "."));
+    if (!Number.isFinite(v) || v <= 0) { setModal(null); return; }
+    setCurrentWeight(v);
+    setWeightInput("");
+    setModal(null);
+    try { await updateCurrentWeight(v); router.refresh(); } catch { /* ignoriert */ }
+  }
+
   const waterL = water / 1000;
 
   return (
@@ -168,7 +179,13 @@ export default function Dashboard({
             {m.start != null && m.goal != null && (
               <div className="goal">
                 <div className="nums" style={{ marginTop: 10 }}>
-                  <b>{de(m.current ?? m.start)}&nbsp;kg</b>
+                  <b
+                    onClick={() => { setWeightInput(String(m.current ?? m.start ?? "")); setModal("weight"); }}
+                    style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4, borderBottom: "1.5px dashed #d9c89a" }}
+                    title="Gewicht aktualisieren"
+                  >
+                    {de(m.current ?? m.start)}&nbsp;kg <Pencil size={12} style={{ opacity: 0.6 }} />
+                  </b>
                   <span className="arrow"><Icon name="ic-chev" style={{ width: 18, height: 18 }} /></span>
                   <b>{de(m.goal)}&nbsp;kg</b>
                 </div>
@@ -332,6 +349,26 @@ export default function Dashboard({
             onKeyDown={(e) => { if (e.key === "Enter") submitKcal(); }}
           />
           <button className="qz-next" style={{ width: "100%", marginTop: 14 }} onClick={submitKcal}>Hinzufügen</button>
+        </Modal>
+      )}
+
+      {modal === "weight" && (
+        <Modal title="Gewicht eintragen" onClose={() => setModal(null)}>
+          <p className="muted" style={{ marginTop: 0, fontSize: 13 }}>
+            Start: {m.start != null ? de(m.start) : "—"} kg · Ziel: {m.goal != null ? de(m.goal) : "—"} kg
+          </p>
+          <div className="lg-label">Dein aktuelles Gewicht (kg)</div>
+          <input
+            className="qz-input"
+            type="number"
+            inputMode="decimal"
+            placeholder="z. B. 90,5"
+            value={weightInput}
+            onChange={(e) => setWeightInput(e.target.value)}
+            autoFocus
+            onKeyDown={(e) => { if (e.key === "Enter") submitWeight(); }}
+          />
+          <button className="qz-next" style={{ width: "100%", marginTop: 14 }} onClick={submitWeight}>Speichern</button>
         </Modal>
       )}
 
