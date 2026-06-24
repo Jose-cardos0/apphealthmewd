@@ -77,36 +77,55 @@ export async function callGrokVisionJson<T = unknown>({
   const apiKey = process.env.GROK_API_KEY;
   if (!apiKey) throw new Error("GROK_API_KEY ist nicht konfiguriert.");
 
-  const res = await fetch(GROK_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: process.env.GROK_VISION_MODEL || "grok-2-vision-1212",
-      temperature,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: system },
-        {
-          role: "user",
-          content: [
-            { type: "text", text: prompt },
-            { type: "image_url", image_url: { url: imageDataUrl, detail: "high" } },
-          ],
-        },
-      ],
-    }),
-  });
+  // Mehrere Vision-Modelle durchprobieren – Konten unterscheiden sich,
+  // welche Modelle freigeschaltet sind. Erstes funktionierendes gewinnt.
+  const candidates = [
+    process.env.GROK_VISION_MODEL,
+    "grok-4",
+    "grok-4-fast",
+    "grok-2-vision-latest",
+    "grok-2-vision-1212",
+    "grok-vision-beta",
+  ].filter((v, i, a): v is string => !!v && a.indexOf(v) === i);
 
-  if (!res.ok) {
+  let lastErr = "Kein Vision-Modell verfügbar.";
+
+  for (const model of candidates) {
+    const res = await fetch(GROK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model,
+        temperature,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: system },
+          {
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              { type: "image_url", image_url: { url: imageDataUrl, detail: "high" } },
+            ],
+          },
+        ],
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return JSON.parse(data?.choices?.[0]?.message?.content ?? "{}") as T;
+    }
+
     const txt = await res.text();
-    throw new Error(`Grok-Vision-Fehler ${res.status}: ${txt.slice(0, 300)}`);
+    lastErr = `${res.status}: ${txt.slice(0, 200)}`;
+    // Nur bei „Modell nicht gefunden" das nächste Modell versuchen.
+    if (res.status === 404 || /model not found|does not exist|not found:/i.test(txt)) {
+      continue;
+    }
+    throw new Error(`Grok-Vision-Fehler ${lastErr}`);
   }
 
-  const data = await res.json();
-  return JSON.parse(data?.choices?.[0]?.message?.content ?? "{}") as T;
+  throw new Error(`Grok-Vision: kein passendes Modell gefunden. Letzter Fehler: ${lastErr}`);
 }
 
 /**
