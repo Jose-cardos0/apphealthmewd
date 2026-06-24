@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, Plus } from "lucide-react";
 import Icon from "@/components/Icon";
+import Alert from "@/components/Alert";
 import { getDailyLog, saveDailyLog } from "@/lib/logs";
+import type { Profile } from "@/lib/types";
 
 type Food = { name: string; kcal: number; detail: string };
 type Summe = { kcal: number; protein_g: number; kohlenhydrate_g: number; fett_g: number; ballaststoffe_g?: number };
@@ -28,7 +30,7 @@ function categorize(name: string): { icon: string; bg: string } {
   return { icon: "ic-leaf", bg: "#6fc27a" };
 }
 
-export default function Scan({ active }: { active: boolean }) {
+export default function Scan({ active, profile }: { active: boolean; profile: Profile | null }) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [shot, setShot] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
@@ -36,6 +38,7 @@ export default function Scan({ active }: { active: boolean }) {
   const [handOn, setHandOn] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [added, setAdded] = useState(false);
+  const [alert, setAlert] = useState<{ title: string; message: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
 
@@ -106,7 +109,15 @@ export default function Scan({ active }: { active: boolean }) {
     setAdded(true);
     try {
       const log = await getDailyLog();
-      await saveDailyLog(log.water_ml, log.kcal + kcal);
+      const total = log.kcal + kcal;
+      await saveDailyLog(log.water_ml, total);
+      const goal = profile?.plan?.daily_kcal ?? 2000;
+      if (total > goal) {
+        setAlert({
+          title: "Kalorienziel überschritten",
+          message: `Mit dieser Mahlzeit liegst du heute bei ${total.toLocaleString("de-DE")} kcal – über deinem Tagesziel von ${goal.toLocaleString("de-DE")} kcal. Plane den Rest des Tages etwas leichter.`,
+        });
+      }
     } catch {
       /* ignoriert */
     }
@@ -135,9 +146,6 @@ export default function Scan({ active }: { active: boolean }) {
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="plate" src="/prato.png" alt="" />
-              <div className="badge b-kcal"><span className="d" style={{ background: "#ff6b3d" }}><Icon name="ic-flame" /></span><div><b>KI</b> kcal</div></div>
-              <div className="badge b-prot"><span className="d" style={{ background: "#ff9500" }}><Icon name="ic-bolt" /></span><div><b>Protein</b><small>automatisch</small></div></div>
-              <div className="badge b-fat"><span className="d" style={{ background: "#a06bd6" }}><Icon name="ic-drop" /></span><div><b>Fett</b><small>automatisch</small></div></div>
             </>
           )}
 
@@ -210,6 +218,8 @@ export default function Scan({ active }: { active: boolean }) {
           </div>
         )}
       </div>
+
+      {alert && <Alert title={alert.title} message={alert.message} onClose={() => setAlert(null)} />}
     </section>
   );
 }

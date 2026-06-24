@@ -37,7 +37,7 @@ export default function AppClient({ profile }: { profile: Profile | null }) {
       <div className="app">
         <Dashboard active={screen === "dashboard"} profile={profile} onScan={() => setScreen("scan")} />
         <Nutrition active={screen === "nutrition"} profile={profile} />
-        <Scan active={screen === "scan"} />
+        <Scan active={screen === "scan"} profile={profile} />
         <Community active={screen === "community"} profile={profile} />
         <Wissen active={screen === "wissen"} profile={profile} />
       </div>

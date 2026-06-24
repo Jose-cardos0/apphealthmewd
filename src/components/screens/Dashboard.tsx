@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Pencil, Camera, Plus, Trash2, GlassWater, Milk } from "lucide-react";
 import Icon from "@/components/Icon";
 import Modal from "@/components/Modal";
+import Alert from "@/components/Alert";
 import { dashboardMetrics, bmiCategory, de } from "@/lib/metrics";
 import { avatarSrc, avatarInitials } from "@/lib/avatar";
 import { uploadAvatar } from "@/lib/uploadAvatar";
@@ -50,6 +51,7 @@ export default function Dashboard({
   const [doseForm, setDoseForm] = useState({ medication: med ?? "Ozempic", dose: profDose, taken_on: todayStr() });
   const [flash, setFlash] = useState<{ key: number; text: string; color: string } | null>(null);
   const flashKey = useRef(0);
+  const [alert, setAlert] = useState<{ title: string; message: string; tone: "warn" | "info" } | null>(null);
 
   const reload = useCallback(async () => {
     try {
@@ -106,6 +108,14 @@ export default function Dashboard({
       text: `${deltaMl > 0 ? "+" : "−"}${Math.abs(deltaMl)} ml`,
       color: deltaMl > 0 ? "#2b9fd6" : "#b4ab99",
     });
+    const goalMl = waterGoalL * 1000;
+    if (deltaMl > 0 && water <= goalMl && next > goalMl) {
+      setAlert({
+        title: "Wasserziel erreicht",
+        message: `Stark! Du hast heute ${de(next / 1000, 1)} L getrunken und dein Ziel von ${de(waterGoalL, 1)} L erreicht. Trink über den Tag verteilt weiter – sehr große Mengen auf einmal sind nicht nötig.`,
+        tone: "info",
+      });
+    }
     try { await saveDailyLog(next, kcal); } catch { /* ignoriert */ }
   }
 
@@ -116,6 +126,13 @@ export default function Dashboard({
     setKcal(next);
     setKcalInput("");
     setModal(null);
+    if (kcal <= kcalGoal && next > kcalGoal) {
+      setAlert({
+        title: "Kalorienziel überschritten",
+        message: `Du liegst heute bei ${next.toLocaleString("de-DE")} kcal – über deinem Tagesziel von ${kcalGoal.toLocaleString("de-DE")} kcal. Plane den Rest des Tages etwas leichter.`,
+        tone: "warn",
+      });
+    }
     try { await saveDailyLog(water, next); } catch { /* ignoriert */ }
   }
 
@@ -386,6 +403,8 @@ export default function Dashboard({
           <button className="qz-next" style={{ width: "100%", marginTop: 14 }} onClick={submitDose}>Eintragen</button>
         </Modal>
       )}
+
+      {alert && <Alert title={alert.title} message={alert.message} tone={alert.tone} onClose={() => setAlert(null)} />}
     </section>
   );
 }
