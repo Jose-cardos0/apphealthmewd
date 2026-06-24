@@ -13,7 +13,15 @@ body {
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  background: radial-gradient(120% 85% at 50% 0%, #fffdf6 0%, #fdf6e3 45%, #faedc6 100%);
+  /* Oben weiß, ab der Mitte warmer orange-goldener Verlauf */
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #ffffff 42%,
+    #fdf1d2 64%,
+    #f8dca0 82%,
+    #f2c873 100%
+  );
 }
 
 /* ===== Goldene Lichtwellen (Gold Rays) ===== */
