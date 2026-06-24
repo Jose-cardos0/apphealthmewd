@@ -1,5 +1,5 @@
 /**
- * Luxuriöser, animierter Goldwellen-Hintergrund.
+ * Luxuriöser, animierter Goldhintergrund mit goldenen Lichtwellen (Gold Rays).
  * Rein dekorativ (aria-hidden), liegt hinter dem Inhalt.
  */
 export default function LuxBackground() {
@@ -9,49 +9,73 @@ export default function LuxBackground() {
       <div className="lux-orb orb2" />
       <div className="lux-orb orb3" />
       <div className="lux-shimmer" />
-      <div className="lux-waves">
-        <div className="wave wave3">
-          <svg viewBox="0 0 2880 320" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="lux-g3" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#fdf4d9" />
-                <stop offset="1" stopColor="#f6d572" />
-              </linearGradient>
-            </defs>
+
+      {/* Goldene Lichtwellen */}
+      <div className="gold-rays">
+        <svg viewBox="0 95 1440 110">
+          <defs>
+            <linearGradient
+              id="rg"
+              gradientUnits="userSpaceOnUse"
+              x1="0"
+              y1="0"
+              x2="360"
+              y2="0"
+              spreadMethod="repeat"
+            >
+              <stop offset="0" stopColor="#e6962f" stopOpacity=".4" />
+              <stop offset=".34" stopColor="#ffc163" />
+              <stop offset=".5" stopColor="#fff3cf" />
+              <stop offset=".66" stopColor="#ffb347" />
+              <stop offset="1" stopColor="#e6962f" stopOpacity=".4" />
+            </linearGradient>
             <path
-              fill="url(#lux-g3)"
-              d="M0,160 Q90,120 180,160 T360,160 T540,160 T720,160 T900,160 T1080,160 T1260,160 T1440,160 T1620,160 T1800,160 T1980,160 T2160,160 T2340,160 T2520,160 T2700,160 T2880,160 L2880,320 L0,320 Z"
+              id="wv1"
+              d="M-540,150 q90,-30 180,0 q90,30 180,0 q90,-30 180,0 q90,30 180,0 q90,-30 180,0 q90,30 180,0 q90,-30 180,0 q90,30 180,0 q90,-30 180,0 q90,30 180,0 q90,-30 180,0 q90,30 180,0"
             />
-          </svg>
-        </div>
-        <div className="wave wave2">
-          <svg viewBox="0 0 2880 320" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="lux-g2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#fbe8a8" />
-                <stop offset="1" stopColor="#e6b325" />
-              </linearGradient>
-            </defs>
             <path
-              fill="url(#lux-g2)"
-              d="M0,160 Q90,120 180,160 T360,160 T540,160 T720,160 T900,160 T1080,160 T1260,160 T1440,160 T1620,160 T1800,160 T1980,160 T2160,160 T2340,160 T2520,160 T2700,160 T2880,160 L2880,320 L0,320 Z"
+              id="wv3"
+              d="M-600,143 q90,-34 180,0 q90,34 180,0 q90,-34 180,0 q90,34 180,0 q90,-34 180,0 q90,34 180,0 q90,-34 180,0 q90,34 180,0 q90,-34 180,0 q90,34 180,0 q90,-34 180,0 q90,34 180,0"
             />
-          </svg>
-        </div>
-        <div className="wave wave1">
-          <svg viewBox="0 0 2880 320" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="lux-g1" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#f6d572" />
-                <stop offset="1" stopColor="#c8930a" />
-              </linearGradient>
-            </defs>
             <path
-              fill="url(#lux-g1)"
-              d="M0,170 Q90,125 180,170 T360,170 T540,170 T720,170 T900,170 T1080,170 T1260,170 T1440,170 T1620,170 T1800,170 T1980,170 T2160,170 T2340,170 T2520,170 T2700,170 T2880,170 L2880,320 L0,320 Z"
+              id="wv5"
+              d="M-570,134 q90,-28 180,0 q90,28 180,0 q90,-28 180,0 q90,28 180,0 q90,-28 180,0 q90,28 180,0 q90,-28 180,0 q90,28 180,0 q90,-28 180,0 q90,28 180,0 q90,-28 180,0 q90,28 180,0"
             />
-          </svg>
-        </div>
+          </defs>
+
+          <g fill="none" stroke="url(#rg)" strokeLinecap="round">
+            <use href="#wv1" strokeWidth="2.2">
+              <animateTransform
+                attributeName="transform"
+                type="translate"
+                from="0 0"
+                to="360 0"
+                dur="9s"
+                repeatCount="indefinite"
+              />
+            </use>
+            <use href="#wv3" strokeWidth="1.8" opacity=".85">
+              <animateTransform
+                attributeName="transform"
+                type="translate"
+                from="0 0"
+                to="360 0"
+                dur="13s"
+                repeatCount="indefinite"
+              />
+            </use>
+            <use href="#wv5" strokeWidth="1.5" opacity=".7">
+              <animateTransform
+                attributeName="transform"
+                type="translate"
+                from="0 0"
+                to="360 0"
+                dur="17s"
+                repeatCount="indefinite"
+              />
+            </use>
+          </g>
+        </svg>
       </div>
     </div>
   );

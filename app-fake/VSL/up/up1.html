@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HealthMe Nutrition – KI-Ernährung für deine GLP-1-Behandlung</title>
+  <meta name="description" content="Erhalte einen personalisierten Ernährungsplan, täglich aktualisiert, um Fett zu verlieren und dabei deine Muskeln während der GLP-1-Behandlung zu erhalten." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        colors: { gold: { 50:'#fffdf4',100:'#fdf4d9',200:'#fbe8a8',300:'#f6d572',400:'#e6b325',500:'#c8930a' } },
+        fontFamily: { sans: ['Poppins','ui-sans-serif','system-ui','sans-serif'] }
+      } }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    html { scroll-behavior: smooth; }
+    @keyframes ctaPulse { 0%,100%{ transform:scale(1); box-shadow:0 12px 30px rgba(230,179,37,.35); } 50%{ transform:scale(1.035); box-shadow:0 18px 40px rgba(230,179,37,.5); } }
+    .cta-pulse{ animation:ctaPulse 2.2s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce){ .cta-pulse{ animation:none !important; } }
+
+    /* ===== Scroll-Reveal (fade-in ao rolar) ===== */
+    .reveal{ opacity:0; transform:translateY(26px); transition:opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1); will-change:opacity, transform; }
+    .reveal.is-visible{ opacity:1; transform:none; }
+    @media (prefers-reduced-motion: reduce){ .reveal, .reveal.is-visible{ opacity:1 !important; transform:none !important; transition:none !important; } }
+  </style>
+</head>
+<body class="font-sans bg-white text-gray-700 antialiased">
+
+  <!-- ====================== HEADLINE DE ALERTA (fixa no topo, largura total) ====================== -->
+  <div class="w-full bg-red-600 text-white text-center font-extrabold uppercase tracking-wide text-sm md:text-2xl px-4 py-3 md:py-6 shadow-lg">
+    Warte! Schließe diese Seite nicht
+  </div>
+
+  <!-- ====================== HERO / ALERTA ====================== -->
+  <section class="relative overflow-hidden bg-gradient-to-b from-gold-50 to-white">
+    <div class="max-w-3xl mx-auto px-5 py-7 md:py-16 text-center">
+      <h1 class="text-xl md:text-4xl font-extrabold text-gray-800 leading-tight mb-3">
+        Das wird deine Ergebnisse <span class="text-gold-500">noch weiter optimieren</span>
+      </h1>
+      <p class="text-[15px] md:text-lg text-gray-600 mb-3">
+        Die GLP-1-Injektion nimmt dir den Hunger. Aber <span class="font-semibold text-gray-800">was du isst</span>, während du sie verwendest,
+        entscheidet darüber, ob du <span class="font-semibold text-green-600">Fett</span> oder <span class="font-semibold text-red-500">Muskeln</span> verlierst.
+      </p>
+      <p class="text-[15px] md:text-lg text-gray-600 mb-5 max-w-2xl mx-auto">
+        In der App <span class="font-semibold">HealthMe GLP-1</span> erhältst du Zugang zu <span class="font-semibold text-gold-500">HealthMe Nutrition</span> —
+        einem personalisierten Ernährungsplan, der täglich an deine Ziele angepasst wird und das verwendet, was du bereits im Kühlschrank hast.
+        Erfahre genau, was du essen musst, um dein Nährstoffziel zu erreichen, Muskelmasse zu erhalten und Nebenwirkungen zu minimieren.
+      </p>
+
+      <div class="bg-white border border-gold-200 rounded-3xl shadow-xl shadow-gold-100 p-5 md:p-8 max-w-md mx-auto mb-5">
+        <p class="text-sm text-gray-500 uppercase tracking-wide font-semibold mb-1">Sofortiger Zugang für</p>
+        <div class="flex items-end justify-center gap-1">
+          <span class="text-3xl md:text-5xl font-extrabold text-green-600">€39,90</span>
+          <span class="text-gray-500 mb-1">/Monat</span>
+        </div>
+        <p class="text-sm text-gold-600 font-medium mt-2">Weniger als 10 % von dem, was du bereits monatlich für die Medikation ausgibst.</p>
+      </div>
+
+      <a href="#oferta" class="cta-pulse inline-block bg-gold-400 hover:bg-gold-500 text-white font-bold text-base md:text-lg px-8 py-4 rounded-full shadow-lg shadow-gold-200 transition">
+        ICH WILL JETZT MEINEN KOMPLETTEN ERNÄHRUNGSPLAN
+      </a>
+    </div>
+  </section>
+
+  <!-- ====================== DEPOIMENTO DESTAQUE ====================== -->
+  <section class="py-14 md:py-20 bg-white">
+    <div class="max-w-4xl mx-auto px-5 grid md:grid-cols-2 gap-8 items-center">
+      <div class="rounded-3xl overflow-hidden shadow-xl shadow-gold-100 bg-gray-50">
+        <img src="assets/woman1.jpg" alt="Echtes Vorher-Nachher" class="w-full h-auto">
+      </div>
+      <div>
+        <div class="text-gold-400 text-lg mb-3">★★★★★</div>
+        <p class="text-lg text-gray-700 leading-relaxed mb-4">
+          "Ich habe 18 Kilo abgenommen, aber das Beste ist, dass ich keine Muskelmasse verloren habe und meine Haut weiterhin straff ist.
+          HealthMe Nutrition hat mir genau geliefert, was ich jeden Tag essen musste.
+          Meine Ergebnisse haben sich enorm beschleunigt, seit ich es verwende."
+        </p>
+        <p class="font-bold text-gray-800">— Sophie M., 34 Jahre, Berlin <span class="text-green-600 font-medium">✓ Verifiziert</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== DOIS CAMINHOS ====================== -->
+  <section class="py-14 md:py-20 bg-gradient-to-b from-white to-gold-50">
+    <div class="max-w-5xl mx-auto px-5">
+      <h2 class="text-2xl md:text-4xl font-extrabold text-gray-800 text-center mb-12">
+        Zwei Wege. Dieselbe Behandlung.<br>
+        <span class="text-gold-500">Völlig unterschiedliche Ergebnisse.</span>
+      </h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- SEM dieta -->
+        <div class="bg-red-50/60 border-2 border-red-100 rounded-3xl p-7">
+          <h3 class="text-lg font-extrabold text-gray-800 mb-5">GLP-1-Injektion <span class="text-red-500">ohne die richtige Ernährung</span></h3>
+          <ul class="space-y-3 text-sm text-gray-600">
+            <li class="flex gap-3"><span class="text-red-400 mt-0.5">✕</span> Du verlierst Gewicht, aber bis zu 60 % davon ist Muskelmasse — kein Fett.</li>
+            <li class="flex gap-3"><span class="text-red-400 mt-0.5">✕</span> "Ozempic-Gesicht": eingefallenes Gesicht, schlaffe Haut, gealtertes Aussehen.</li>
+            <li class="flex gap-3"><span class="text-red-400 mt-0.5">✕</span> Ständige Übelkeit, keine Energie zum Trainieren, Verstopfung.</li>
+            <li class="flex gap-3"><span class="text-red-400 mt-0.5">✕</span> Beim Absetzen der Medikation: Rebound-Effekt innerhalb von 1 bis 1,5 Jahren — zurück zum alten Gewicht.</li>
+            <li class="flex gap-3 font-semibold text-red-600"><span class="text-red-400 mt-0.5">✕</span> 150 bis 300 €/Monat für Medikation mit verschwendetem Ergebnis.</li>
+          </ul>
+        </div>
+        <!-- COM dieta -->
+        <div class="bg-gold-50 border-2 border-gold-200 rounded-3xl p-7 shadow-xl shadow-gold-100 relative">
+          <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-gold-400 text-white text-xs font-semibold px-4 py-1.5 rounded-full">Der richtige Weg</span>
+          <h3 class="text-lg font-extrabold text-gray-800 mb-5">GLP-1 + <span class="text-gold-500">HealthMe Nutrition</span></h3>
+          <ul class="space-y-3 text-sm text-gray-700">
+            <li class="flex gap-3"><span class="text-gold-400 mt-0.5">✓</span> Du verlierst Fett und erhältst dabei bis zu 70 % deiner Muskelmasse.</li>
+            <li class="flex gap-3"><span class="text-gold-400 mt-0.5">✓</span> Definierter und straffer Körper — keine schlaffe Haut, kein "Ozempic-Gesicht".</li>
+            <li class="flex gap-3"><span class="text-gold-400 mt-0.5">✓</span> Nebenwirkungen werden durch strategische Lebensmittelauswahl und das richtige Timing minimiert.</li>
+            <li class="flex gap-3"><span class="text-gold-400 mt-0.5">✓</span> Essgewohnheiten, die dein Ergebnis auch nach dem Absetzen der Medikation halten.</li>
+            <li class="flex gap-3 font-semibold text-gold-600"><span class="text-gold-400 mt-0.5">✓</span> Jeder in die Medikation investierte Euro wird maximal ausgenutzt — bis zu 3-mal bessere Ergebnisse.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="text-center mt-10">
+        <a href="#oferta" class="inline-block bg-gold-400 hover:bg-gold-500 text-white font-bold px-8 py-4 rounded-full shadow-lg shadow-gold-200 transition">
+          ICH WILL JETZT MEINEN KOMPLETTEN ERNÄHRUNGSPLAN
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== PROVAS SOCIAIS ====================== -->
+  <section class="py-14 md:py-20 bg-white">
+    <div class="max-w-5xl mx-auto px-5">
+      <h2 class="text-xl md:text-3xl font-extrabold text-gray-800 text-center mb-3">
+        Tausende Menschen nutzen HealthMe Nutrition bereits, um ihre GLP-1-Behandlung zu optimieren
+      </h2>
+      <div class="flex items-center justify-center gap-2 mb-10 text-gold-400 text-xl">★★★★★ <span class="text-gray-500 text-sm ml-1">4,9 · + als 10.000 Bewertungen</span></div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <!-- Homem -->
+        <div class="bg-white rounded-3xl shadow-lg shadow-gold-100 overflow-hidden border border-gold-50">
+          <div class="relative bg-gray-50">
+            <img src="assets/andre_lucas-1-749x1024.webp" alt="Vorher und Nachher" class="w-full h-auto">
+            <span class="absolute bottom-2 left-2 bg-green-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-full">Echtes Ergebnis</span>
+          </div>
+          <div class="p-5">
+            <div class="text-gold-400 text-sm mb-2">★★★★★</div>
+            <p class="text-gray-600 text-sm leading-relaxed">"Vor HealthMe Nutrition wusste ich nicht, wie ich mein tägliches Proteinziel erreichen sollte. Jetzt erhalte ich einen kompletten Plan, was ich essen soll, speziell für mich erstellt."</p>
+            <p class="mt-3 font-bold text-gray-800 text-sm">Lukas B. <span class="text-green-600 font-medium">✓ Verifiziert</span></p>
+          </div>
+        </div>
+        <!-- Mulher -->
+        <div class="bg-white rounded-3xl shadow-lg shadow-gold-100 overflow-hidden border border-gold-50">
+          <div class="relative bg-gray-50">
+            <img src="assets/woman2.jpg" alt="Vorher und Nachher" class="w-full h-auto">
+            <span class="absolute bottom-2 left-2 bg-green-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-full">-12 kg</span>
+          </div>
+          <div class="p-5">
+            <div class="text-gold-400 text-sm mb-2">★★★★★</div>
+            <p class="text-gray-600 text-sm leading-relaxed">"Ich habe 6 Monate lang Ozempic genommen. Ohne HealthMe Nutrition hätte ich meine Ergebnisse nicht erreicht — ich wusste jeden Tag genau, was ich essen sollte."</p>
+            <p class="mt-3 font-bold text-gray-800 text-sm">Marina K. <span class="text-green-600 font-medium">✓ Verifiziert</span></p>
+          </div>
+        </div>
+        <!-- Mulher -->
+        <div class="bg-white rounded-3xl shadow-lg shadow-gold-100 overflow-hidden border border-gold-50">
+          <div class="relative bg-gray-50">
+            <img src="assets/camila_guerra-2-749x1024.webp" alt="Vorher und Nachher" class="w-full h-auto">
+            <span class="absolute bottom-2 left-2 bg-green-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-full">-20 kg</span>
+          </div>
+          <div class="p-5">
+            <div class="text-gold-400 text-sm mb-2">★★★★★</div>
+            <p class="text-gray-600 text-sm leading-relaxed">"Danke, HealthMe Nutrition! Ich bin mitten in der Behandlung und hatte bis heute keine Nebenwirkungen und keine schlaffe Haut. Die richtigen Mahlzeiten helfen mir sehr."</p>
+            <p class="mt-3 font-bold text-gray-800 text-sm">Lena F. <span class="text-green-600 font-medium">✓ Verifiziert</span></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-10">
+        <a href="#oferta" class="inline-block bg-gold-400 hover:bg-gold-500 text-white font-bold px-8 py-4 rounded-full shadow-lg shadow-gold-200 transition">
+          ICH WILL JETZT MEINEN KOMPLETTEN ERNÄHRUNGSPLAN
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== OFERTA ====================== -->
+  <section id="oferta" class="py-16 md:py-24 bg-gradient-to-b from-gold-50 to-gold-100">
+    <div class="max-w-lg mx-auto px-5">
+      <h2 class="text-2xl md:text-3xl font-extrabold text-gray-800 text-center mb-8">Zusammenfassung dessen, was du erhältst</h2>
+
+      <div class="bg-white rounded-3xl shadow-2xl shadow-gold-200 border-2 border-gold-200 p-6 md:p-8">
+        <ul class="space-y-4 mb-7">
+          <li class="flex gap-3">
+            <span class="flex-shrink-0 w-7 h-7 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+            <div><p class="font-bold text-gray-800 text-sm">Kompletter Ernährungsplan, Tag für Tag</p><p class="text-gray-500 text-sm">Personalisiert für deine Dosis, dein Gewicht, dein Alter und deine Ziele</p></div>
+          </li>
+          <li class="flex gap-3">
+            <span class="flex-shrink-0 w-7 h-7 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+            <div><p class="font-bold text-gray-800 text-sm">Aktualisierungen des Ernährungsplans entsprechend deinem Fortschritt</p><p class="text-gray-500 text-sm">Automatische Anpassungen jede Woche</p></div>
+          </li>
+          <li class="flex gap-3">
+            <span class="flex-shrink-0 w-7 h-7 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+            <div><p class="font-bold text-gray-800 text-sm">Strategische Proteindosierung zum Erhalt der Muskeln</p><p class="text-gray-500 text-sm">Exakte Berechnung auf Basis wissenschaftlicher Studien</p></div>
+          </li>
+          <li class="flex gap-3">
+            <span class="flex-shrink-0 w-7 h-7 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+            <div><p class="font-bold text-gray-800 text-sm">+100 "Fettkiller"-Rezepte <span class="text-gold-500">(Bonus)</span></p><p class="text-gray-500 text-sm">Gerichte, die die Fettverbrennung beschleunigen</p></div>
+          </li>
+          <li class="flex gap-3">
+            <span class="flex-shrink-0 w-7 h-7 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+            <div><p class="font-bold text-gray-800 text-sm">7-Tage-Garantie — Null Risiko</p><p class="text-gray-500 text-sm">Nicht zufrieden? Wir erstatten dir 100 % deines Geldes</p></div>
+          </li>
+        </ul>
+
+        <div class="text-center bg-gold-50 rounded-2xl py-5 px-4 mb-5">
+          <p class="text-sm text-gray-500">Gesamtwert von allem: <span class="line-through font-semibold text-red-400">€489/Monat</span></p>
+          <p class="text-sm text-gray-600 mt-1">Heute bekommst du alles für nur</p>
+          <div class="flex items-end justify-center gap-1 mt-1">
+            <span class="text-3xl md:text-5xl font-extrabold text-green-600">€39,90</span>
+            <span class="text-gray-500 mb-1">/Monat</span>
+          </div>
+        </div>
+
+        <a href="https://dietadascanetinhas.com.br/pv3/?utm_source=FacebookAds&utm_medium=ADV++-+AD+106+-+LEVA+17&utm_campaign=VENDAS+-+%5BDDC%5D+-+%5BPV3+INST.+%5D+-+LEVA+17+-+AD+106+-+09/05+%5BTESTE+AD+2D%5D+%E2%80%94+13/05&utm_content=AD+106+-+LEVA+17&utm_term=Instagram_Stories&utm_id=120244332304130644#OFERTA"
+           class="cta-pulse block text-center bg-green-500 hover:bg-green-600 text-white font-extrabold text-base md:text-lg px-6 py-5 rounded-2xl shadow-lg shadow-green-200 transition">
+          JA, ICH WILL DAS ALLES FÜR NUR €39,90/MONAT
+        </a>
+        <p class="text-center text-xs text-gray-400 mt-4">Sichere Zahlung · SSL · Jederzeit kündbar</p>
+      </div>
+
+      <p class="text-center text-xs text-gray-400 mt-6">Monatliche Verlängerung von €39,90. HealthMe ist ein Begleit-Tool und ersetzt keine ärztliche Beratung.</p>
+    </div>
+  </section>
+
+  <!-- ====================== FOOTER ====================== -->
+  <footer class="bg-gray-900 text-gray-400 pt-16 pb-8">
+    <div class="max-w-5xl mx-auto px-6">
+      <div class="grid md:grid-cols-3 gap-10 mb-10">
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <img src="../logo.png" alt="HealthMe" class="h-10 w-auto">
+          </div>
+          <p class="text-sm leading-relaxed">Organisation deiner GLP-1-Behandlung an einem einzigen Ort: Dosis-Planung, Begleitung und eine Community von Nutzern.</p>
+        </div>
+        <div>
+          <h4 class="text-white font-semibold mb-4">Rechtliches</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="../impressum.html" class="hover:text-gold-300 transition">Nutzungsbedingungen</a></li>
+            <li><a href="../datenschutz.html" class="hover:text-gold-300 transition">Datenschutzerklärung</a></li>
+            <li><a href="../agb.html" class="hover:text-gold-300 transition">Allgemeine Geschäftsbedingungen</a></li>
+            <li><a href="../widerruf.html" class="hover:text-gold-300 transition">Widerrufsbelehrung</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-white font-semibold mb-4">Support</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="../kontakt.html" class="hover:text-gold-300 transition">Kontakt & Support</a></li>
+            <li><a href="#oferta" class="hover:text-gold-300 transition">Angebot ansehen</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Aviso: app sem funções médicas -->
+      <div class="border-t border-gray-800 pt-6">
+        <p class="text-xs leading-relaxed text-gray-500">
+          <span class="font-semibold text-gray-300">Wichtiger Hinweis:</span>
+          HealthMe ist eine App zur persönlichen Organisation. Ihre Funktionen beschränken sich auf die Planung und Katalogisierung von Dosen
+          sowie auf eine Nutzer-Community — nichts darüber hinaus. HealthMe <span class="font-semibold">ist kein medizinischer Dienst</span>,
+          besitzt keinerlei medizinische Funktion und ersetzt nicht die Konsultation von Gesundheitsfachkräften. Die App
+          <span class="font-semibold">diagnostiziert nicht, verschreibt nicht, weist nicht an, empfiehlt nicht und berät nicht</span>
+          in Bezug auf Medikamente, Dosen, Behandlungen oder gesundheitliche Maßnahmen. Konsultiere immer deinen Arzt, bevor du
+          eine Behandlung beginnst, änderst oder abbrichst.
+        </p>
+        <p class="text-xs text-gray-600 mt-4">© 2026 HealthMe · Alle Rechte vorbehalten.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ====================== SCROLL-REVEAL ====================== -->
+  <script>
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { e.target.classList.toggle('is-visible', e.isIntersecting); });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      function tag(el, delayIndex) {
+        if (el.classList.contains('reveal')) return;
+        el.classList.add('reveal');
+        if (delayIndex > 0) el.style.transitionDelay = (delayIndex * 0.09).toFixed(2) + 's';
+        var r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('is-visible');
+        io.observe(el);
+      }
+      function revealChildren(container, stagger) {
+        Array.prototype.forEach.call(container.children, function (child, i) {
+          if (child.classList.contains('grid')) revealChildren(child, true);
+          else tag(child, stagger ? i : 0);
+        });
+      }
+      function init() {
+        document.querySelectorAll('section').forEach(function (sec) {
+          var inner = sec.querySelector(':scope > div[class*="max-w-"]');
+          if (!inner) return;
+          revealChildren(inner, inner.classList.contains('grid'));
+        });
+      }
+      if (document.readyState !== 'loading') init();
+      else document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+  <!-- Sticky Mobile-CTA -->
+  <div class="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white/95 backdrop-blur border-t border-gold-100 px-4 pt-3 shadow-[0_-6px_22px_rgba(0,0,0,.10)]" style="padding-bottom:calc(0.75rem + env(safe-area-inset-bottom))">
+    <a href="#oferta" class="block text-center bg-gold-400 hover:bg-gold-500 text-white font-extrabold text-sm px-5 py-3.5 rounded-full shadow-lg shadow-gold-200">JETZT SICHERN</a>
+  </div>
+  <div class="md:hidden h-20 bg-gray-900" aria-hidden="true"></div>
+</body>
+</html>
