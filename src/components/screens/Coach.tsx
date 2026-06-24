@@ -6,7 +6,7 @@ import Icon from "@/components/Icon";
 import Modal from "@/components/Modal";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import { saveWeeklyPlan, getWeeklyPlan, logWorkoutDone, getTodayWorkoutLogs } from "@/lib/workouts";
-import type { Profile, WeeklyPlan, WorkoutDay, WorkoutLog } from "@/lib/types";
+import type { Profile, WeeklyPlan, WorkoutDay, WorkoutLog, WorkoutExercise } from "@/lib/types";
 
 const DAYS_SHORT = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 const todayIdx = () => (new Date().getDay() + 6) % 7; // Mo=0 … So=6
@@ -18,7 +18,7 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
   const [error, setError] = useState<string | null>(null);
   const [dayIdx, setDayIdx] = useState(todayIdx());
   const [doneToday, setDoneToday] = useState<WorkoutLog[]>([]);
-  const [bigGif, setBigGif] = useState<{ url: string; name: string } | null>(null);
+  const [bigEx, setBigEx] = useState<WorkoutExercise | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [busyDone, setBusyDone] = useState(false);
 
@@ -162,16 +162,18 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
                   <>
                     <p className="pe-sec" style={{ marginTop: 14 }}>Übungen</p>
                     {(day.uebungen ?? []).map((u, i) => (
-                      <div key={i} className="dose" style={{ alignItems: "center" }}>
-                        <span className="di" style={{ background: "#f4f3f0", color: "#3d3a35" }}>{i + 1}</span>
+                      <div key={i} className="dose ex-row" onClick={() => setBigEx(u)}>
+                        <span className={`di${u.gifUrl ? " ex-di" : ""}`} style={u.gifUrl ? undefined : { background: "#f4f3f0", color: "#3d3a35" }}>
+                          {u.gifUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img className="ex-di-gif" src={u.gifUrl} alt="" />
+                          ) : i + 1}
+                        </span>
                         <div className="dinfo">
                           <div className="dn">{u.name}</div>
                           <div className="dd">{u.saetze} × {u.wdh}{u.pause_sek ? ` · ${u.pause_sek}s Pause` : ""}{u.hinweis ? ` · ${u.hinweis}` : ""}</div>
                         </div>
-                        {u.gifUrl && (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img className="ex-gif" src={u.gifUrl} alt={u.name} onClick={() => setBigGif({ url: u.gifUrl as string, name: u.name })} />
-                        )}
+                        <span className="muted" style={{ flexShrink: 0 }}><Icon name="ic-chev" /></span>
                       </div>
                     ))}
                   </>
@@ -204,11 +206,23 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
         </p>
       </div>
 
-      {bigGif && (
-        <Modal title={bigGif.name} onClose={() => setBigGif(null)}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={bigGif.url} alt={bigGif.name} style={{ width: "100%", borderRadius: 14, background: "#fff" }} />
-          <p className="muted" style={{ fontSize: 11.5, textAlign: "center", marginTop: 10, marginBottom: 0 }}>Animation: ExerciseDB</p>
+      {bigEx && (
+        <Modal title={bigEx.name} onClose={() => setBigEx(null)}>
+          {bigEx.gifUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={bigEx.gifUrl} alt={bigEx.name} style={{ width: "100%", borderRadius: 14, background: "#fff", border: "1px solid var(--line)" }} />
+          ) : (
+            <div style={{ textAlign: "center", padding: "30px 14px", background: "#faf9f7", border: "1px solid var(--line)", borderRadius: 14, color: "var(--muted)", fontSize: 13.5 }}>
+              Für diese Übung ist gerade keine Animation verfügbar.
+            </div>
+          )}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 14 }}>
+            <span className="pill" style={{ background: "#f3f2ef", color: "#3d3a35" }}>{bigEx.saetze} Sätze</span>
+            <span className="pill" style={{ background: "#f3f2ef", color: "#3d3a35" }}>{bigEx.wdh} Wdh.</span>
+            {bigEx.pause_sek && <span className="pill" style={{ background: "#f3f2ef", color: "#3d3a35" }}>{bigEx.pause_sek}s Pause</span>}
+          </div>
+          {bigEx.hinweis && <p style={{ marginTop: 12, marginBottom: 0, fontSize: 14, lineHeight: 1.5, color: "var(--ink)" }}>{bigEx.hinweis}</p>}
+          <p className="muted" style={{ fontSize: 11.5, marginTop: 12, marginBottom: 0 }}>Animation: ExerciseDB</p>
         </Modal>
       )}
 

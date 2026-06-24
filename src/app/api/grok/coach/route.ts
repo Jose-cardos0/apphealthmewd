@@ -5,18 +5,31 @@ import type { WeeklyPlan } from "@/lib/types";
 
 export const maxDuration = 60;
 
-/** Holt eine animierte GIF-URL aus der ExerciseDB (RapidAPI), best effort. */
+/**
+ * Sucht in der ExerciseDB (RapidAPI) nach dem Begriff und liefert die URL
+ * unseres GIF-Proxys (über die Exercise-ID). Best effort.
+ */
 async function fetchExerciseGif(term: string): Promise<string | null> {
   const key = process.env.RAPIDAPI_KEY;
   if (!key || !term) return null;
-  try {
+  const headers = { "X-RapidAPI-Key": key, "X-RapidAPI-Host": "exercisedb.p.rapidapi.com" };
+  const tryTerm = async (t: string): Promise<string | null> => {
     const res = await fetch(
-      `https://exercisedb.p.rapidapi.com/exercises/name/${encodeURIComponent(term.toLowerCase())}?limit=1`,
-      { headers: { "X-RapidAPI-Key": key, "X-RapidAPI-Host": "exercisedb.p.rapidapi.com" } },
+      `https://exercisedb.p.rapidapi.com/exercises/name/${encodeURIComponent(t.toLowerCase())}?limit=1`,
+      { headers },
     );
     if (!res.ok) return null;
     const arr = await res.json();
-    return Array.isArray(arr) && arr[0]?.gifUrl ? (arr[0].gifUrl as string) : null;
+    const id = Array.isArray(arr) && arr[0]?.id ? String(arr[0].id) : null;
+    return id ? `/api/exercise-gif?id=${id}` : null;
+  };
+  try {
+    // Erst den vollen Begriff, dann eine vereinfachte Variante (letzte 2 Wörter)
+    const direct = await tryTerm(term);
+    if (direct) return direct;
+    const words = term.trim().split(/\s+/);
+    if (words.length > 2) return await tryTerm(words.slice(-2).join(" "));
+    return null;
   } catch {
     return null;
   }
@@ -32,7 +45,7 @@ const SYSTEM_PROMPT =
   "Antworte AUSSCHLIESSLICH mit gültigem JSON, ohne Markdown, in folgendem Format: " +
   '{"titel":"Deine Trainingswoche","fokus":"z. B. Abnehmen · Ganzkörper","tage":[' +
   '{"tag":"Montag","rest":false,"titel":"Ganzkörper","fokus":"Beine & Core","dauer_min":35,"kcal_verbrennung":280,' +
-  '"uebungen":[{"name":"Übung auf Deutsch","en":"english name for image search, e.g. squat, push up, lunge","saetze":"3","wdh":"12","pause_sek":"45","hinweis":"kurzer Tipp"}],' +
+  '"uebungen":[{"name":"Übung auf Deutsch","en":"gebräuchlicher englischer Übungsname, der in einer Fitness-Datenbank existiert, z. B. squat, push up, lunge, plank, glute bridge, mountain climber, jumping jack, crunch, bird dog, hip thrust, high knees","saetze":"3","wdh":"12","pause_sek":"45","hinweis":"kurzer Tipp"}],' +
   '"cardio":[{"name":"Zügiges Gehen","dauer":"10 Min","hinweis":"locker"}]},' +
   '{"tag":"Dienstag","rest":true}]}. ' +
   "GENAU 7 Tage von Montag bis Sonntag. Trainingstage: 4–6 Übungen + 1 Cardio-Einheit. " +

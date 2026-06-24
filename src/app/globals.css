@@ -58,6 +58,17 @@ h1.t { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; margin: 2px 0;
 .tab.active { color: var(--accent2); }
 .tab.active svg { transform: translateY(-1px) scale(1.06); }
 
+/* Schwebender Scan-Button (mobil) – im Bottom-Menü versteckt */
+.tab.scan-tab { display: none; }
+.scan-fab { position: absolute; right: 16px; bottom: calc(88px + env(safe-area-inset-bottom)); z-index: 40;
+  width: 60px; height: 60px; border-radius: 50%; border: 3px solid #fff; background: #fff; overflow: visible;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25); cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; }
+.scan-fab.active { box-shadow: 0 0 0 3px var(--accent2), 0 10px 26px rgba(0, 0, 0, 0.25); }
+.scan-fab-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; animation: fabSpin 14s linear infinite; }
+.scan-fab-cam { position: absolute; right: -3px; bottom: -3px; width: 25px; height: 25px; border-radius: 50%; background: #fff; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); color: var(--accent2); display: flex; align-items: center; justify-content: center; }
+.scan-fab-cam svg { width: 13px; height: 13px; }
+@media (prefers-reduced-motion: reduce) { .scan-fab-img { animation: none; } }
+
 /* FAB – Scan */
 .tab.fab { flex: 0 0 70px; position: relative; }
 .tab.fab .fab-btn { position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%); width: 58px; height: 58px; border-radius: 50%;
@@ -159,8 +170,10 @@ h1.t { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; margin: 2px 0;
 .chat-input button svg { width: 20px; height: 20px; }
 .note-disc { font-size: 11px; color: var(--muted); text-align: center; padding: 0 24px 6px; }
 
-.ex-gif { width: 54px; height: 54px; border-radius: 11px; object-fit: cover; background: #fff; border: 1px solid var(--line); flex-shrink: 0; cursor: pointer; transition: transform 0.15s; }
-.ex-gif:hover { transform: scale(1.05); }
+.ex-row { cursor: pointer; transition: background 0.15s; border-radius: 10px; }
+.ex-row:hover { background: #faf9f7; }
+.di.ex-di { padding: 0; overflow: hidden; background: #fff; border: 1px solid var(--line); }
+.ex-di-gif { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* Coach: runder „Montar treino"-Button */
 .coach-fab { width: 120px; height: 120px; border-radius: 50%; border: none; background: var(--btn); color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22); transition: transform 0.15s; }
@@ -437,6 +450,8 @@ h1.t { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; margin: 2px 0;
     color: #b4877f; font-size: 14.5px; font-weight: 700; font-family: inherit;
   }
   .nav-logout:hover { background: #fdecea; color: #c0392b; }
+  .tab.scan-tab { display: flex; }
+  .scan-fab { display: none; }
   .nav-logout svg { width: 22px; height: 22px; }
 
   /* Hauptbereich: zentrierte Inhaltsspalte */

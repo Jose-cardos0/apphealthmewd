@@ -51,40 +51,33 @@ export default function AppClient({ profile }: { profile: Profile | null }) {
           <img src="/logo.png" alt="HealthMe GLP-1" />
         </div>
 
-        {TABS.map((t) =>
-          t.key === "scan" ? (
-            <button
-              key={t.key}
-              className={`tab fab${screen === t.key ? " active" : ""}`}
-              onClick={() => setScreen(t.key)}
-            >
-              <span className="fab-btn">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="fab-img" src="/prato.png" alt="" />
-                <Icon name="ic-cam" className="i fab-svg" />
-              </span>
-              <span className="spark">
-                <Icon name="ic-cam" />
-              </span>
-              <span>{t.label}</span>
-            </button>
-          ) : (
-            <button
-              key={t.key}
-              className={`tab${screen === t.key ? " active" : ""}`}
-              onClick={() => setScreen(t.key)}
-            >
-              <Icon name={t.icon} />
-              <span>{t.label}</span>
-            </button>
-          ),
-        )}
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            className={`tab${t.key === "scan" ? " scan-tab" : ""}${screen === t.key ? " active" : ""}`}
+            onClick={() => setScreen(t.key)}
+          >
+            <Icon name={t.icon} />
+            <span>{t.label}</span>
+          </button>
+        ))}
 
         <button className="nav-logout" onClick={logout}>
           <Icon name="ic-logout" />
           <span>Abmelden</span>
         </button>
       </nav>
+
+      {/* Schwebender Scan-Button (nur mobil) */}
+      <button
+        className={`scan-fab${screen === "scan" ? " active" : ""}`}
+        onClick={() => setScreen("scan")}
+        aria-label="Scan"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="scan-fab-img" src="/prato.png" alt="" />
+        <span className="scan-fab-cam"><Icon name="ic-cam" /></span>
+      </button>
     </div>
   );
 }
