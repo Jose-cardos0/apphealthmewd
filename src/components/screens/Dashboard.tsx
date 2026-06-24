@@ -236,8 +236,6 @@ export default function Dashboard({
           <div
             className="stat"
             style={overKcal ? {
-              backgroundColor: "#fdeeee",
-              borderColor: "#f1c2c2",
               backgroundImage: "url(/mascote/flyfibravo.png)",
               backgroundRepeat: "no-repeat",
               backgroundPosition: "right -6px bottom -6px",
