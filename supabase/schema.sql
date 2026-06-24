@@ -179,3 +179,43 @@ drop policy if exists "doses_insert_own" on public.doses;
 create policy "doses_insert_own" on public.doses for insert with check (auth.uid() = user_id);
 drop policy if exists "doses_delete_own" on public.doses;
 create policy "doses_delete_own" on public.doses for delete using (auth.uid() = user_id);
+
+-- ------------------------------------------------------------
+--  Coach: gespeicherte Trainingspläne
+-- ------------------------------------------------------------
+create table if not exists public.workouts (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null references auth.users (id) on delete cascade,
+  title      text,
+  data       jsonb not null,
+  created_at timestamptz not null default now()
+);
+create index if not exists workouts_user_idx on public.workouts (user_id, created_at desc);
+alter table public.workouts enable row level security;
+drop policy if exists "workouts_select_own" on public.workouts;
+create policy "workouts_select_own" on public.workouts for select using (auth.uid() = user_id);
+drop policy if exists "workouts_insert_own" on public.workouts;
+create policy "workouts_insert_own" on public.workouts for insert with check (auth.uid() = user_id);
+drop policy if exists "workouts_delete_own" on public.workouts;
+create policy "workouts_delete_own" on public.workouts for delete using (auth.uid() = user_id);
+
+-- ------------------------------------------------------------
+--  Coach: erledigte Trainings (verbrannte Kalorien pro Tag)
+-- ------------------------------------------------------------
+create table if not exists public.workout_logs (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references auth.users (id) on delete cascade,
+  workout_id  uuid references public.workouts (id) on delete set null,
+  title       text,
+  burned_kcal int not null default 0,
+  done_on     date not null default current_date,
+  created_at  timestamptz not null default now()
+);
+create index if not exists workout_logs_user_idx on public.workout_logs (user_id, done_on desc);
+alter table public.workout_logs enable row level security;
+drop policy if exists "workout_logs_select_own" on public.workout_logs;
+create policy "workout_logs_select_own" on public.workout_logs for select using (auth.uid() = user_id);
+drop policy if exists "workout_logs_insert_own" on public.workout_logs;
+create policy "workout_logs_insert_own" on public.workout_logs for insert with check (auth.uid() = user_id);
+drop policy if exists "workout_logs_delete_own" on public.workout_logs;
+create policy "workout_logs_delete_own" on public.workout_logs for delete using (auth.uid() = user_id);

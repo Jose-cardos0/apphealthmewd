@@ -159,6 +159,13 @@ h1.t { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; margin: 2px 0;
 .chat-input button svg { width: 20px; height: 20px; }
 .note-disc { font-size: 11px; color: var(--muted); text-align: center; padding: 0 24px 6px; }
 
+/* Coach-Toast */
+.coach-toast { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 160;
+  background: var(--btn); color: #fff; font-size: 13.5px; font-weight: 600; padding: 11px 18px; border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22); max-width: 88%; text-align: center; animation: toastIn 0.3s ease both; }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translateX(-50%); } }
+@media (min-width: 900px) { .coach-toast { bottom: 28px; } }
+
 /* Scan */
 .scan-body { padding: 0 !important; display: flex; flex-direction: column; }
 .vf { position: relative; flex-shrink: 0; margin: 14px 16px 0; border-radius: 28px; background: radial-gradient(120% 100% at 50% 20%, #fff 0%, #fbf6ea 70%, #f1e8d4 100%); aspect-ratio: 1/1.05; overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); cursor: pointer; }

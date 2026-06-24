@@ -59,8 +59,8 @@ export default function Nutrition({ active, profile }: { active: boolean; profil
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={FLUFY_IMG} alt="Flufy" style={{ objectPosition: "top", background: "#eaf3fb" }} />
         <div style={{ flex: 1 }}>
-          <div className="nm">Flufy <span style={{ fontSize: 11, fontWeight: 600, color: "var(--accent2)", background: "#f4f1e9", padding: "2px 7px", borderRadius: 8, marginLeft: 4 }}>KI</span></div>
-          <div className="st"><span className="dot" /> Online · dein KI-Ernährungshelfer</div>
+          <div className="nm">Flufy </div>
+          <div className="st"><span className="dot" /> Online </div>
         </div>
         <div style={{ color: "var(--accent2)" }}><Icon name="ic-chat" /></div>
       </div>

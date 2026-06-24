@@ -28,6 +28,21 @@ export type Profile = {
   avatar_url: string | null;
 };
 
+/** Trainingsplan (vom Coach / Grok erzeugt). */
+export type WorkoutExercise = { name: string; saetze: string; wdh: string; pause_sek?: string; hinweis?: string };
+export type WorkoutCardio = { name: string; dauer: string; hinweis?: string };
+export type Workout = {
+  titel: string;
+  fokus: string;
+  dauer_min: number;
+  kcal_verbrennung: number;
+  uebungen: WorkoutExercise[];
+  cardio: WorkoutCardio[];
+  tipps: string[];
+};
+export type SavedWorkout = { id: string; title: string | null; data: Workout };
+export type WorkoutLog = { id: string; title: string | null; burned_kcal: number; done_on: string };
+
 /** Eingaben aus dem Onboarding-Quiz. */
 export type OnboardingData = {
   first_name: string;

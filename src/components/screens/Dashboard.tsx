@@ -10,6 +10,7 @@ import { dashboardMetrics, bmiCategory, de } from "@/lib/metrics";
 import { avatarSrc, avatarInitials } from "@/lib/avatar";
 import { uploadAvatar } from "@/lib/uploadAvatar";
 import { getDailyLog, saveDailyLog, listDoses, addDose, removeDose, updateCurrentWeight, todayStr, type Dose } from "@/lib/logs";
+import { getTodayBurned } from "@/lib/workouts";
 import type { Profile } from "@/lib/types";
 
 const MEDS = ["Ozempic", "Wegovy", "Mounjaro", "Saxenda", "Rybelsus"];
@@ -44,6 +45,7 @@ export default function Dashboard({
   // Tagesprotokoll + Dosen
   const [water, setWater] = useState(0);
   const [kcal, setKcal] = useState(0);
+  const [burned, setBurned] = useState(0);
   const [doses, setDoses] = useState<Dose[]>([]);
   const [modal, setModal] = useState<null | "water" | "kcal" | "dose" | "weight">(null);
   const [kcalInput, setKcalInput] = useState("");
@@ -55,10 +57,11 @@ export default function Dashboard({
 
   const reload = useCallback(async () => {
     try {
-      const [log, ds] = await Promise.all([getDailyLog(), listDoses()]);
+      const [log, ds, b] = await Promise.all([getDailyLog(), listDoses(), getTodayBurned()]);
       setWater(log.water_ml);
       setKcal(log.kcal);
       setDoses(ds);
+      setBurned(b);
     } catch {
       /* offline / nicht eingeloggt */
     }
@@ -126,10 +129,10 @@ export default function Dashboard({
     setKcal(next);
     setKcalInput("");
     setModal(null);
-    if (kcal <= kcalGoal && next > kcalGoal) {
+    if (kcal - burned <= kcalGoal && next - burned > kcalGoal) {
       setAlert({
         title: "Kalorienziel überschritten",
-        message: `Du liegst heute bei ${next.toLocaleString("de-DE")} kcal – über deinem Tagesziel von ${kcalGoal.toLocaleString("de-DE")} kcal. Plane den Rest des Tages etwas leichter.`,
+        message: `Du liegst heute bei ${(next - burned).toLocaleString("de-DE")} kcal (abzüglich Training) – über deinem Tagesziel von ${kcalGoal.toLocaleString("de-DE")} kcal. Plane den Rest des Tages etwas leichter.`,
         tone: "warn",
       });
     }
@@ -159,7 +162,8 @@ export default function Dashboard({
   }
 
   const waterL = water / 1000;
-  const overKcal = kcal > kcalGoal;
+  const netKcal = kcal - burned;
+  const overKcal = netKcal > kcalGoal;
 
   return (
     <section className={`screen${active ? " active" : ""}`} id="s-dashboard">
@@ -248,9 +252,12 @@ export default function Dashboard({
             <button className="stat-add" onClick={() => setModal("kcal")} aria-label="Kalorien hinzufügen"><Plus size={17} /></button>
             <div className="h"><span className="ic" style={{ background: "#f4f3f0", color: "#3d3a35" }}><Icon name="ic-flame" style={{ width: 16 }} /></span> Kalorien heute</div>
             <div className="v">
-              <span style={{ color: overKcal ? "#e0484b" : undefined }}>{kcal.toLocaleString("de-DE")}</span>{" "}
+              <span style={{ color: overKcal ? "#e0484b" : undefined }}>{Math.max(0, netKcal).toLocaleString("de-DE")}</span>{" "}
               <small>/ {kcalGoal.toLocaleString("de-DE")}</small>
             </div>
+            {burned > 0 && (
+              <div style={{ fontSize: 11, color: "var(--green)", fontWeight: 600, marginTop: 2 }}>−{burned.toLocaleString("de-DE")} kcal durch Training</div>
+            )}
           </div>
 
           <div className="stat">
