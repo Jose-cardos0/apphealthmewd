@@ -8,6 +8,9 @@ export default async function Home() {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
-  if (user.app_metadata?.must_change_password === true) redirect("/passwort-aendern");
+  const meta = user.app_metadata || {};
+  if (meta.active === false) redirect("/konto-deaktiviert");
+  if (meta.must_change_password === true) redirect("/passwort-aendern");
+  if (meta.onboarding_completed !== true) redirect("/onboarding");
   redirect("/app");
 }

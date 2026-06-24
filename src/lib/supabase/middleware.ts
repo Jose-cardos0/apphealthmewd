@@ -83,27 +83,32 @@ export async function updateSession(request: NextRequest) {
   const meta = user.app_metadata || {};
   const isActive = meta.active !== false; // Standard: aktiv
   const mustChange = meta.must_change_password === true;
+  const onboarded = meta.onboarding_completed === true;
+
+  const redirect = (pathname: string) => {
+    const url = request.nextUrl.clone();
+    url.pathname = pathname;
+    return NextResponse.redirect(url);
+  };
 
   // Deaktiviertes Konto (z. B. nach Rückerstattung)
   if (!isActive) {
-    if (path === "/konto-deaktiviert") return supabaseResponse;
-    const url = request.nextUrl.clone();
-    url.pathname = "/konto-deaktiviert";
-    return NextResponse.redirect(url);
+    return path === "/konto-deaktiviert" ? supabaseResponse : redirect("/konto-deaktiviert");
   }
 
-  // Pflicht zum Passwort-Wechsel beim ersten Login
-  if (mustChange && path !== "/passwort-aendern") {
-    const url = request.nextUrl.clone();
-    url.pathname = "/passwort-aendern";
-    return NextResponse.redirect(url);
+  // 1) Pflicht zum Passwort-Wechsel beim ersten Login
+  if (mustChange) {
+    return path === "/passwort-aendern" ? supabaseResponse : redirect("/passwort-aendern");
   }
 
-  // Bereits eingeloggt & Passwort gesetzt → weg von Login/Wechsel-Seite
-  if (!mustChange && (path === "/login" || path === "/passwort-aendern")) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/app";
-    return NextResponse.redirect(url);
+  // 2) Onboarding-Quiz, falls noch nicht abgeschlossen
+  if (!onboarded) {
+    return path === "/onboarding" ? supabaseResponse : redirect("/onboarding");
+  }
+
+  // 3) Fertig eingerichtet → weg von Login/Setup-Seiten
+  if (path === "/login" || path === "/passwort-aendern" || path === "/onboarding") {
+    return redirect("/app");
   }
 
   return supabaseResponse;

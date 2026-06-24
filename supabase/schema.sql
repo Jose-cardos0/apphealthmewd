@@ -80,3 +80,37 @@ $$;
 
 revoke execute on function public.get_user_id_by_email(text) from public, anon, authenticated;
 grant execute on function public.get_user_id_by_email(text) to service_role;
+
+-- ------------------------------------------------------------
+--  Tabelle: profiles (Onboarding-Quiz / Dashboard-Daten)
+-- ------------------------------------------------------------
+create table if not exists public.profiles (
+  user_id            uuid primary key references auth.users (id) on delete cascade,
+  first_name         text,
+  last_name          text,
+  age                int,
+  city               text,
+  gender             text,
+  height_cm          numeric,
+  start_weight_kg    numeric,
+  current_weight_kg  numeric,
+  goal_weight_kg     numeric,
+  activity_level     text,
+  glp1_medication    text,
+  glp1_dose          text,
+  glp1_frequency     text,
+  glp1_start_date    date,
+  created_at         timestamptz not null default now(),
+  updated_at         timestamptz not null default now()
+);
+
+alter table public.profiles enable row level security;
+
+drop policy if exists "profiles_select_own" on public.profiles;
+create policy "profiles_select_own" on public.profiles for select using (auth.uid() = user_id);
+
+drop policy if exists "profiles_insert_own" on public.profiles;
+create policy "profiles_insert_own" on public.profiles for insert with check (auth.uid() = user_id);
+
+drop policy if exists "profiles_update_own" on public.profiles;
+create policy "profiles_update_own" on public.profiles for update using (auth.uid() = user_id);

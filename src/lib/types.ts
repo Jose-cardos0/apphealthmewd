@@ -1,44 +1,33 @@
-export type SavedKind = "recipe" | "workout" | "scan" | "plan";
-
-export type Naehrwerte = {
-  kcal?: string;
-  eiweiss?: string;
-  kohlenhydrate?: string;
-  fett?: string;
+export type Profile = {
+  user_id: string;
+  first_name: string | null;
+  last_name: string | null;
+  age: number | null;
+  city: string | null;
+  gender: string | null;
+  height_cm: number | null;
+  start_weight_kg: number | null;
+  current_weight_kg: number | null;
+  goal_weight_kg: number | null;
+  activity_level: string | null;
+  glp1_medication: string | null;
+  glp1_dose: string | null;
+  glp1_frequency: string | null;
+  glp1_start_date: string | null;
 };
 
-export type Recipe = {
-  titel: string;
-  meta: string;
-  zutaten: string[];
-  schritte: string[];
-  naehrwerte: Naehrwerte;
-  bild: string;
+/** Eingaben aus dem Onboarding-Quiz. */
+export type OnboardingData = {
+  first_name: string;
+  last_name: string;
+  age: number;
+  city: string;
+  gender: string;
+  height_cm: number;
+  start_weight_kg: number;
+  goal_weight_kg: number;
+  activity_level: string;
+  glp1_medication: string;
+  glp1_dose: string;
+  glp1_frequency: string;
 };
-
-export type Uebung = { name: string; saetze: string; hinweis?: string };
-
-export type Workout = {
-  titel: string;
-  meta: string;
-  aufwaermen: string[];
-  uebungen: Uebung[];
-  tipps: string[];
-};
-
-export type Scan = {
-  gericht: string;
-  portion: string;
-  kcal: string;
-  eiweiss: string;
-  kohlenhydrate: string;
-  fett: string;
-  hinweis: string;
-};
-
-export type Mahlzeit = { name: string; gericht: string };
-export type Tag = { tag: string; mahlzeiten: Mahlzeit[] };
-export type Plan = { titel: string; meta: string; tage: Tag[] };
-
-/** Eine in Supabase gespeicherte Zeile (data enthält den eigentlichen Inhalt). */
-export type SavedItem<T> = { id: string; data: T };

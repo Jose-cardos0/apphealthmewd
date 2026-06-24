@@ -12,7 +12,7 @@ export async function sendWelcomeEmail(opts: {
   const apiKey = process.env.RESEND_API_KEY;
   // Umschließende Anführungszeichen entfernen, falls EMAIL_FROM versehentlich
   // mit "..." gesetzt wurde (Resend lehnt das sonst als ungültig ab).
-  const from = (process.env.EMAIL_FROM || "HealthMe A.I <onboarding@resend.dev>")
+  const from = (process.env.EMAIL_FROM || "HealthMe GLP-1 <onboarding@resend.dev>")
     .trim()
     .replace(/^["']+|["']+$/g, "")
     .trim();
@@ -33,7 +33,7 @@ export async function sendWelcomeEmail(opts: {
   const result = await resend.emails.send({
     from,
     to,
-    subject: "🧚‍♀️ Willkommen bei HealthMe A.I – deine Zugangsdaten",
+    subject: "💛 Willkommen bei HealthMe GLP-1 – deine Zugangsdaten",
     html,
     text,
   });
@@ -50,7 +50,7 @@ export async function sendWelcomeEmail(opts: {
 }
 
 function welcomeText({ to, loginUrl, password }: { to: string; loginUrl: string; password: string }) {
-  return `Willkommen bei HealthMe A.I!
+  return `Willkommen bei HealthMe GLP-1!
 
 Vielen Dank für deinen Kauf. Dein Zugang ist ab sofort freigeschaltet.
 
@@ -63,8 +63,8 @@ Melde dich hier an: ${loginUrl}
 WICHTIG: Aus Sicherheitsgründen wirst du beim ersten Login aufgefordert,
 dein Passwort zu ändern.
 
-Viel Freude mit deiner kleinen Küchenfee!
-Dein HealthMe A.I Team`;
+Wir begleiten dich auf deinem Weg zum Wunschgewicht!
+Dein HealthMe GLP-1 Team`;
 }
 
 function welcomeHtml({
@@ -79,8 +79,8 @@ function welcomeHtml({
   logoUrl: string;
 }) {
   const logoBlock = logoUrl
-    ? `<img src="${escapeHtml(logoUrl)}" alt="HealthMe A.I" width="120" style="display:block;margin:0 auto 10px;width:120px;max-width:60%;height:auto;">`
-    : `<h1 style="margin:0 0 6px;color:#c8930a;font-size:24px;font-weight:800;">HealthMe A.I 🧚‍♀️</h1>`;
+    ? `<img src="${escapeHtml(logoUrl)}" alt="HealthMe GLP-1" width="120" style="display:block;margin:0 auto 10px;width:120px;max-width:60%;height:auto;">`
+    : `<h1 style="margin:0 0 6px;color:#c8930a;font-size:24px;font-weight:800;">HealthMe GLP-1 💛</h1>`;
   return `<!DOCTYPE html>
 <html lang="de">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
@@ -89,13 +89,13 @@ function welcomeHtml({
     <div style="background:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 10px 30px rgba(200,147,10,0.12);">
       <div style="background:#ffffff;padding:32px 32px 20px;text-align:center;border-bottom:1px solid #fdf4d9;">
         ${logoBlock}
-        <p style="margin:0;color:#c8930a;font-size:14px;font-weight:500;">Deine kleine Küchenfee 🧚‍♀️</p>
+        <p style="margin:0;color:#c8930a;font-size:14px;font-weight:500;">Deine Begleitung zum Wunschgewicht 💛</p>
       </div>
       <div style="height:4px;background:linear-gradient(90deg,#f6d572,#e6b325,#c8930a);"></div>
       <div style="padding:32px;">
         <h2 style="margin:0 0 8px;font-size:20px;color:#1f2937;">Willkommen an Bord! 🎉</h2>
         <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#4b5563;">
-          Vielen Dank für deinen Kauf. Dein Zugang zu HealthMe A.I ist ab sofort freigeschaltet.
+          Vielen Dank für deinen Kauf. Dein Zugang zu HealthMe GLP-1 ist ab sofort freigeschaltet.
           Hier sind deine persönlichen Zugangsdaten:
         </p>
 
@@ -126,7 +126,7 @@ function welcomeHtml({
       <div style="padding:20px 32px;background:#fffdf4;border-top:1px solid #fdf4d9;text-align:center;">
         <p style="margin:0;font-size:12px;color:#9ca3af;">
           Diese E-Mail wurde automatisch nach deinem Kauf versendet.<br>
-          © HealthMe A.I
+          © HealthMe GLP-1
         </p>
       </div>
     </div>
