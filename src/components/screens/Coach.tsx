@@ -163,12 +163,7 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
                     <p className="pe-sec" style={{ marginTop: 14 }}>Übungen</p>
                     {(day.uebungen ?? []).map((u, i) => (
                       <div key={i} className="dose ex-row" onClick={() => setBigEx(u)}>
-                        <span className={`di${u.gifUrl ? " ex-di" : ""}`} style={u.gifUrl ? undefined : { background: "#f4f3f0", color: "#3d3a35" }}>
-                          {u.gifUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img className="ex-di-gif" src={u.gifUrl} alt="" />
-                          ) : i + 1}
-                        </span>
+                        <ExChip term={u.en || u.name} n={i + 1} />
                         <div className="dinfo">
                           <div className="dn">{u.name}</div>
                           <div className="dd">{u.saetze} × {u.wdh}{u.pause_sek ? ` · ${u.pause_sek}s Pause` : ""}{u.hinweis ? ` · ${u.hinweis}` : ""}</div>
@@ -208,14 +203,8 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
 
       {bigEx && (
         <Modal title={bigEx.name} onClose={() => setBigEx(null)}>
-          {bigEx.gifUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={bigEx.gifUrl} alt={bigEx.name} style={{ width: "100%", borderRadius: 14, background: "#fff", border: "1px solid var(--line)" }} />
-          ) : (
-            <div style={{ textAlign: "center", padding: "30px 14px", background: "#faf9f7", border: "1px solid var(--line)", borderRadius: 14, color: "var(--muted)", fontSize: 13.5 }}>
-              Für diese Übung ist gerade keine Animation verfügbar.
-            </div>
-          )}
+          <ExBig term={bigEx.en || bigEx.name} name={bigEx.name} />
+
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 14 }}>
             <span className="pill" style={{ background: "#f3f2ef", color: "#3d3a35" }}>{bigEx.saetze} Sätze</span>
             <span className="pill" style={{ background: "#f3f2ef", color: "#3d3a35" }}>{bigEx.wdh} Wdh.</span>
@@ -228,6 +217,40 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
 
       {toast && <div className="coach-toast">{toast}</div>}
     </section>
+  );
+}
+
+function gifUrlFor(term: string): string {
+  return `/api/exercise-gif?q=${encodeURIComponent(term)}`;
+}
+
+/** Chip-Nummer mit Übungs-GIF (fällt auf die Nummer zurück, wenn kein GIF existiert). */
+function ExChip({ term, n }: { term: string; n: number }) {
+  const [err, setErr] = useState(false);
+  if (!term || err) {
+    return <span className="di" style={{ background: "#f4f3f0", color: "#3d3a35" }}>{n}</span>;
+  }
+  return (
+    <span className="di ex-di">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="ex-di-gif" src={gifUrlFor(term)} alt="" onError={() => setErr(true)} />
+    </span>
+  );
+}
+
+/** Großes GIF im Popup (mit Fallback-Text). */
+function ExBig({ term, name }: { term: string; name: string }) {
+  const [err, setErr] = useState(false);
+  if (!term || err) {
+    return (
+      <div style={{ textAlign: "center", padding: "30px 14px", background: "#faf9f7", border: "1px solid var(--line)", borderRadius: 14, color: "var(--muted)", fontSize: 13.5 }}>
+        Für diese Übung ist gerade keine Animation verfügbar.
+      </div>
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={gifUrlFor(term)} alt={name} onError={() => setErr(true)} style={{ width: "100%", borderRadius: 14, background: "#fff", border: "1px solid var(--line)" }} />
   );
 }
 

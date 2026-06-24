@@ -5,36 +5,6 @@ import type { WeeklyPlan } from "@/lib/types";
 
 export const maxDuration = 60;
 
-/**
- * Sucht in der ExerciseDB (RapidAPI) nach dem Begriff und liefert die URL
- * unseres GIF-Proxys (über die Exercise-ID). Best effort.
- */
-async function fetchExerciseGif(term: string): Promise<string | null> {
-  const key = process.env.RAPIDAPI_KEY;
-  if (!key || !term) return null;
-  const headers = { "X-RapidAPI-Key": key, "X-RapidAPI-Host": "exercisedb.p.rapidapi.com" };
-  const tryTerm = async (t: string): Promise<string | null> => {
-    const res = await fetch(
-      `https://exercisedb.p.rapidapi.com/exercises/name/${encodeURIComponent(t.toLowerCase())}?limit=1`,
-      { headers },
-    );
-    if (!res.ok) return null;
-    const arr = await res.json();
-    const id = Array.isArray(arr) && arr[0]?.id ? String(arr[0].id) : null;
-    return id ? `/api/exercise-gif?id=${id}` : null;
-  };
-  try {
-    // Erst den vollen Begriff, dann eine vereinfachte Variante (letzte 2 Wörter)
-    const direct = await tryTerm(term);
-    if (direct) return direct;
-    const words = term.trim().split(/\s+/);
-    if (words.length > 2) return await tryTerm(words.slice(-2).join(" "));
-    return null;
-  } catch {
-    return null;
-  }
-}
-
 const SYSTEM_PROMPT =
   "Du bist Flufy, der KI-Fitness-Coach der App HealthMe GLP-1. Du bist eine KI und stützt dich auf allgemein " +
   "verfügbare Informationen – keine ärztliche oder physiotherapeutische Beratung. " +
@@ -76,6 +46,7 @@ export async function POST(req: NextRequest) {
       `Nutzerprofil: ${profilLine} Erstelle den kompletten Wochenplan zum Abnehmen.` +
       (wish && wish.trim() ? ` Zusätzlicher Wunsch: "${wish.trim()}".` : "");
 
+    // GIFs werden beim Anzeigen über /api/exercise-gif?q=<en> geladen (mit Cache).
     const plan = await callGrokJson<WeeklyPlan>({
       temperature: 0.6,
       messages: [
@@ -83,17 +54,6 @@ export async function POST(req: NextRequest) {
         { role: "user", content: userPrompt },
       ],
     });
-
-    // GIFs anreichern – Übungen über alle Tage sammeln, pro Suchbegriff nur EINMAL abfragen.
-    if (process.env.RAPIDAPI_KEY && Array.isArray(plan?.tage)) {
-      const allEx = plan.tage.flatMap((d) => (Array.isArray(d.uebungen) ? d.uebungen : []));
-      const terms = Array.from(new Set(allEx.map((u) => (u.en || u.name || "").toLowerCase()).filter(Boolean)));
-      const gifMap = new Map<string, string | null>();
-      await Promise.all(terms.map(async (t) => gifMap.set(t, await fetchExerciseGif(t))));
-      for (const u of allEx) {
-        u.gifUrl = gifMap.get((u.en || u.name || "").toLowerCase()) ?? null;
-      }
-    }
 
     return NextResponse.json(plan);
   } catch (err) {
