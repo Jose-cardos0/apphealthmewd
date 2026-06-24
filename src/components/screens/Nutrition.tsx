@@ -7,7 +7,7 @@ import type { Profile } from "@/lib/types";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const DOC_IMG = "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=100&h=100&fit=crop&crop=faces";
+const FLUFY_IMG = "/mascote/flufyfeliz.png";
 
 export default function Nutrition({ active, profile }: { active: boolean; profile: Profile | null }) {
   const name = profile?.first_name || "";
@@ -17,7 +17,7 @@ export default function Nutrition({ active, profile }: { active: boolean; profil
     {
       role: "assistant",
       content:
-        `Hallo${name ? " " + name : ""}! Schön, dass du da bist. Ich bin Dr. Markus Feld, dein Ernährungsberater. ` +
+        `Hallo${name ? " " + name : ""}! Schön, dass du da bist. Ich bin Flufy, dein KI-Ernährungshelfer von HealthMe. ` +
         "Frag mich alles rund um Ernährung, Heißhunger, Eiweiß oder deinen Alltag mit GLP-1.",
     },
   ]);
@@ -57,10 +57,10 @@ export default function Nutrition({ active, profile }: { active: boolean; profil
     <section className={`screen${active ? " active" : ""}`} id="s-nutrition">
       <div className="chathead">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={DOC_IMG} alt="" onError={(e) => ((e.target as HTMLImageElement).style.background = "#e6b325")} />
+        <img src={FLUFY_IMG} alt="Flufy" style={{ objectPosition: "top", background: "#eaf3fb" }} />
         <div style={{ flex: 1 }}>
-          <div className="nm">Dr. Markus Feld</div>
-          <div className="st"><span className="dot" /> Online · Ernährungsberater</div>
+          <div className="nm">Flufy <span style={{ fontSize: 11, fontWeight: 600, color: "var(--accent2)", background: "#f4f1e9", padding: "2px 7px", borderRadius: 8, marginLeft: 4 }}>KI</span></div>
+          <div className="st"><span className="dot" /> Online · dein KI-Ernährungshelfer</div>
         </div>
         <div style={{ color: "var(--accent2)" }}><Icon name="ic-chat" /></div>
       </div>
@@ -80,7 +80,7 @@ export default function Nutrition({ active, profile }: { active: boolean; profil
           ) : (
             <div key={i} className="msg them">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={DOC_IMG} alt="" onError={(e) => ((e.target as HTMLImageElement).style.background = "#e6b325")} />
+              <img src={FLUFY_IMG} alt="Flufy" style={{ objectPosition: "top", background: "#eaf3fb" }} />
               <div className="bub">{msg.content}</div>
             </div>
           ),
@@ -88,13 +88,13 @@ export default function Nutrition({ active, profile }: { active: boolean; profil
         {busy && (
           <div className="msg them">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={DOC_IMG} alt="" onError={(e) => ((e.target as HTMLImageElement).style.background = "#e6b325")} />
+            <img src={FLUFY_IMG} alt="Flufy" style={{ objectPosition: "top", background: "#eaf3fb" }} />
             <div className="bub" style={{ color: "var(--muted)" }}>schreibt …</div>
           </div>
         )}
       </div>
 
-      <p className="note-disc">Dr. Feld ersetzt keine ärztliche Beratung. Bei Beschwerden wende dich an eine Fachkraft.</p>
+      <p className="note-disc">Flufy ist eine KI und antwortet auf Basis von Informationen aus dem Internet – das ist keine ärztliche Beratung. Bei Fragen oder Beschwerden wende dich bitte an eine Ärztin/einen Arzt oder eine qualifizierte Fachkraft.</p>
       <form className="chat-input" onSubmit={send}>
         <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Schreibe eine Nachricht …" />
         <button type="submit" aria-label="Senden"><Icon name="ic-send" /></button>
