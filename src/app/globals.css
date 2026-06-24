@@ -257,6 +257,17 @@ h1.t { font-size: 25px; font-weight: 800; letter-spacing: -0.4px; margin: 2px 0;
 .qz-step { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 22px; }
 .qz-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; }
 .qz-ico { width: 56px; height: 56px; border-radius: 16px; background: #fdf2d6; color: var(--accent2); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+.qz-ico.wave svg { transform-origin: 55% 80%; animation: handWave 2.4s ease-in-out infinite; }
+@keyframes handWave {
+  0%, 55%, 100% { transform: rotate(0deg); }
+  8% { transform: rotate(15deg); }
+  16% { transform: rotate(-9deg); }
+  24% { transform: rotate(15deg); }
+  32% { transform: rotate(-6deg); }
+  40% { transform: rotate(11deg); }
+  48% { transform: rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce) { .qz-ico.wave svg { animation: none; } }
 .qz-q { font-size: 24px; font-weight: 800; letter-spacing: -0.4px; line-height: 1.15; margin: 0 0 6px; }
 .qz-hint { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
 .qz-input { width: 100%; height: 56px; border: 1.5px solid var(--line); border-radius: 16px; padding: 0 16px; font-size: 16px; background: #fff; outline: none; transition: 0.2s; }

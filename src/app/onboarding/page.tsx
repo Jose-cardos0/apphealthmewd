@@ -99,7 +99,7 @@ export default function OnboardingPage() {
 
         <div className="qz-body">
           {step === 0 && (
-            <Step icon={Hand} q="Wie heißt du?" hint="Damit wir dich persönlich begrüßen können.">
+            <Step icon={Hand} animate q="Wie heißt du?" hint="Damit wir dich persönlich begrüßen können.">
               <input className="qz-input" placeholder="Vorname" value={d.first_name} onChange={(e) => set({ first_name: e.target.value })} autoFocus />
               <div style={{ height: 12 }} />
               <input className="qz-input" placeholder="Nachname" value={d.last_name} onChange={(e) => set({ last_name: e.target.value })} />
@@ -186,10 +186,10 @@ export default function OnboardingPage() {
   );
 }
 
-function Step({ icon: I, q, hint, children }: { icon: LucideIcon; q: string; hint: string; children: React.ReactNode }) {
+function Step({ icon: I, q, hint, children, animate }: { icon: LucideIcon; q: string; hint: string; children: React.ReactNode; animate?: boolean }) {
   return (
     <div>
-      <div className="qz-ico"><I size={30} /></div>
+      <div className={`qz-ico${animate ? " wave" : ""}`}><I size={30} /></div>
       <h2 className="qz-q">{q}</h2>
       <p className="qz-hint">{hint}</p>
       {children}
