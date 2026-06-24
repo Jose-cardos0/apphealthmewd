@@ -39,6 +39,13 @@ body {
   display: block;
 }
 
+/* Desktop: Lichtwellen tiefer setzen (unter dem Hinweistext) */
+@media (min-width: 768px) {
+  .gold-rays {
+    bottom: 4%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .gold-rays use { animation: none !important; }
 }
