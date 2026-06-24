@@ -95,7 +95,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="quiz">
-      {saving && <LoadingOverlay text="Dein persönlicher Plan wird erstellt …" />}
+      {saving && <LoadingOverlay text="Dein persönlicher Plan wird erstellt …" image="/mascote/fluflysearch.png" />}
       <div className="qz-inner">
         <div className="qz-prog"><i style={{ width: `${((step + 1) / TOTAL) * 100}%` }} /></div>
         <div className="qz-step">Schritt {step + 1} von {TOTAL}</div>
