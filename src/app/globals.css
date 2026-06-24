@@ -314,13 +314,22 @@ h1.t { font-size: 25px; font-weight: 800; letter-spacing: -0.4px; margin: 2px 0;
 
 /* Modal */
 .modal-overlay { position: fixed; inset: 0; z-index: 150; background: rgba(20, 18, 16, 0.45); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 22px; animation: scrIn 0.25s ease both; }
-.modal-card { width: 100%; max-width: 380px; background: #fff; border-radius: 24px; padding: 20px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25); }
+.modal-card { position: relative; width: 100%; max-width: 380px; background: #fff; border-radius: 24px; padding: 20px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25); overflow: hidden; }
 .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .modal-head h3 { margin: 0; font-size: 18px; font-weight: 800; }
 .modal-x { border: none; background: #f3f0e7; color: var(--muted); width: 34px; height: 34px; border-radius: 11px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .modal-quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 8px; }
-.modal-quick button { border: 1.5px solid var(--line); background: #fff; border-radius: 14px; padding: 14px 6px; font-size: 14px; font-weight: 700; color: var(--ink); cursor: pointer; transition: 0.15s; }
+.modal-quick button { border: 1.5px solid var(--line); background: #fff; border-radius: 14px; padding: 14px 6px; font-size: 13.5px; font-weight: 700; color: var(--ink); cursor: pointer; transition: 0.15s; display: flex; flex-direction: column; align-items: center; gap: 7px; }
 .modal-quick button:hover { border-color: var(--accent); background: #fdf7e6; }
+.modal-quick .wicon { color: #2b9fd6; display: flex; align-items: center; justify-content: center; height: 26px; }
+
+/* Schwebende „+X ml"-Animation */
+.water-float { position: absolute; left: 50%; top: 92px; transform: translateX(-50%); font-size: 24px; font-weight: 800; pointer-events: none; z-index: 5; animation: waterUp 0.95s ease-out forwards; }
+@keyframes waterUp {
+  0% { opacity: 0; transform: translate(-50%, 14px) scale(0.8); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -46px) scale(1.12); }
+}
 
 /* Karten-Plus-Button */
 .stat-add { position: absolute; top: 12px; right: 12px; width: 30px; height: 30px; border-radius: 10px; border: none; background: #f5eed9; color: var(--accent2); display: flex; align-items: center; justify-content: center; cursor: pointer; }

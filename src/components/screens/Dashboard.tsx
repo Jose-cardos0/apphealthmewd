@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil, Camera, Plus, Trash2 } from "lucide-react";
+import { Pencil, Camera, Plus, Trash2, GlassWater, Milk } from "lucide-react";
 import Icon from "@/components/Icon";
 import Modal from "@/components/Modal";
 import { dashboardMetrics, bmiCategory, de } from "@/lib/metrics";
@@ -44,6 +44,8 @@ export default function Dashboard({
   const [modal, setModal] = useState<null | "water" | "kcal" | "dose">(null);
   const [kcalInput, setKcalInput] = useState("");
   const [doseForm, setDoseForm] = useState({ medication: med ?? "Ozempic", dose: profDose, taken_on: todayStr() });
+  const [flash, setFlash] = useState<{ key: number; text: string; color: string } | null>(null);
+  const flashKey = useRef(0);
 
   const reload = useCallback(async () => {
     try {
@@ -96,6 +98,12 @@ export default function Dashboard({
   async function changeWater(deltaMl: number) {
     const next = Math.max(0, water + deltaMl);
     setWater(next);
+    flashKey.current += 1;
+    setFlash({
+      key: flashKey.current,
+      text: `${deltaMl > 0 ? "+" : "−"}${Math.abs(deltaMl)} ml`,
+      color: deltaMl > 0 ? "#2b9fd6" : "#b4ab99",
+    });
     try { await saveDailyLog(next, kcal); } catch { /* ignoriert */ }
   }
 
@@ -284,14 +292,28 @@ export default function Dashboard({
 
       {/* ===== Modals ===== */}
       {modal === "water" && (
-        <Modal title="Wasser hinzufügen" onClose={() => setModal(null)}>
+        <Modal title="Wasser hinzufügen" onClose={() => { setModal(null); setFlash(null); }}>
+          {flash && (
+            <span key={flash.key} className="water-float" style={{ color: flash.color }} onAnimationEnd={() => setFlash(null)}>
+              {flash.text}
+            </span>
+          )}
           <p className="muted" style={{ marginTop: 0, fontSize: 13 }}>Heute: {de(waterL, 1)} L von {de(waterGoalL, 1)} L</p>
           <div className="modal-quick">
-            <button onClick={() => changeWater(250)}>+250 ml</button>
-            <button onClick={() => changeWater(500)}>+500 ml</button>
-            <button onClick={() => changeWater(750)}>+750 ml</button>
+            <button onClick={() => changeWater(250)}>
+              <span className="wicon"><GlassWater size={22} /></span>
+              +250 ml
+            </button>
+            <button onClick={() => changeWater(500)}>
+              <span className="wicon" style={{ gap: 1 }}><GlassWater size={19} /><GlassWater size={19} /></span>
+              +500 ml
+            </button>
+            <button onClick={() => changeWater(750)}>
+              <span className="wicon"><Milk size={24} /></span>
+              +750 ml
+            </button>
           </div>
-          <button className="qz-next" style={{ width: "100%", marginTop: 6 }} onClick={() => setModal(null)}>Fertig</button>
+          <button className="qz-next" style={{ width: "100%", marginTop: 6 }} onClick={() => { setModal(null); setFlash(null); }}>Fertig</button>
           <button onClick={() => changeWater(-250)} style={{ width: "100%", marginTop: 10, border: "none", background: "none", color: "var(--muted)", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>−250 ml rückgängig</button>
         </Modal>
       )}
