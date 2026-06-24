@@ -211,7 +211,6 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
             {bigEx.pause_sek && <span className="pill" style={{ background: "#f3f2ef", color: "#3d3a35" }}>{bigEx.pause_sek}s Pause</span>}
           </div>
           {bigEx.hinweis && <p style={{ marginTop: 12, marginBottom: 0, fontSize: 14, lineHeight: 1.5, color: "var(--ink)" }}>{bigEx.hinweis}</p>}
-          <p className="muted" style={{ fontSize: 11.5, marginTop: 12, marginBottom: 0 }}>Animation: ExerciseDB</p>
         </Modal>
       )}
 
