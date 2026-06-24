@@ -105,7 +105,11 @@ function Mcard({
         <div className="mi" style={{ background: iconBg }}><Icon name={icon} /></div>
         <div><div className="mt">{title}</div><div className="ms">{sub}</div></div>
       </div>
-      <div className="ring" style={{ ["--p"]: fill, ["--c"]: color } as React.CSSProperties}>
+      <div className="ring2">
+        <svg viewBox="0 0 36 36" aria-hidden="true">
+          <path className="ring2-track" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+          <path className="ring2-fill" stroke={color} strokeDasharray={`${fill}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+        </svg>
         <b>{shown}{suffix}</b>
       </div>
     </div>

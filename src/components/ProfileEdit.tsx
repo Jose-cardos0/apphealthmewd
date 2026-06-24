@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, User2, HeartPulse } from "lucide-react";
+import { ArrowLeft, ArrowRight, User2, HeartPulse, RotateCcw } from "lucide-react";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types";
 
 const GENDERS = ["Frau", "Mann", "Divers"];
@@ -43,9 +44,22 @@ export default function ProfileEdit({ profile }: { profile: Profile | null }) {
     glp1_frequency: profile?.glp1_frequency ?? "Wöchentlich",
   });
   const [saving, setSaving] = useState(false);
+  const [restarting, setRestarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const set = (patch: Partial<typeof d>) => setD((p) => ({ ...p, ...patch }));
+
+  async function restart() {
+    setRestarting(true);
+    try {
+      await fetch("/api/account/onboarding-reset", { method: "POST" });
+      await createClient().auth.refreshSession();
+      router.replace("/onboarding");
+      router.refresh();
+    } catch {
+      setRestarting(false);
+    }
+  }
 
   const step0Valid =
     d.first_name.trim() && d.last_name.trim() && Number(d.age) > 0 &&
@@ -85,6 +99,7 @@ export default function ProfileEdit({ profile }: { profile: Profile | null }) {
   return (
     <div className="quiz">
       {saving && <LoadingOverlay text="Dein Plan wird neu berechnet …" />}
+      {restarting && <LoadingOverlay text="Einrichtung wird zurückgesetzt …" />}
       <div className="qz-inner pe-inner">
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
           <button className="qz-back" style={{ flex: "0 0 44px", height: 44 }} onClick={() => router.replace("/app")} aria-label="Zurück">
@@ -148,6 +163,20 @@ export default function ProfileEdit({ profile }: { profile: Profile | null }) {
             </button>
           </div>
         </form>
+
+        <div style={{ marginTop: 22, paddingTop: 18, borderTop: "1px solid var(--line)" }}>
+          <div style={{ fontWeight: 700, fontSize: 14.5 }}>App neu einrichten</div>
+          <p className="qz-hint" style={{ margin: "4px 0 12px" }}>
+            Du kannst den Einrichtungs-Quiz noch einmal von vorne durchlaufen und alle Angaben neu eingeben.
+          </p>
+          <button
+            type="button"
+            onClick={restart}
+            style={{ width: "100%", height: 50, borderRadius: 14, border: "1px solid var(--line)", background: "#fff", color: "var(--ink)", fontWeight: 600, fontSize: 14.5, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+          >
+            <RotateCcw size={17} /> Einrichtung neu starten
+          </button>
+        </div>
       </div>
     </div>
   );
