@@ -33,6 +33,14 @@ export default function Dashboard({
   const dose = profile?.glp1_dose || "0,25 mg";
   const freq = profile?.glp1_frequency || "Wöchentlich";
 
+  // Werte aus dem Grok-Plan (Fallback: lokale Schätzung)
+  const kcalText = profile?.plan?.daily_kcal != null ? profile.plan.daily_kcal.toLocaleString("de-DE") : kcalTarget(profile);
+  const waterText = de(profile?.plan?.water_liters ?? 2.5, 1);
+
+  const gender = profile?.gender;
+  const avatarSrc = gender === "Mann" ? "/avatar-mann.jpg" : gender === "Frau" ? "/avatar-frau.jpg" : null;
+  const initials = [profile?.first_name?.[0], profile?.last_name?.[0]].filter(Boolean).join("").toUpperCase() || "?";
+
   return (
     <section className={`screen${active ? " active" : ""}`} id="s-dashboard">
       <div className="scr-head" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -70,8 +78,12 @@ export default function Dashboard({
               </div>
             )}
           </div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/modelo.png" alt="" />
+          {avatarSrc ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="ava" src={avatarSrc} alt="" />
+          ) : (
+            <span className="ava-initials">{initials}</span>
+          )}
         </div>
 
         <div className="grid2">
@@ -82,11 +94,11 @@ export default function Dashboard({
           </div>
           <div className="stat">
             <div className="h"><span className="ic" style={{ background: "#fde2e1", color: "#ff6b3d" }}><Icon name="ic-flame" style={{ width: 16 }} /></span> Kalorien heute</div>
-            <div className="v">0 <small>/ {kcalTarget(profile)}</small></div>
+            <div className="v">0 <small>/ {kcalText}</small></div>
           </div>
           <div className="stat">
             <div className="h"><span className="ic" style={{ background: "#d9f0fb", color: "#2b9fd6" }}><Icon name="ic-drop" style={{ width: 16 }} /></span> Wasser</div>
-            <div className="v">0,0 <small>/ 2,5 L</small></div>
+            <div className="v">0,0 <small>/ {waterText} L</small></div>
           </div>
           <div className="stat">
             <div className="h"><span className="ic" style={{ background: "#f5eed9", color: "var(--accent2)" }}><Icon name="ic-spark" style={{ width: 16 }} /></span> Streak</div>
@@ -135,6 +147,28 @@ export default function Dashboard({
             </div>
           )}
         </div>
+
+        {profile?.plan?.tips && profile.plan.tips.length > 0 && (
+          <>
+            <div className="sec-title">
+              <span className="h">Tipps für dich</span>
+              <span className="more">von HealthMe KI</span>
+            </div>
+            <div className="card">
+              {profile.plan.motivation && (
+                <p style={{ margin: "0 0 12px", fontSize: 14.5, fontWeight: 700, color: "var(--accent2)" }}>
+                  {profile.plan.motivation}
+                </p>
+              )}
+              {profile.plan.tips.map((tip, i) => (
+                <div key={i} style={{ display: "flex", gap: 11, padding: "10px 0", borderTop: i === 0 ? "none" : "1px solid var(--line)" }}>
+                  <span style={{ flexShrink: 0, color: "var(--accent2)", marginTop: 1 }}><Icon name="ic-check-c" /></span>
+                  <span style={{ fontSize: 14, lineHeight: 1.4 }}>{tip}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
         <button
           onClick={onScan}

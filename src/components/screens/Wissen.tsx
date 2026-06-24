@@ -19,10 +19,11 @@ export default function Wissen({ active, profile }: { active: boolean; profile: 
   const cat = bmiCategory(bmi);
   const goalCat = bmiCategory(goalBmi);
 
-  const kcal = kcalTarget(profile);
-  const protein = weight ? Math.round(1.6 * weight) : 110;
-  const carbs = Math.round((kcal * 0.45) / 4);
-  const fat = Math.round((kcal * 0.25) / 9);
+  const plan = profile?.plan;
+  const kcal = plan?.daily_kcal ?? kcalTarget(profile);
+  const protein = plan?.protein_g ?? (weight ? Math.round(1.6 * weight) : 110);
+  const carbs = plan?.carbs_g ?? Math.round((kcal * 0.45) / 4);
+  const fat = plan?.fat_g ?? Math.round((kcal * 0.25) / 9);
 
   return (
     <section className={`screen${active ? " active" : ""}`} id="s-wissen">

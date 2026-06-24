@@ -100,9 +100,13 @@ create table if not exists public.profiles (
   glp1_dose          text,
   glp1_frequency     text,
   glp1_start_date    date,
+  plan               jsonb,
   created_at         timestamptz not null default now(),
   updated_at         timestamptz not null default now()
 );
+
+-- Falls die Tabelle schon existierte: Spalte nachrüsten
+alter table public.profiles add column if not exists plan jsonb;
 
 alter table public.profiles enable row level security;
 

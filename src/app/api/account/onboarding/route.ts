@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { generatePlan } from "@/lib/plan";
 import type { OnboardingData } from "@/lib/types";
 
 /**
@@ -45,8 +46,18 @@ export async function POST(req: NextRequest) {
     updated_at: new Date().toISOString(),
   };
 
-  // Profil speichern (eigene Zeile, durch RLS abgesichert)
-  const { error: upErr } = await supabase.from("profiles").upsert(profile, { onConflict: "user_id" });
+  // Personalisierte Tagesrichtwerte von Grok erzeugen (best effort)
+  let plan = null;
+  try {
+    plan = await generatePlan(body);
+  } catch (err) {
+    console.error("[onboarding] Grok-Plan fehlgeschlagen:", err);
+  }
+
+  // Profil + Plan speichern (eigene Zeile, durch RLS abgesichert)
+  const { error: upErr } = await supabase
+    .from("profiles")
+    .upsert({ ...profile, plan }, { onConflict: "user_id" });
   if (upErr) {
     return NextResponse.json({ error: upErr.message }, { status: 500 });
   }

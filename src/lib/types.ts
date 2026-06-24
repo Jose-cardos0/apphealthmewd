@@ -1,3 +1,13 @@
+export type GrokPlan = {
+  daily_kcal: number;
+  water_liters: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  motivation: string;
+  tips: string[];
+};
+
 export type Profile = {
   user_id: string;
   first_name: string | null;
@@ -14,6 +24,7 @@ export type Profile = {
   glp1_dose: string | null;
   glp1_frequency: string | null;
   glp1_start_date: string | null;
+  plan: GrokPlan | null;
 };
 
 /** Eingaben aus dem Onboarding-Quiz. */
