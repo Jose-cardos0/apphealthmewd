@@ -33,7 +33,7 @@ export async function sendWelcomeEmail(opts: {
   const result = await resend.emails.send({
     from,
     to,
-    subject: "💛 Willkommen bei HealthMe GLP-1 – deine Zugangsdaten",
+    subject: "Willkommen bei HealthMe GLP-1 – deine Zugangsdaten",
     html,
     text,
   });
@@ -80,7 +80,7 @@ function welcomeHtml({
 }) {
   const logoBlock = logoUrl
     ? `<img src="${escapeHtml(logoUrl)}" alt="HealthMe GLP-1" width="120" style="display:block;margin:0 auto 10px;width:120px;max-width:60%;height:auto;">`
-    : `<h1 style="margin:0 0 6px;color:#c8930a;font-size:24px;font-weight:800;">HealthMe GLP-1 💛</h1>`;
+    : `<h1 style="margin:0 0 6px;color:#c8930a;font-size:24px;font-weight:800;">HealthMe GLP-1</h1>`;
   return `<!DOCTYPE html>
 <html lang="de">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
@@ -89,11 +89,11 @@ function welcomeHtml({
     <div style="background:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 10px 30px rgba(200,147,10,0.12);">
       <div style="background:#ffffff;padding:32px 32px 20px;text-align:center;border-bottom:1px solid #fdf4d9;">
         ${logoBlock}
-        <p style="margin:0;color:#c8930a;font-size:14px;font-weight:500;">Deine Begleitung zum Wunschgewicht 💛</p>
+        <p style="margin:0;color:#c8930a;font-size:14px;font-weight:500;">Deine Begleitung zum Wunschgewicht</p>
       </div>
       <div style="height:4px;background:linear-gradient(90deg,#f6d572,#e6b325,#c8930a);"></div>
       <div style="padding:32px;">
-        <h2 style="margin:0 0 8px;font-size:20px;color:#1f2937;">Willkommen an Bord! 🎉</h2>
+        <h2 style="margin:0 0 8px;font-size:20px;color:#1f2937;">Willkommen an Bord!</h2>
         <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#4b5563;">
           Vielen Dank für deinen Kauf. Dein Zugang zu HealthMe GLP-1 ist ab sofort freigeschaltet.
           Hier sind deine persönlichen Zugangsdaten:
@@ -118,7 +118,7 @@ function welcomeHtml({
 
         <div style="background:#fef3f2;border:1px solid #fecaca;border-radius:12px;padding:14px 16px;margin-bottom:8px;">
           <p style="margin:0;font-size:13px;line-height:1.5;color:#b91c1c;">
-            🔒 <strong>Wichtig:</strong> Aus Sicherheitsgründen musst du beim ersten Login
+            <strong>Wichtig:</strong> Aus Sicherheitsgründen musst du beim ersten Login
             dein Passwort ändern, um die App nutzen zu können.
           </p>
         </div>

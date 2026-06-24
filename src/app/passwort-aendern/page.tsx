@@ -46,7 +46,7 @@ export default function PasswortAendernPage() {
         <div className="lg-brand">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="lg-logo" src="/logo.png" alt="HealthMe GLP-1" />
-          <p className="lg-sub">🔒 Lege zum Schutz deines Kontos beim ersten Login ein neues Passwort fest.</p>
+          <p className="lg-sub">Lege zum Schutz deines Kontos beim ersten Login ein neues Passwort fest.</p>
         </div>
 
         <form onSubmit={handleSubmit}>

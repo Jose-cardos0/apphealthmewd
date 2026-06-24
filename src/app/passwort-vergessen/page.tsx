@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { MailCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import AuthDecor from "@/components/AuthDecor";
 import Icon from "@/components/Icon";
@@ -36,7 +37,7 @@ export default function PasswortVergessenPage() {
 
         {sent ? (
           <div style={{ textAlign: "center" }}>
-            <div className="qz-emoji">✉️</div>
+            <div className="qz-ico" style={{ margin: "0 auto 14px" }}><MailCheck size={28} /></div>
             <p className="lg-sub" style={{ maxWidth: 320 }}>
               Falls ein Konto mit dieser E-Mail existiert, haben wir dir einen Link geschickt.
             </p>

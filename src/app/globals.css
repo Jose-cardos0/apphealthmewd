@@ -256,7 +256,7 @@ h1.t { font-size: 25px; font-weight: 800; letter-spacing: -0.4px; margin: 2px 0;
 .qz-prog i { display: block; height: 100%; background: linear-gradient(90deg, #e3c25e, var(--accent2)); border-radius: 6px; transition: width 0.4s ease; }
 .qz-step { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 22px; }
 .qz-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; }
-.qz-emoji { font-size: 40px; margin-bottom: 6px; }
+.qz-ico { width: 56px; height: 56px; border-radius: 16px; background: #fdf2d6; color: var(--accent2); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
 .qz-q { font-size: 24px; font-weight: 800; letter-spacing: -0.4px; line-height: 1.15; margin: 0 0 6px; }
 .qz-hint { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
 .qz-input { width: 100%; height: 56px; border: 1.5px solid var(--line); border-radius: 16px; padding: 0 16px; font-size: 16px; background: #fff; outline: none; transition: 0.2s; }
@@ -268,7 +268,7 @@ h1.t { font-size: 25px; font-weight: 800; letter-spacing: -0.4px; margin: 2px 0;
 .qz-opt { width: 100%; text-align: left; border: 1.5px solid var(--line); background: #fff; border-radius: 16px; padding: 16px 18px; font-size: 15px; font-weight: 600; color: var(--ink); cursor: pointer; transition: 0.18s; display: flex; align-items: center; gap: 12px; }
 .qz-opt:hover { border-color: #e6ddc8; }
 .qz-opt.sel { border-color: var(--accent); background: #fdf7e6; box-shadow: 0 0 0 3px rgba(230, 179, 37, 0.13); }
-.qz-opt .qz-emo { font-size: 20px; }
+.qz-opt .qz-emo { display: flex; align-items: center; color: var(--accent2); flex-shrink: 0; }
 .qz-foot { display: flex; gap: 12px; margin-top: 22px; }
 .qz-back { flex: 0 0 56px; height: 56px; border-radius: 16px; border: 1.5px solid var(--line); background: #fff; color: var(--muted); font-size: 20px; cursor: pointer; }
 .qz-next { flex: 1; height: 56px; border: none; border-radius: 16px; background: linear-gradient(135deg, #d9b441, var(--accent2)); color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 12px 24px rgba(200, 147, 10, 0.35); }

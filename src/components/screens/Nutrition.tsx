@@ -14,8 +14,8 @@ export default function Nutrition({ active, profile }: { active: boolean; profil
     {
       role: "assistant",
       content:
-        `Hallo${name ? " " + name : ""}! 👋 Schön, dass du da bist. Ich bin Dr. Markus Feld, dein Ernährungsberater. ` +
-        "Frag mich alles rund um Ernährung, Heißhunger, Eiweiß oder deinen Alltag mit GLP-1. 💛",
+        `Hallo${name ? " " + name : ""}! Schön, dass du da bist. Ich bin Dr. Markus Feld, dein Ernährungsberater. ` +
+        "Frag mich alles rund um Ernährung, Heißhunger, Eiweiß oder deinen Alltag mit GLP-1.",
     },
   ]);
   const [input, setInput] = useState("");

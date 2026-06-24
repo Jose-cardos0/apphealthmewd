@@ -2,20 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Hand, Cake, User, Ruler, Scale, Target, Activity, Syringe, CalendarDays,
+  Pill, Clock, Sun, Sofa, Footprints, Dumbbell, ArrowLeft, type LucideIcon,
+} from "lucide-react";
 
 type Data = {
-  first_name: string;
-  last_name: string;
-  age: string;
-  city: string;
-  gender: string;
-  height_cm: string;
-  start_weight_kg: string;
-  goal_weight_kg: string;
-  activity_level: string;
-  glp1_medication: string;
-  glp1_dose: string;
-  glp1_frequency: string;
+  first_name: string; last_name: string; age: string; city: string; gender: string;
+  height_cm: string; start_weight_kg: string; goal_weight_kg: string;
+  activity_level: string; glp1_medication: string; glp1_dose: string; glp1_frequency: string;
 };
 
 const EMPTY: Data = {
@@ -24,29 +19,25 @@ const EMPTY: Data = {
   activity_level: "", glp1_medication: "", glp1_dose: "", glp1_frequency: "",
 };
 
-const GENDERS = [
-  { v: "Frau", emo: "👩" },
-  { v: "Mann", emo: "👨" },
-  { v: "Divers", emo: "🧑" },
+const GENDERS = ["Frau", "Mann", "Divers"];
+const ACTIVITIES: { v: string; icon: LucideIcon; sub: string }[] = [
+  { v: "Wenig aktiv", icon: Sofa, sub: "Überwiegend sitzend" },
+  { v: "Leicht aktiv", icon: Footprints, sub: "1–2× Bewegung/Woche" },
+  { v: "Mäßig aktiv", icon: Activity, sub: "3–4× Bewegung/Woche" },
+  { v: "Sehr aktiv", icon: Dumbbell, sub: "5×+ Bewegung/Woche" },
 ];
-const ACTIVITIES = [
-  { v: "Wenig aktiv", emo: "🛋️", sub: "Überwiegend sitzend" },
-  { v: "Leicht aktiv", emo: "🚶‍♀️", sub: "1–2× Bewegung/Woche" },
-  { v: "Mäßig aktiv", emo: "🏃‍♀️", sub: "3–4× Bewegung/Woche" },
-  { v: "Sehr aktiv", emo: "💪", sub: "5×+ Bewegung/Woche" },
-];
-const MEDS = [
-  { v: "Ozempic", emo: "💉" },
-  { v: "Wegovy", emo: "💉" },
-  { v: "Mounjaro", emo: "💉" },
-  { v: "Saxenda", emo: "💉" },
-  { v: "Rybelsus", emo: "💊" },
-  { v: "Noch keins", emo: "⏳" },
+const MEDS: { v: string; icon: LucideIcon }[] = [
+  { v: "Ozempic", icon: Syringe },
+  { v: "Wegovy", icon: Syringe },
+  { v: "Mounjaro", icon: Syringe },
+  { v: "Saxenda", icon: Syringe },
+  { v: "Rybelsus", icon: Pill },
+  { v: "Noch keins", icon: Clock },
 ];
 const DOSES = ["0,25 mg", "0,5 mg", "1,0 mg", "1,7 mg", "2,4 mg", "Andere"];
-const FREQS = [
-  { v: "Wöchentlich", emo: "📅" },
-  { v: "Täglich", emo: "☀️" },
+const FREQS: { v: string; icon: LucideIcon }[] = [
+  { v: "Wöchentlich", icon: CalendarDays },
+  { v: "Täglich", icon: Sun },
 ];
 
 const TOTAL = 9;
@@ -103,14 +94,12 @@ export default function OnboardingPage() {
   return (
     <div className="quiz">
       <div className="qz-inner">
-        <div className="qz-prog">
-          <i style={{ width: `${((step + 1) / TOTAL) * 100}%` }} />
-        </div>
+        <div className="qz-prog"><i style={{ width: `${((step + 1) / TOTAL) * 100}%` }} /></div>
         <div className="qz-step">Schritt {step + 1} von {TOTAL}</div>
 
         <div className="qz-body">
           {step === 0 && (
-            <Step emoji="👋" q="Wie heißt du?" hint="Damit wir dich persönlich begrüßen können.">
+            <Step icon={Hand} q="Wie heißt du?" hint="Damit wir dich persönlich begrüßen können.">
               <input className="qz-input" placeholder="Vorname" value={d.first_name} onChange={(e) => set({ first_name: e.target.value })} autoFocus />
               <div style={{ height: 12 }} />
               <input className="qz-input" placeholder="Nachname" value={d.last_name} onChange={(e) => set({ last_name: e.target.value })} />
@@ -118,7 +107,7 @@ export default function OnboardingPage() {
           )}
 
           {step === 1 && (
-            <Step emoji="🎂" q="Dein Alter & Wohnort" hint="Hilft uns, deine Werte richtig einzuordnen.">
+            <Step icon={Cake} q="Dein Alter & Wohnort" hint="Hilft uns, deine Werte richtig einzuordnen.">
               <div className="qz-row">
                 <input className="qz-input" type="number" inputMode="numeric" placeholder="Alter" value={d.age} onChange={(e) => set({ age: e.target.value })} autoFocus />
                 <input className="qz-input" placeholder="Stadt" value={d.city} onChange={(e) => set({ city: e.target.value })} />
@@ -127,47 +116,55 @@ export default function OnboardingPage() {
           )}
 
           {step === 2 && (
-            <Step emoji="🧑" q="Dein Geschlecht" hint="Für eine genauere Berechnung deiner Werte.">
-              <Options options={GENDERS.map((g) => ({ value: g.v, emo: g.emo }))} selected={d.gender} onSelect={(v) => set({ gender: v })} />
+            <Step icon={User} q="Dein Geschlecht" hint="Für eine genauere Berechnung deiner Werte.">
+              <Options options={GENDERS.map((v) => ({ value: v }))} selected={d.gender} onSelect={(v) => set({ gender: v })} />
             </Step>
           )}
 
           {step === 3 && (
-            <Step emoji="📏" q="Wie groß bist du?" hint="In Zentimetern.">
+            <Step icon={Ruler} q="Wie groß bist du?" hint="In Zentimetern.">
               <Unit suffix="cm"><input className="qz-input" type="number" inputMode="numeric" placeholder="z. B. 168" value={d.height_cm} onChange={(e) => set({ height_cm: e.target.value })} autoFocus /></Unit>
             </Step>
           )}
 
           {step === 4 && (
-            <Step emoji="⚖️" q="Dein aktuelles Gewicht" hint="In Kilogramm.">
+            <Step icon={Scale} q="Dein aktuelles Gewicht" hint="In Kilogramm.">
               <Unit suffix="kg"><input className="qz-input" type="number" inputMode="decimal" placeholder="z. B. 92" value={d.start_weight_kg} onChange={(e) => set({ start_weight_kg: e.target.value })} autoFocus /></Unit>
             </Step>
           )}
 
           {step === 5 && (
-            <Step emoji="🎯" q="Dein Wunschgewicht" hint="Dein Ziel in Kilogramm.">
+            <Step icon={Target} q="Dein Wunschgewicht" hint="Dein Ziel in Kilogramm.">
               <Unit suffix="kg"><input className="qz-input" type="number" inputMode="decimal" placeholder="z. B. 70" value={d.goal_weight_kg} onChange={(e) => set({ goal_weight_kg: e.target.value })} autoFocus /></Unit>
             </Step>
           )}
 
           {step === 6 && (
-            <Step emoji="🏃‍♀️" q="Wie aktiv bist du?" hint="Wähle, was am besten passt.">
-              <Options options={ACTIVITIES.map((a) => ({ value: a.v, emo: a.emo, sub: a.sub }))} selected={d.activity_level} onSelect={(v) => set({ activity_level: v })} />
+            <Step icon={Activity} q="Wie aktiv bist du?" hint="Wähle, was am besten passt.">
+              <Options
+                options={ACTIVITIES.map((a) => ({ value: a.v, icon: <a.icon size={20} />, sub: a.sub }))}
+                selected={d.activity_level}
+                onSelect={(v) => set({ activity_level: v })}
+              />
             </Step>
           )}
 
           {step === 7 && (
-            <Step emoji="💉" q="Dein GLP-1 Medikament" hint="Welches Präparat nutzt du (oder planst du)?">
-              <Options options={MEDS.map((m) => ({ value: m.v, emo: m.emo }))} selected={d.glp1_medication} onSelect={(v) => set({ glp1_medication: v })} />
+            <Step icon={Syringe} q="Dein GLP-1 Medikament" hint="Welches Präparat nutzt du (oder planst du)?">
+              <Options
+                options={MEDS.map((m) => ({ value: m.v, icon: <m.icon size={20} /> }))}
+                selected={d.glp1_medication}
+                onSelect={(v) => set({ glp1_medication: v })}
+              />
             </Step>
           )}
 
           {step === 8 && (
-            <Step emoji="🗓️" q="Dosis & Häufigkeit" hint="So planen wir deinen Behandlungsplan.">
+            <Step icon={CalendarDays} q="Dosis & Häufigkeit" hint="So planen wir deinen Behandlungsplan.">
               <div className="qz-step" style={{ marginBottom: 8 }}>Aktuelle Dosis</div>
               <Options options={DOSES.map((v) => ({ value: v }))} selected={d.glp1_dose} onSelect={(v) => set({ glp1_dose: v })} compact />
               <div className="qz-step" style={{ margin: "18px 0 8px" }}>Häufigkeit</div>
-              <Options options={FREQS.map((f) => ({ value: f.v, emo: f.emo }))} selected={d.glp1_frequency} onSelect={(v) => set({ glp1_frequency: v })} />
+              <Options options={FREQS.map((f) => ({ value: f.v, icon: <f.icon size={20} /> }))} selected={d.glp1_frequency} onSelect={(v) => set({ glp1_frequency: v })} />
             </Step>
           )}
 
@@ -176,7 +173,9 @@ export default function OnboardingPage() {
 
         <div className="qz-foot">
           {step > 0 && (
-            <button className="qz-back" onClick={() => setStep((s) => s - 1)} aria-label="Zurück">←</button>
+            <button className="qz-back" onClick={() => setStep((s) => s - 1)} aria-label="Zurück">
+              <ArrowLeft size={20} style={{ display: "block", margin: "0 auto" }} />
+            </button>
           )}
           <button className="qz-next" onClick={next} disabled={!canNext() || saving}>
             {step === TOTAL - 1 ? (saving ? "Wird gespeichert …" : "Fertig & loslegen") : "Weiter"}
@@ -187,10 +186,10 @@ export default function OnboardingPage() {
   );
 }
 
-function Step({ emoji, q, hint, children }: { emoji: string; q: string; hint: string; children: React.ReactNode }) {
+function Step({ icon: I, q, hint, children }: { icon: LucideIcon; q: string; hint: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="qz-emoji">{emoji}</div>
+      <div className="qz-ico"><I size={30} /></div>
       <h2 className="qz-q">{q}</h2>
       <p className="qz-hint">{hint}</p>
       {children}
@@ -208,12 +207,9 @@ function Unit({ suffix, children }: { suffix: string; children: React.ReactNode 
 }
 
 function Options({
-  options,
-  selected,
-  onSelect,
-  compact,
+  options, selected, onSelect, compact,
 }: {
-  options: { value: string; emo?: string; sub?: string }[];
+  options: { value: string; icon?: React.ReactNode; sub?: string }[];
   selected: string;
   onSelect: (v: string) => void;
   compact?: boolean;
@@ -221,13 +217,8 @@ function Options({
   return (
     <div className="qz-opts" style={compact ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 } : undefined}>
       {options.map((o) => (
-        <button
-          key={o.value}
-          type="button"
-          className={`qz-opt${selected === o.value ? " sel" : ""}`}
-          onClick={() => onSelect(o.value)}
-        >
-          {o.emo && <span className="qz-emo">{o.emo}</span>}
+        <button key={o.value} type="button" className={`qz-opt${selected === o.value ? " sel" : ""}`} onClick={() => onSelect(o.value)}>
+          {o.icon && <span className="qz-emo">{o.icon}</span>}
           <span style={{ flex: 1 }}>
             {o.value}
             {o.sub && <span style={{ display: "block", fontSize: 12, fontWeight: 400, color: "var(--muted)" }}>{o.sub}</span>}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Lock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import AuthDecor from "@/components/AuthDecor";
 
@@ -20,7 +21,7 @@ export default function KontoDeaktiviertPage() {
       <div className="lg-inner" style={{ textAlign: "center" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="lg-logo" src="/logo.png" alt="HealthMe GLP-1" />
-        <div className="qz-emoji" style={{ marginTop: 8 }}>🔒</div>
+        <div className="qz-ico" style={{ margin: "10px auto 14px" }}><Lock size={28} /></div>
         <h2 className="qz-q" style={{ fontSize: 22 }}>Zugang deaktiviert</h2>
         <p className="lg-sub" style={{ maxWidth: 320 }}>
           Dein Zugang zu HealthMe GLP-1 ist aktuell nicht aktiv. Das kann nach einer
