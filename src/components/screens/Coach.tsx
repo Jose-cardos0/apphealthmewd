@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Sparkles, Dumbbell, Trash2, Check, Clock, Flame, Bookmark } from "lucide-react";
 import Icon from "@/components/Icon";
+import Modal from "@/components/Modal";
 import { listWorkouts, addWorkout, removeWorkout, logWorkoutDone, getTodayWorkoutLogs } from "@/lib/workouts";
 import type { Profile, Workout, SavedWorkout, WorkoutLog } from "@/lib/types";
 
@@ -16,6 +17,7 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
   const [doneToday, setDoneToday] = useState<WorkoutLog[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const [busyDone, setBusyDone] = useState(false);
+  const [bigGif, setBigGif] = useState<{ url: string; name: string } | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
 
   const reload = useCallback(async () => {
@@ -162,12 +164,16 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
               <>
                 <p className="pe-sec" style={{ marginTop: 18 }}>Übungen</p>
                 {result.uebungen.map((u, i) => (
-                  <div key={i} className="dose" style={{ alignItems: "flex-start" }}>
+                  <div key={i} className="dose" style={{ alignItems: "center" }}>
                     <span className="di" style={{ background: "#f4f3f0", color: "#3d3a35" }}>{i + 1}</span>
                     <div className="dinfo">
                       <div className="dn">{u.name}</div>
                       <div className="dd">{u.saetze} × {u.wdh}{u.pause_sek ? ` · ${u.pause_sek}s Pause` : ""}{u.hinweis ? ` · ${u.hinweis}` : ""}</div>
                     </div>
+                    {u.gifUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img className="ex-gif" src={u.gifUrl} alt={u.name} onClick={() => setBigGif({ url: u.gifUrl as string, name: u.name })} />
+                    )}
                   </div>
                 ))}
               </>
@@ -247,6 +253,14 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
           bitte Rücksprache mit einer Ärztin/einem Arzt oder einer Fachkraft.
         </p>
       </div>
+
+      {bigGif && (
+        <Modal title={bigGif.name} onClose={() => setBigGif(null)}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={bigGif.url} alt={bigGif.name} style={{ width: "100%", borderRadius: 14, background: "#fff" }} />
+          <p className="muted" style={{ fontSize: 11.5, textAlign: "center", marginTop: 10, marginBottom: 0 }}>Animation: ExerciseDB</p>
+        </Modal>
+      )}
 
       {toast && <div className="coach-toast">{toast}</div>}
     </section>

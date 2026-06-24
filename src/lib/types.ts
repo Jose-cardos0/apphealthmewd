@@ -29,7 +29,7 @@ export type Profile = {
 };
 
 /** Trainingsplan (vom Coach / Grok erzeugt). */
-export type WorkoutExercise = { name: string; saetze: string; wdh: string; pause_sek?: string; hinweis?: string };
+export type WorkoutExercise = { name: string; saetze: string; wdh: string; pause_sek?: string; hinweis?: string; en?: string; gifUrl?: string | null };
 export type WorkoutCardio = { name: string; dauer: string; hinweis?: string };
 export type Workout = {
   titel: string;
