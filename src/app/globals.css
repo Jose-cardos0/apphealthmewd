@@ -60,7 +60,14 @@ h1.t { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; margin: 2px 0;
 
 /* Schwebender Scan-Button (mobil) – im Bottom-Menü versteckt */
 .tab.scan-tab { display: none; }
-.scan-fab { position: absolute; right: 16px; bottom: calc(88px + env(safe-area-inset-bottom)); z-index: 40;
+/* Dezenter Install-Button (Login) */
+.install-wrap { margin-top: 18px; text-align: center; }
+.install-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s; }
+.install-btn:hover { color: var(--ink); border-color: var(--ink); background: rgba(0, 0, 0, 0.02); }
+.install-ios { margin-top: 10px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+.install-ios svg { display: inline; vertical-align: -2px; margin: 0 1px; }
+
+.scan-fab { position: absolute; left: 16px; bottom: calc(88px + env(safe-area-inset-bottom)); z-index: 40;
   width: 60px; height: 60px; border-radius: 50%; border: 3px solid #fff; background: #fff; overflow: visible;
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25); cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; }
 .scan-fab.active { box-shadow: 0 0 0 3px var(--accent2), 0 10px 26px rgba(0, 0, 0, 0.25); }

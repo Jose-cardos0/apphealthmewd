@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import AuthDecor from "@/components/AuthDecor";
 import Icon from "@/components/Icon";
+import InstallButton from "@/components/InstallButton";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -99,6 +100,8 @@ export default function LoginPage() {
             <br />
             Melde dich mit der E-Mail deiner Bestellung an.
           </p>
+
+          <InstallButton />
         </div>
       </div>
   );
