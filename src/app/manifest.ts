@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
+    id: "/",
     name: "HealthMe GLP-1",
     short_name: "HealthMe",
     description: "Deine smarte Begleitung auf dem Weg zum Wunschgewicht.",
