@@ -1,11 +1,21 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import IconSprite from "@/components/IconSprite";
+import PwaRegister from "@/components/PwaRegister";
 
 export const metadata: Metadata = {
   title: "HealthMe GLP-1",
   description: "Deine smarte Begleitung auf dem Weg zum Wunschgewicht.",
-  icons: { icon: "/logo.png" },
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/pwa/icon-192.png",
+    apple: "/apple-touch-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "HealthMe",
+    statusBarStyle: "default",
+  },
 };
 
 export const viewport: Viewport = {
@@ -13,7 +23,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#141210",
+  themeColor: "#f5f4f2",
 };
 
 export default function RootLayout({
@@ -36,6 +46,7 @@ export default function RootLayout({
       </head>
       <body>
         <IconSprite />
+        <PwaRegister />
         {children}
       </body>
     </html>
