@@ -17,8 +17,10 @@ export const config = {
      * Alle Pfade außer:
      * - _next/static, _next/image (Build-Assets)
      * - favicon, logo, Bilddateien
+     * - PWA-Dateien: manifest.webmanifest, sw.js (müssen ohne Login erreichbar
+     *   sein, sonst kann Chrome die App nicht installieren – nur Verknüpfung)
      * - /api/webhooks/* (Webhooks brauchen keine Session)
      */
-    "/((?!_next/static|_next/image|favicon.ico|logo.png|api/webhooks|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|logo.png|manifest.webmanifest|sw.js|api/webhooks|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
