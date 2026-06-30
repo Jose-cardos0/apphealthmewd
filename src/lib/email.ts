@@ -33,7 +33,7 @@ export async function sendWelcomeEmail(opts: {
   const result = await resend.emails.send({
     from,
     to,
-    subject: "Willkommen bei HealthMe GLP-1 – deine Zugangsdaten",
+    subject: "Willkommen bei HealthMe GLP-1 – deine Zugangsdaten · Welcome – your login details",
     html,
     text,
   });
@@ -63,8 +63,24 @@ Melde dich hier an: ${loginUrl}
 WICHTIG: Aus Sicherheitsgründen wirst du beim ersten Login aufgefordert,
 dein Passwort zu ändern.
 
+— — — — — — — — — — — — — — —
+
+Welcome to HealthMe GLP-1!
+
+Thank you for your purchase. Your access is now unlocked.
+
+Your login details:
+  Email:    ${to}
+  Password: ${password}
+
+Sign in here: ${loginUrl}
+
+IMPORTANT: For security reasons you'll be asked to change your password
+on your first login.
+
 Wir begleiten dich auf deinem Weg zum Wunschgewicht!
-Dein HealthMe GLP-1 Team`;
+We're with you on the way to your goal weight!
+Dein/Your HealthMe GLP-1 Team`;
 }
 
 function welcomeHtml({
@@ -89,43 +105,54 @@ function welcomeHtml({
     <div style="background:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 10px 30px rgba(200,147,10,0.12);">
       <div style="background:#ffffff;padding:32px 32px 20px;text-align:center;border-bottom:1px solid #fdf4d9;">
         ${logoBlock}
-        <p style="margin:0;color:#c8930a;font-size:14px;font-weight:500;">Deine Begleitung zum Wunschgewicht</p>
+        <p style="margin:0;color:#c8930a;font-size:14px;font-weight:500;">Deine Begleitung zum Wunschgewicht · Your companion to your goal weight</p>
       </div>
       <div style="height:4px;background:linear-gradient(90deg,#f6d572,#e6b325,#c8930a);"></div>
       <div style="padding:32px;">
         <h2 style="margin:0 0 8px;font-size:20px;color:#1f2937;">Willkommen an Bord!</h2>
-        <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#4b5563;">
+        <p style="margin:0 0 18px;font-size:15px;line-height:1.6;color:#4b5563;">
           Vielen Dank für deinen Kauf. Dein Zugang zu HealthMe GLP-1 ist ab sofort freigeschaltet.
           Hier sind deine persönlichen Zugangsdaten:
         </p>
 
+        <h2 style="margin:0 0 8px;font-size:20px;color:#1f2937;">Welcome aboard!</h2>
+        <p style="margin:0 0 22px;font-size:15px;line-height:1.6;color:#4b5563;">
+          Thank you for your purchase. Your access to HealthMe GLP-1 is now unlocked.
+          Below are your personal login details:
+        </p>
+
         <div style="background:#fffdf4;border:1px solid #fbe8a8;border-radius:16px;padding:20px;margin-bottom:24px;">
           <p style="margin:0 0 10px;font-size:13px;color:#6b7280;">
-            <strong style="color:#c8930a;">E-Mail:</strong><br>
+            <strong style="color:#c8930a;">E-Mail / Email:</strong><br>
             <span style="font-size:15px;color:#1f2937;">${escapeHtml(to)}</span>
           </p>
           <p style="margin:0;font-size:13px;color:#6b7280;">
-            <strong style="color:#c8930a;">Passwort:</strong><br>
+            <strong style="color:#c8930a;">Passwort / Password:</strong><br>
             <span style="font-size:18px;font-weight:700;letter-spacing:1px;color:#1f2937;">${escapeHtml(password)}</span>
           </p>
         </div>
 
         <div style="text-align:center;margin-bottom:24px;">
           <a href="${escapeHtml(loginUrl)}" style="display:inline-block;background:#e6b325;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 32px;border-radius:12px;">
-            Jetzt anmelden →
+            Jetzt anmelden / Sign in →
           </a>
         </div>
 
         <div style="background:#fef3f2;border:1px solid #fecaca;border-radius:12px;padding:14px 16px;margin-bottom:8px;">
-          <p style="margin:0;font-size:13px;line-height:1.5;color:#b91c1c;">
+          <p style="margin:0 0 8px;font-size:13px;line-height:1.5;color:#b91c1c;">
             <strong>Wichtig:</strong> Aus Sicherheitsgründen musst du beim ersten Login
             dein Passwort ändern, um die App nutzen zu können.
+          </p>
+          <p style="margin:0;font-size:13px;line-height:1.5;color:#b91c1c;">
+            <strong>Important:</strong> For security reasons you must change your password
+            on your first login before you can use the app.
           </p>
         </div>
       </div>
       <div style="padding:20px 32px;background:#fffdf4;border-top:1px solid #fdf4d9;text-align:center;">
         <p style="margin:0;font-size:12px;color:#9ca3af;">
           Diese E-Mail wurde automatisch nach deinem Kauf versendet.<br>
+          This email was sent automatically after your purchase.<br>
           © HealthMe GLP-1
         </p>
       </div>
