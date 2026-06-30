@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import { defaultAvatar } from "@/lib/avatar";
+import { fmtDose } from "@/lib/units";
 import { useI18n, type Lang } from "@/lib/i18n";
 
 type Data = {
@@ -47,11 +48,11 @@ const meds = (lang: Lang): { v: string; icon: LucideIcon; label: string }[] => [
 ];
 
 const doses = (lang: Lang): { value: string; label: string }[] => [
-  { value: "0,25 mg", label: "0,25 mg" },
-  { value: "0,5 mg", label: "0,5 mg" },
-  { value: "1,0 mg", label: "1,0 mg" },
-  { value: "1,7 mg", label: "1,7 mg" },
-  { value: "2,4 mg", label: "2,4 mg" },
+  { value: "0,25 mg", label: fmtDose("0,25 mg", lang) },
+  { value: "0,5 mg", label: fmtDose("0,5 mg", lang) },
+  { value: "1,0 mg", label: fmtDose("1,0 mg", lang) },
+  { value: "1,7 mg", label: fmtDose("1,7 mg", lang) },
+  { value: "2,4 mg", label: fmtDose("2,4 mg", lang) },
   { value: "Andere", label: lang === "de" ? "Andere" : "Other" },
 ];
 

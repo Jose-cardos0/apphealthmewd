@@ -8,7 +8,7 @@ import Modal from "@/components/Modal";
 import Alert from "@/components/Alert";
 import { dashboardMetrics, bmiCategory, de } from "@/lib/metrics";
 import { avatarSrc, avatarInitials } from "@/lib/avatar";
-import { fmtVolL, fmtVolMl } from "@/lib/units";
+import { fmtVolL, fmtVolMl, fmtWeight, weightUnit, kgToDisplay, displayToKg, fmtDose } from "@/lib/units";
 import { uploadAvatar } from "@/lib/uploadAvatar";
 import { getDailyLog, saveDailyLog, listDoses, addDose, removeDose, updateCurrentWeight, todayStr, type Dose } from "@/lib/logs";
 import { getTodayBurned } from "@/lib/workouts";
@@ -43,9 +43,9 @@ const TX = {
     hello: (name: string) => `Hallo, ${name}`,
     notifications: "Benachrichtigungen",
     editData: "Daten bearbeiten",
-    goalLose: (kg: string) => `Ziel: ${kg} kg abnehmen`,
+    goalLose: (kg: string) => `Ziel: ${kg} abnehmen`,
     updateWeight: "Gewicht aktualisieren",
-    progress: (lost: string, toGo: string) => `${lost} kg geschafft · noch ${toGo} kg`,
+    progress: (lost: string, toGo: string) => `${lost} geschafft · noch ${toGo}`,
     changePhoto: "Foto ändern",
     bmi: "BMI",
     addKcal: "Kalorien hinzufügen",
@@ -75,8 +75,8 @@ const TX = {
     kcalPlaceholder: "z. B. 450",
     add: "Hinzufügen",
     enterWeight: "Gewicht eintragen",
-    startGoal: (start: string, goal: string) => `Start: ${start} kg · Ziel: ${goal} kg`,
-    yourCurrentWeight: "Dein aktuelles Gewicht (kg)",
+    startGoal: (start: string, goal: string) => `Start: ${start} · Ziel: ${goal}`,
+    yourCurrentWeight: (u: string) => `Dein aktuelles Gewicht (${u})`,
     weightPlaceholder: "z. B. 90,5",
     save: "Speichern",
     enterDose: "Dosis eintragen",
@@ -111,9 +111,9 @@ const TX = {
     hello: (name: string) => `Hi, ${name}`,
     notifications: "Notifications",
     editData: "Edit data",
-    goalLose: (kg: string) => `Goal: lose ${kg} kg`,
+    goalLose: (kg: string) => `Goal: lose ${kg}`,
     updateWeight: "Update weight",
-    progress: (lost: string, toGo: string) => `${lost} kg done · ${toGo} kg to go`,
+    progress: (lost: string, toGo: string) => `${lost} done · ${toGo} to go`,
     changePhoto: "Change photo",
     bmi: "BMI",
     addKcal: "Add calories",
@@ -143,9 +143,9 @@ const TX = {
     kcalPlaceholder: "e.g. 450",
     add: "Add",
     enterWeight: "Enter weight",
-    startGoal: (start: string, goal: string) => `Start: ${start} kg · Goal: ${goal} kg`,
-    yourCurrentWeight: "Your current weight (kg)",
-    weightPlaceholder: "e.g. 90.5",
+    startGoal: (start: string, goal: string) => `Start: ${start} · Goal: ${goal}`,
+    yourCurrentWeight: (u: string) => `Your current weight (${u})`,
+    weightPlaceholder: "e.g. 190",
     save: "Save",
     enterDose: "Log a dose",
     medication: "Medication",
@@ -330,12 +330,13 @@ export default function Dashboard({
   }
 
   async function submitWeight() {
-    const v = parseFloat(weightInput.replace(",", "."));
-    if (!Number.isFinite(v) || v <= 0) { setModal(null); return; }
-    setCurrentWeight(v);
+    const entered = parseFloat(weightInput.replace(",", "."));
+    if (!Number.isFinite(entered) || entered <= 0) { setModal(null); return; }
+    const kg = displayToKg(entered, lang); // Eingabe (lb/kg) → kg speichern
+    setCurrentWeight(kg);
     setWeightInput("");
     setModal(null);
-    try { await updateCurrentWeight(v); router.refresh(); } catch { /* ignoriert */ }
+    try { await updateCurrentWeight(kg); router.refresh(); } catch { /* ignoriert */ }
   }
 
   const waterL = water / 1000;
@@ -380,20 +381,20 @@ export default function Dashboard({
             {sub && <div className="sub">{sub}</div>}
             {m.goalDiff > 0 && (
               <span className="pill" style={{ marginTop: 8 }}>
-                <Icon name="ic-target" /> {t.goalLose(de(m.goalDiff, 0))}
+                <Icon name="ic-target" /> {t.goalLose(fmtWeight(m.goalDiff, lang))}
               </span>
             )}
             {m.start != null && m.goal != null && (
               <div className="goal">
                 <div className="nums" style={{ marginTop: 10 }}>
                   <b
-                    onClick={() => { setWeightInput(String(m.current ?? m.start ?? "")); setModal("weight"); }}
+                    onClick={() => { setWeightInput(String(kgToDisplay(m.current ?? m.start ?? 0, lang))); setModal("weight"); }}
                     style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4, borderBottom: "1.5px dashed #d9c89a" }}
                     title={t.updateWeight}
                   >
-                    {de(m.current ?? m.start)}&nbsp;kg <Pencil size={12} style={{ opacity: 0.6 }} />
+                    {fmtWeight(m.current ?? m.start, lang)} <Pencil size={12} style={{ opacity: 0.6 }} />
                   </b>
-                  <b>{de(m.goal)}&nbsp;kg</b>
+                  <b>{fmtWeight(m.goal, lang)}</b>
                 </div>
                 <div className="track-wrap">
                   <div className="track"><i style={{ width: `${trackW}%` }} /></div>
@@ -401,7 +402,7 @@ export default function Dashboard({
                   <img className="weight-rocket" src="/mascote/fluflyhappy.png" alt="" style={{ left: `${trackW}%` }} />
                 </div>
                 <div className="muted" style={{ fontSize: 11.5, marginTop: 5 }}>
-                  {t.progress(de(m.lost), de(m.toGo))}
+                  {t.progress(fmtWeight(m.lost, lang), fmtWeight(m.toGo, lang))}
                 </div>
               </div>
             )}
@@ -469,7 +470,7 @@ export default function Dashboard({
               <span className="di di-vial">{/* eslint-disable-next-line @next/next/no-img-element */}<img className="di-img" src="/glp1.png" alt="" /></span>
               <div className="dinfo">
                 <div className="dn">{t.nextDose(med)}</div>
-                <div className="dd">{freq} · {profDose}</div>
+                <div className="dd">{freq} · {fmtDose(profDose, lang)}</div>
               </div>
               <span className="pill">{t.ready}</span>
             </div>
@@ -479,7 +480,7 @@ export default function Dashboard({
             <div className="dose done" key={d.id}>
               <span className="di di-vial">{/* eslint-disable-next-line @next/next/no-img-element */}<img className="di-img" src="/glp1.png" alt="" /></span>
               <div className="dinfo">
-                <div className="dn">{d.medication || t.doseFallback} · {d.dose || ""}</div>
+                <div className="dn">{d.medication || t.doseFallback} · {fmtDose(d.dose || "", lang)}</div>
                 <div className="dd">{t.takenOn(formatDate(d.taken_on))}</div>
               </div>
               <button onClick={() => deleteDose(d.id)} aria-label={t.delete} style={{ border: "none", background: "none", color: "#c6bca2", cursor: "pointer", flexShrink: 0 }}>
@@ -578,9 +579,9 @@ export default function Dashboard({
       {modal === "weight" && (
         <Modal title={t.enterWeight} onClose={() => setModal(null)}>
           <p className="muted" style={{ marginTop: 0, fontSize: 13 }}>
-            {t.startGoal(m.start != null ? de(m.start) : "—", m.goal != null ? de(m.goal) : "—")}
+            {t.startGoal(m.start != null ? fmtWeight(m.start, lang) : "—", m.goal != null ? fmtWeight(m.goal, lang) : "—")}
           </p>
-          <div className="lg-label">{t.yourCurrentWeight}</div>
+          <div className="lg-label">{t.yourCurrentWeight(weightUnit(lang))}</div>
           <input
             className="qz-input"
             type="number"
@@ -603,7 +604,7 @@ export default function Dashboard({
           </select>
           <div className="lg-label">{t.dose}</div>
           <select className="qz-input" value={doseForm.dose} onChange={(e) => setDoseForm((p) => ({ ...p, dose: e.target.value }))} style={{ appearance: "auto", marginBottom: 12 }}>
-            {DOSES.map((dd) => <option key={dd}>{dd}</option>)}
+            {DOSES.map((dd) => <option key={dd} value={dd}>{fmtDose(dd, lang)}</option>)}
           </select>
           <div className="lg-label">{t.date}</div>
           <input className="qz-input" type="date" value={doseForm.taken_on} onChange={(e) => setDoseForm((p) => ({ ...p, taken_on: e.target.value }))} style={{ marginBottom: 4 }} />
