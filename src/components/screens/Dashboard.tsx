@@ -8,6 +8,7 @@ import Modal from "@/components/Modal";
 import Alert from "@/components/Alert";
 import { dashboardMetrics, bmiCategory, de } from "@/lib/metrics";
 import { avatarSrc, avatarInitials } from "@/lib/avatar";
+import { fmtVolL, fmtVolMl } from "@/lib/units";
 import { uploadAvatar } from "@/lib/uploadAvatar";
 import { getDailyLog, saveDailyLog, listDoses, addDose, removeDose, updateCurrentWeight, todayStr, type Dose } from "@/lib/logs";
 import { getTodayBurned } from "@/lib/workouts";
@@ -25,7 +26,7 @@ const TX = {
     weekly: "Wöchentlich",
     waterGoalReachedTitle: "Wasserziel erreicht",
     waterGoalReachedMsg: (drank: string, goal: string) =>
-      `Stark! Du hast heute ${drank} L getrunken und dein Ziel von ${goal} L erreicht. Trink über den Tag verteilt weiter – sehr große Mengen auf einmal sind nicht nötig.`,
+      `Stark! Du hast heute ${drank} getrunken und dein Ziel von ${goal} erreicht. Trink über den Tag verteilt weiter – sehr große Mengen auf einmal sind nicht nötig.`,
     kcalOverTitle: "Kalorienziel überschritten",
     kcalOverMsg: (net: string, goal: string) =>
       `Du liegst heute bei ${net} kcal (abzüglich Training) – über deinem Tagesziel von ${goal} kcal. Plane den Rest des Tages etwas leichter.`,
@@ -33,7 +34,7 @@ const TX = {
       `Du liegst ${over} kcal über deinem Tagesziel. Plane den Rest des Tages etwas leichter.`,
     notifDrinkMoreTitle: "Trink mehr Wasser",
     notifDrinkMoreText: (rest: string, goal: string) =>
-      `Dir fehlen noch ${rest} L bis zu deinem Tagesziel von ${goal} L.`,
+      `Dir fehlen noch ${rest} bis zu deinem Tagesziel von ${goal}.`,
     notifDoseTitle: "GLP-1 Dosis",
     notifDoseText: "Du hast heute noch keine Dosis eingetragen.",
     notifNoWorkoutTitle: "Noch kein Training",
@@ -67,9 +68,9 @@ const TX = {
     tipsBy: "von HealthMe KI",
     scanMeal: "Mahlzeit scannen",
     scanMealSub: "Kalorien & Nährwerte in Sekunden",
-    todayWater: (drank: string, goal: string) => `Heute: ${drank} L von ${goal} L`,
+    todayWater: (drank: string, goal: string) => `Heute: ${drank} von ${goal}`,
     done: "Fertig",
-    undoWater: "−250 ml rückgängig",
+    undoWater: (amt: string) => `−${amt} rückgängig`,
     todayKcal: (kcal: string, goal: string) => `Heute: ${kcal} / ${goal} kcal`,
     kcalPlaceholder: "z. B. 450",
     add: "Hinzufügen",
@@ -93,7 +94,7 @@ const TX = {
     weekly: "Weekly",
     waterGoalReachedTitle: "Water goal reached",
     waterGoalReachedMsg: (drank: string, goal: string) =>
-      `Awesome! You've drunk ${drank} L today and hit your goal of ${goal} L. Keep sipping throughout the day – there's no need to down huge amounts at once.`,
+      `Awesome! You've drunk ${drank} today and hit your goal of ${goal}. Keep sipping throughout the day – there's no need to down huge amounts at once.`,
     kcalOverTitle: "Calorie goal exceeded",
     kcalOverMsg: (net: string, goal: string) =>
       `You're at ${net} kcal today (after workouts) – over your daily goal of ${goal} kcal. Take it a bit lighter for the rest of the day.`,
@@ -101,7 +102,7 @@ const TX = {
       `You're ${over} kcal over your daily goal. Take it a bit lighter for the rest of the day.`,
     notifDrinkMoreTitle: "Drink more water",
     notifDrinkMoreText: (rest: string, goal: string) =>
-      `You're still ${rest} L short of your daily goal of ${goal} L.`,
+      `You're still ${rest} short of your daily goal of ${goal}.`,
     notifDoseTitle: "GLP-1 dose",
     notifDoseText: "You haven't logged a dose today yet.",
     notifNoWorkoutTitle: "No workout yet",
@@ -135,9 +136,9 @@ const TX = {
     tipsBy: "by HealthMe AI",
     scanMeal: "Scan a meal",
     scanMealSub: "Calories & nutrients in seconds",
-    todayWater: (drank: string, goal: string) => `Today: ${drank} L of ${goal} L`,
+    todayWater: (drank: string, goal: string) => `Today: ${drank} of ${goal}`,
     done: "Done",
-    undoWater: "−250 ml undo",
+    undoWater: (amt: string) => `−${amt} undo`,
     todayKcal: (kcal: string, goal: string) => `Today: ${kcal} / ${goal} kcal`,
     kcalPlaceholder: "e.g. 450",
     add: "Add",
@@ -284,14 +285,14 @@ export default function Dashboard({
     flashKey.current += 1;
     setFlash({
       key: flashKey.current,
-      text: `${deltaMl > 0 ? "+" : "−"}${Math.abs(deltaMl)} ml`,
+      text: `${deltaMl > 0 ? "+" : "−"}${fmtVolMl(Math.abs(deltaMl), lang)}`,
       color: deltaMl > 0 ? "#2b9fd6" : "#b4ab99",
     });
     const goalMl = waterGoalL * 1000;
     if (deltaMl > 0 && water <= goalMl && next > goalMl) {
       setAlert({
         title: t.waterGoalReachedTitle,
-        message: t.waterGoalReachedMsg(de(next / 1000, 1), de(waterGoalL, 1)),
+        message: t.waterGoalReachedMsg(fmtVolL(next / 1000, lang), fmtVolL(waterGoalL, lang)),
         tone: "info",
       });
     }
@@ -345,7 +346,7 @@ export default function Dashboard({
   const notifs: { icon: React.ReactNode; bg: string; color: string; title: string; text: string }[] = [];
   if (overKcal) notifs.push({ icon: <Flame size={18} />, bg: "#fdeeee", color: "#e0484b", title: t.kcalOverTitle, text: t.notifKcalOverText((netKcal - kcalGoal).toLocaleString(nf)) });
   const restWater = waterGoalL - waterL;
-  if (restWater > 0.1) notifs.push({ icon: <GlassWater size={18} />, bg: "#e6f3fb", color: "#2b9fd6", title: t.notifDrinkMoreTitle, text: t.notifDrinkMoreText(de(restWater, 1), de(waterGoalL, 1)) });
+  if (restWater > 0.1) notifs.push({ icon: <GlassWater size={18} />, bg: "#e6f3fb", color: "#2b9fd6", title: t.notifDrinkMoreTitle, text: t.notifDrinkMoreText(fmtVolL(restWater, lang), fmtVolL(waterGoalL, lang)) });
   if (med && doses.length === 0) notifs.push({ icon: <Syringe size={18} />, bg: "#f5f1e7", color: "var(--accent2)", title: t.notifDoseTitle, text: t.notifDoseText });
   if (burned === 0) notifs.push({ icon: <Dumbbell size={18} />, bg: "#f3f2ef", color: "#3d3a35", title: t.notifNoWorkoutTitle, text: t.notifNoWorkoutText });
 
@@ -447,7 +448,7 @@ export default function Dashboard({
           <div className="stat">
             <button className="stat-add" onClick={() => setModal("water")} aria-label={t.addWater}><Plus size={17} /></button>
             <div className="h"><span className="ic" style={{ background: "#f4f3f0", color: "#3d3a35" }}><Icon name="ic-drop" style={{ width: 16 }} /></span> {t.water}</div>
-            <div className="v">{de(waterL, 1)} <small>/ {de(waterGoalL, 1)} L</small></div>
+            <div className="v">{lang === "en" ? Math.round(waterL * 33.814) : de(waterL, 1)} <small>/ {fmtVolL(waterGoalL, lang)}</small></div>
           </div>
 
           <div className="stat">
@@ -537,23 +538,23 @@ export default function Dashboard({
               {flash.text}
             </span>
           )}
-          <p className="muted" style={{ marginTop: 0, fontSize: 13 }}>{t.todayWater(de(waterL, 1), de(waterGoalL, 1))}</p>
+          <p className="muted" style={{ marginTop: 0, fontSize: 13 }}>{t.todayWater(fmtVolL(waterL, lang), fmtVolL(waterGoalL, lang))}</p>
           <div className="modal-quick">
             <button onClick={() => changeWater(250)}>
               <span className="wicon"><GlassWater size={22} /></span>
-              +250 ml
+              +{fmtVolMl(250, lang)}
             </button>
             <button onClick={() => changeWater(500)}>
               <span className="wicon" style={{ gap: 1 }}><GlassWater size={19} /><GlassWater size={19} /></span>
-              +500 ml
+              +{fmtVolMl(500, lang)}
             </button>
             <button onClick={() => changeWater(750)}>
               <span className="wicon"><Milk size={24} /></span>
-              +750 ml
+              +{fmtVolMl(750, lang)}
             </button>
           </div>
           <button className="qz-next" style={{ width: "100%", marginTop: 6 }} onClick={() => { setModal(null); setFlash(null); }}>{t.done}</button>
-          <button onClick={() => changeWater(-250)} style={{ width: "100%", marginTop: 10, border: "none", background: "none", color: "var(--muted)", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{t.undoWater}</button>
+          <button onClick={() => changeWater(-250)} style={{ width: "100%", marginTop: 10, border: "none", background: "none", color: "var(--muted)", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{t.undoWater(fmtVolMl(250, lang))}</button>
         </Modal>
       )}
 

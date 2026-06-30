@@ -27,7 +27,8 @@ const SYSTEM_PROMPT_EN =
   "IMPORTANT: You answer EXCLUSIVELY questions about nutrition, food, nutritional values, weight loss, " +
   "healthy habits and everyday life with GLP-1. For questions on other topics (e.g. politics, tech, " +
   "programming, math, relationships, news, etc.) you politely decline and say you can only help with " +
-  "nutrition and a healthy lifestyle – and steer the conversation back to nutrition.";
+  "nutrition and a healthy lifestyle – and steer the conversation back to nutrition. " +
+  "When you mention measurements, use US imperial units: ounces (oz), fluid ounces (fl oz), pounds (lb).";
 
 export async function POST(req: NextRequest) {
   const user = await requireUser();

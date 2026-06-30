@@ -5,6 +5,7 @@ import Icon from "@/components/Icon";
 import { calcBmi, bmiCategory, bmiScalePos, de } from "@/lib/metrics";
 import type { Profile } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
+import { massValue, massSuffix } from "@/lib/units";
 
 const TX = {
   de: {
@@ -87,9 +88,9 @@ export default function Wissen({ active, profile }: { active: boolean; profile: 
       <div className="scr-body">
         <div className="grid">
           <Mcard active={active} icon="ic-flame" iconBg="#f4f3f0" title={t.kcalTitle} sub={t.kcalSub} num={kcal} color="var(--red)" p={78} />
-          <Mcard active={active} icon="ic-bolt" iconBg="#f4f3f0" title={t.proteinTitle} sub={t.proteinSub} num={protein} suffix="g" color="var(--orange)" p={72} />
-          <Mcard active={active} icon="ic-grain" iconBg="#f4f3f0" title={t.carbsTitle} sub={t.carbsSub} num={carbs} suffix="g" color="var(--green)" p={60} />
-          <Mcard active={active} icon="ic-drop" iconBg="#f4f3f0" title={t.fatTitle} sub={t.fatSub} num={fat} suffix="g" color="var(--yellow)" p={55} />
+          <Mcard active={active} icon="ic-bolt" iconBg="#f4f3f0" title={t.proteinTitle} sub={t.proteinSub} num={massValue(protein, lang)} suffix={massSuffix(lang)} decimals={lang === "en" ? 1 : 0} color="var(--orange)" p={72} />
+          <Mcard active={active} icon="ic-grain" iconBg="#f4f3f0" title={t.carbsTitle} sub={t.carbsSub} num={massValue(carbs, lang)} suffix={massSuffix(lang)} decimals={lang === "en" ? 1 : 0} color="var(--green)" p={60} />
+          <Mcard active={active} icon="ic-drop" iconBg="#f4f3f0" title={t.fatTitle} sub={t.fatSub} num={massValue(fat, lang)} suffix={massSuffix(lang)} decimals={lang === "en" ? 1 : 0} color="var(--yellow)" p={55} />
         </div>
 
         <div className="card">
@@ -127,9 +128,9 @@ export default function Wissen({ active, profile }: { active: boolean; profile: 
 }
 
 function Mcard({
-  active, icon, iconBg, title, sub, num, suffix = "", color, p,
+  active, icon, iconBg, title, sub, num, suffix = "", color, p, decimals = 0,
 }: {
-  active: boolean; icon: string; iconBg: string; title: string; sub: string; num: number; suffix?: string; color: string; p: number;
+  active: boolean; icon: string; iconBg: string; title: string; sub: string; num: number; suffix?: string; color: string; p: number; decimals?: number;
 }) {
   const [fill, setFill] = useState(0);
   const [shown, setShown] = useState(0);
@@ -145,12 +146,14 @@ function Mcard({
       if (start === null) start = t;
       const prog = Math.min(1, (t - start) / dur);
       const e = 1 - Math.pow(1 - prog, 3);
-      setShown(Math.round(num * e));
+      setShown(num * e);
       if (prog < 1) requestAnimationFrame(tick);
       else setShown(num);
     };
     requestAnimationFrame(tick);
   }, [active, num, p]);
+
+  const display = decimals > 0 ? shown.toFixed(decimals) : Math.round(shown).toString();
 
   return (
     <div className="mcard">
@@ -163,7 +166,7 @@ function Mcard({
           <path className="ring2-track" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
           <path className="ring2-fill" stroke={color} strokeDasharray={`${fill}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
         </svg>
-        <b>{shown}{suffix}</b>
+        <b>{display}{suffix}</b>
       </div>
     </div>
   );

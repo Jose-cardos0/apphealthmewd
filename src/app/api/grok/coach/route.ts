@@ -37,7 +37,8 @@ const SYSTEM_PROMPT_EN =
   '{"tag":"Tuesday","rest":true}]}. ' +
   "EXACTLY 7 days from Monday to Sunday. Training days: 4–6 exercises + 1 cardio unit. " +
   "Rest days only as {\"tag\":\"...\",\"rest\":true}. kcal_verbrennung = realistic whole number per training session. " +
-  "All texts in English; the en field is the English exercise-database name.";
+  "All texts in English; the en field is the English exercise-database name. " +
+  "Use US imperial units in any measurements (lb, oz, fl oz), not metric.";
 
 export async function POST(req: NextRequest) {
   const user = await requireUser();

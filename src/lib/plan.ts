@@ -24,6 +24,7 @@ const SYSTEM_PROMPT_EN =
   '"motivation": "short, motivating sentence in English", ' +
   '"tips": ["short tip 1", "short tip 2", "short tip 3"]}. ' +
   "All text in English. daily_kcal as a whole number, water_liters with one decimal place. " +
+  "IMPORTANT: in the free text (motivation, tips) use US imperial units – ounces (oz), fluid ounces (fl oz), pounds (lb) – not metric. " +
   "The values must fit the profile (age, gender, height, weight, goal weight, activity).";
 
 export async function generatePlan(d: Partial<OnboardingData> & { lang?: string }): Promise<GrokPlan> {

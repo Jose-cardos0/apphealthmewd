@@ -6,6 +6,7 @@ import Icon from "@/components/Icon";
 import Alert from "@/components/Alert";
 import { getDailyLog, saveDailyLog } from "@/lib/logs";
 import { useI18n } from "@/lib/i18n";
+import { fmtMass } from "@/lib/units";
 import type { Profile } from "@/lib/types";
 
 const TX = {
@@ -259,9 +260,9 @@ export default function Scan({ active, profile }: { active: boolean; profile: Pr
             {s && (
               <div className="tot">
                 <Macro bg="#fde2e1" color="#e0484b" value={`${s.kcal}`} label="kcal" />
-                <Macro bg="#ffe9cc" color="#d98324" value={`${s.protein_g} g`} label={t.macroProtein} />
-                <Macro bg="#e3f6e6" color="#1f9d4d" value={`${s.kohlenhydrate_g} g`} label={t.macroCarbs} />
-                <Macro bg="#fff3cc" color="#b58a00" value={`${s.fett_g} g`} label={t.macroFat} />
+                <Macro bg="#ffe9cc" color="#d98324" value={fmtMass(s.protein_g, lang)} label={t.macroProtein} />
+                <Macro bg="#e3f6e6" color="#1f9d4d" value={fmtMass(s.kohlenhydrate_g, lang)} label={t.macroCarbs} />
+                <Macro bg="#fff3cc" color="#b58a00" value={fmtMass(s.fett_g, lang)} label={t.macroFat} />
               </div>
             )}
 

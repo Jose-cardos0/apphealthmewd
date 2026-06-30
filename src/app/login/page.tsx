@@ -80,7 +80,6 @@ export default function LoginPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className="lg-logo" src="/logo.png" alt="HealthMe GLP-1" />
             <LanguageSwitcher />
-            <p className="lg-sub">{t.sub}</p>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -128,12 +127,6 @@ export default function LoginPage() {
               {loading ? t.signingIn : t.signIn}
             </button>
           </form>
-
-          <p className="lg-foot">
-            {t.foot1}
-            <br />
-            {t.foot2}
-          </p>
 
           <InstallButton />
         </div>

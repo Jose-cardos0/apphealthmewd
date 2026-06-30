@@ -21,7 +21,8 @@ const SYSTEM_PROMPT_EN =
   '"lebensmittel": [{"name": "Food", "kcal": 165, "detail": "31 g protein"}], ' +
   '"summe": {"kcal": 612, "protein_g": 32, "kohlenhydrate_g": 64, "fett_g": 22, "ballaststoffe_g": 9}}. ' +
   "Estimate realistic values. If NO food is recognizable in the image, reply with " +
-  '{"erkannt": false}. All text values in English (keys stay as shown).';
+  '{"erkannt": false}. All text values in English (keys stay as shown). ' +
+  "In the detail field, express weights in ounces (oz). The numeric keys (protein_g etc.) stay in grams.";
 
 export async function POST(req: NextRequest) {
   const user = await requireUser();
