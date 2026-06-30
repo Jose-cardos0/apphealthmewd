@@ -55,6 +55,7 @@ export async function generatePlan(d: Partial<OnboardingData> & { lang?: string 
     fat_g: clamp(Math.round(plan.fat_g), 20, 160),
     motivation: String(plan.motivation || "").slice(0, 200),
     tips: Array.isArray(plan.tips) ? plan.tips.slice(0, 4).map((t) => String(t).slice(0, 160)) : [],
+    lang: isEn ? "en" : "de",
   };
 }
 

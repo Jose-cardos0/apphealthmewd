@@ -199,6 +199,38 @@ export default function Dashboard({
   const [alert, setAlert] = useState<{ title: string; message: string; tone: "warn" | "info" } | null>(null);
   const [showNotif, setShowNotif] = useState(false);
 
+  // Motivation/Tipps in der aktuellen Sprache (KI-Text wird bei Sprachwechsel neu erzeugt)
+  const [planText, setPlanText] = useState<{ motivation: string; tips: string[] } | null>(
+    profile?.plan ? { motivation: profile.plan.motivation, tips: profile.plan.tips } : null,
+  );
+  const relangFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!active) return;
+    const pl = profile?.plan;
+    if (!pl) return;
+    const planLang = pl.lang ?? "de";
+    if (planLang === lang) {
+      setPlanText({ motivation: pl.motivation, tips: pl.tips });
+      relangFor.current = null;
+      return;
+    }
+    if (relangFor.current === lang) return; // schon angefragt
+    relangFor.current = lang;
+    (async () => {
+      try {
+        const res = await fetch("/api/account/plan-relang", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lang }),
+        });
+        const j = await res.json();
+        if (res.ok && j.plan) setPlanText({ motivation: j.plan.motivation, tips: j.plan.tips });
+      } catch {
+        /* offline – behält den vorhandenen Text */
+      }
+    })();
+  }, [active, lang, profile]);
+
   const reload = useCallback(async () => {
     try {
       const [log, ds, b] = await Promise.all([getDailyLog(), listDoses(), getTodayBurned()]);
@@ -466,17 +498,17 @@ export default function Dashboard({
           )}
         </div>
 
-        {profile?.plan?.tips && profile.plan.tips.length > 0 && (
+        {planText && planText.tips.length > 0 && (
           <>
             <div className="sec-title">
               <span className="h">{t.tipsTitle}</span>
               <span className="more">{t.tipsBy}</span>
             </div>
             <div className="card">
-              {profile.plan.motivation && (
-                <p style={{ margin: "0 0 12px", fontSize: 14.5, fontWeight: 700, color: "var(--accent2)" }}>{profile.plan.motivation}</p>
+              {planText.motivation && (
+                <p style={{ margin: "0 0 12px", fontSize: 14.5, fontWeight: 700, color: "var(--accent2)" }}>{planText.motivation}</p>
               )}
-              {profile.plan.tips.map((tip, i) => (
+              {planText.tips.map((tip, i) => (
                 <div key={i} style={{ display: "flex", gap: 11, padding: "10px 0", borderTop: i === 0 ? "none" : "1px solid var(--line)" }}>
                   <span style={{ flexShrink: 0, color: "var(--accent2)", marginTop: 1 }}><Icon name="ic-check-c" /></span>
                   <span style={{ fontSize: 14, lineHeight: 1.4 }}>{tip}</span>

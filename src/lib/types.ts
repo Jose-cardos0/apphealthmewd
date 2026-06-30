@@ -6,6 +6,8 @@ export type GrokPlan = {
   fat_g: number;
   motivation: string;
   tips: string[];
+  /** Sprache, in der motivation/tips erzeugt wurden ("de" | "en"). */
+  lang?: string;
 };
 
 export type Profile = {
@@ -54,7 +56,7 @@ export type WorkoutDay = {
   uebungen?: WorkoutExercise[];
   cardio?: WorkoutCardio[];
 };
-export type WeeklyPlan = { titel: string; fokus: string; tage: WorkoutDay[] };
+export type WeeklyPlan = { titel: string; fokus: string; tage: WorkoutDay[]; lang?: string };
 export type SavedPlan = { id: string; data: WeeklyPlan };
 
 /** Eingaben aus dem Onboarding-Quiz. */

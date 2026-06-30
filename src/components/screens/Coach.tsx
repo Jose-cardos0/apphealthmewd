@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Dumbbell, Check, Flame, Clock, RotateCcw, Moon } from "lucide-react";
 import Icon from "@/components/Icon";
 import Modal from "@/components/Modal";
@@ -113,7 +113,7 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Fehler");
-      const wp = normalize(data);
+      const wp: WeeklyPlan = { ...normalize(data), lang };
       await saveWeeklyPlan(wp).catch(() => {});
       setPlan(wp);
       setDayIdx(todayIdx());
@@ -123,6 +123,20 @@ export default function Coach({ active, profile }: { active: boolean; profile: P
       setLoading(false);
     }
   }
+
+  // Wochenplan in der KI-Sprache neu erzeugen, wenn der Nutzer die Sprache wechselt.
+  const relangFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!active || !plan || loading) return;
+    if ((plan.lang ?? "de") === lang) {
+      relangFor.current = null;
+      return;
+    }
+    if (relangFor.current === lang) return;
+    relangFor.current = lang;
+    generate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, plan, lang]);
 
   async function markDone(d: WorkoutDay) {
     if (busyDone || d.rest) return;
