@@ -5,7 +5,63 @@ import { Check, Plus } from "lucide-react";
 import Icon from "@/components/Icon";
 import Alert from "@/components/Alert";
 import { getDailyLog, saveDailyLog } from "@/lib/logs";
+import { useI18n } from "@/lib/i18n";
 import type { Profile } from "@/lib/types";
+
+const TX = {
+  de: {
+    title: "Intelligente Ernährung",
+    subtitle: "Fotografiere deine Mahlzeit und erhalte sofort alle Nährwerte.",
+    errNoMeal: "Auf dem Foto konnte keine Mahlzeit erkannt werden. Bitte versuche es erneut.",
+    errStatus: (status: number) => `Fehler ${status}`,
+    errAnalyzeFailed: "Die Analyse hat nicht geklappt.",
+    errCanvasUnavailable: "Canvas nicht verfügbar",
+    errImageLoad: "Bild konnte nicht geladen werden",
+    calorieExceededTitle: "Kalorienziel überschritten",
+    calorieExceededMsg: (total: number, goal: number) =>
+      `Mit dieser Mahlzeit liegst du heute bei ${total.toLocaleString("de-DE")} kcal – über deinem Tagesziel von ${goal.toLocaleString("de-DE")} kcal. Plane den Rest des Tages etwas leichter.`,
+    hintIdleDesktop: "Klicke auf den Teller, um ein Foto hochzuladen",
+    hintIdleMobile: "Tippe auf den Teller, um zu fotografieren",
+    hintAnalyzing: "Analysiere dein Foto …",
+    hintErrorDesktop: "Klicke, um ein neues Foto hochzuladen",
+    hintErrorMobile: "Tippe, um ein neues Foto aufzunehmen",
+    newPhoto: "Neues Foto aufnehmen",
+    mealRecognized: "Mahlzeit erkannt",
+    analyzedBy: "Analysiert von HealthMe KI",
+    macroProtein: "Protein",
+    macroCarbs: "Kohlenh.",
+    macroFat: "Fett",
+    addedToToday: "Zu heute hinzugefügt",
+    addToToday: (kcal: number) => `${kcal} kcal zu heute hinzufügen`,
+    scanNewMeal: "Neue Mahlzeit scannen",
+  },
+  en: {
+    title: "Smart Nutrition",
+    subtitle: "Snap a photo of your meal and get all the nutrition facts instantly.",
+    errNoMeal: "No meal could be detected in the photo. Please try again.",
+    errStatus: (status: number) => `Error ${status}`,
+    errAnalyzeFailed: "The analysis didn't work.",
+    errCanvasUnavailable: "Canvas not available",
+    errImageLoad: "Image could not be loaded",
+    calorieExceededTitle: "Calorie goal exceeded",
+    calorieExceededMsg: (total: number, goal: number) =>
+      `With this meal you're at ${total.toLocaleString("en-US")} kcal today – over your daily goal of ${goal.toLocaleString("en-US")} kcal. Plan the rest of the day a bit lighter.`,
+    hintIdleDesktop: "Click the plate to upload a photo",
+    hintIdleMobile: "Tap the plate to take a photo",
+    hintAnalyzing: "Analyzing your photo …",
+    hintErrorDesktop: "Click to upload a new photo",
+    hintErrorMobile: "Tap to take a new photo",
+    newPhoto: "Take a new photo",
+    mealRecognized: "Meal detected",
+    analyzedBy: "Analyzed by HealthMe AI",
+    macroProtein: "Protein",
+    macroCarbs: "Carbs",
+    macroFat: "Fat",
+    addedToToday: "Added to today",
+    addToToday: (kcal: number) => `Add ${kcal} kcal to today`,
+    scanNewMeal: "Scan a new meal",
+  },
+} as const;
 
 type Food = { name: string; kcal: number; detail: string };
 type Summe = { kcal: number; protein_g: number; kohlenhydrate_g: number; fett_g: number; ballaststoffe_g?: number };
@@ -31,6 +87,8 @@ function categorize(name: string): { icon: string; bg: string } {
 }
 
 export default function Scan({ active, profile }: { active: boolean; profile: Profile | null }) {
+  const { lang } = useI18n();
+  const t = TX[lang];
   const [phase, setPhase] = useState<Phase>("idle");
   const [shot, setShot] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
@@ -71,20 +129,20 @@ export default function Scan({ active, profile }: { active: boolean; profile: Pr
     setError(null);
     setResult(null);
     try {
-      const dataUrl = await downscale(file, 1024, 0.82);
+      const dataUrl = await downscale(file, 1024, 0.82, { canvasUnavailable: t.errCanvasUnavailable, imageLoad: t.errImageLoad });
       setShot(dataUrl);
       setPhase("analyzing");
 
       const res = await fetch("/api/grok/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: dataUrl }),
+        body: JSON.stringify({ image: dataUrl, lang }),
       });
       const data: Result & { error?: string } = await res.json();
-      if (!res.ok) throw new Error(data.error || `Fehler ${res.status}`);
+      if (!res.ok) throw new Error(data.error || t.errStatus(res.status));
 
       if (!data.erkannt) {
-        setError("Auf dem Foto konnte keine Mahlzeit erkannt werden. Bitte versuche es erneut.");
+        setError(t.errNoMeal);
         setPhase("error");
         return;
       }
@@ -92,7 +150,7 @@ export default function Scan({ active, profile }: { active: boolean; profile: Pr
       setPhase("result");
       setTimeout(() => bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight, behavior: "smooth" }), 80);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Die Analyse hat nicht geklappt.");
+      setError(err instanceof Error ? err.message : t.errAnalyzeFailed);
       setPhase("error");
     }
   }
@@ -114,8 +172,8 @@ export default function Scan({ active, profile }: { active: boolean; profile: Pr
       const goal = profile?.plan?.daily_kcal ?? 2000;
       if (total > goal) {
         setAlert({
-          title: "Kalorienziel überschritten",
-          message: `Mit dieser Mahlzeit liegst du heute bei ${total.toLocaleString("de-DE")} kcal – über deinem Tagesziel von ${goal.toLocaleString("de-DE")} kcal. Plane den Rest des Tages etwas leichter.`,
+          title: t.calorieExceededTitle,
+          message: t.calorieExceededMsg(total, goal),
         });
       }
     } catch {
@@ -128,8 +186,8 @@ export default function Scan({ active, profile }: { active: boolean; profile: Pr
   return (
     <section className={`screen${active ? " active" : ""}`} id="s-scan">
       <div className="scr-head" style={{ textAlign: "center" }}>
-        <h1 className="t">Intelligente Ernährung</h1>
-        <div className="muted" style={{ fontSize: 13 }}>Fotografiere deine Mahlzeit und erhalte sofort alle Nährwerte.</div>
+        <h1 className="t">{t.title}</h1>
+        <div className="muted" style={{ fontSize: 13 }}>{t.subtitle}</div>
       </div>
 
       <div className="scr-body scan-body" ref={bodyRef}>
@@ -165,9 +223,9 @@ export default function Scan({ active, profile }: { active: boolean; profile: Pr
         </div>
 
         <p className="scan-hint">
-          {phase === "idle" && (isDesktop ? "Klicke auf den Teller, um ein Foto hochzuladen" : "Tippe auf den Teller, um zu fotografieren")}
-          {phase === "analyzing" && "Analysiere dein Foto …"}
-          {phase === "error" && (isDesktop ? "Klicke, um ein neues Foto hochzuladen" : "Tippe, um ein neues Foto aufzunehmen")}
+          {phase === "idle" && (isDesktop ? t.hintIdleDesktop : t.hintIdleMobile)}
+          {phase === "analyzing" && t.hintAnalyzing}
+          {phase === "error" && (isDesktop ? t.hintErrorDesktop : t.hintErrorMobile)}
           {phase === "result" && result?.gericht}
         </p>
         </div>
@@ -178,14 +236,14 @@ export default function Scan({ active, profile }: { active: boolean; profile: Pr
         {phase === "error" && error && (
           <div className="result" style={{ borderTop: "1px solid var(--line)" }}>
             <p style={{ margin: 0, color: "#c0392b", fontSize: 14, fontWeight: 600 }}>{error}</p>
-            <button className="lg-btn" style={{ height: 50, marginTop: 14 }} onClick={openCamera}>Neues Foto aufnehmen</button>
+            <button className="lg-btn" style={{ height: 50, marginTop: 14 }} onClick={openCamera}>{t.newPhoto}</button>
           </div>
         )}
 
         {phase === "result" && result?.erkannt && (
           <div className="result">
-            <div className="rt"><Icon name="ic-check-c" style={{ color: "var(--accent2)" }} /> {result.gericht || "Mahlzeit erkannt"}</div>
-            <div className="ai"><Icon name="ic-spark" style={{ width: 14, color: "var(--accent2)" }} /> Analysiert von HealthMe KI</div>
+            <div className="rt"><Icon name="ic-check-c" style={{ color: "var(--accent2)" }} /> {result.gericht || t.mealRecognized}</div>
+            <div className="ai"><Icon name="ic-spark" style={{ width: 14, color: "var(--accent2)" }} /> {t.analyzedBy}</div>
 
             {(result.lebensmittel || []).map((f, i) => {
               const c = categorize(f.name);
@@ -201,9 +259,9 @@ export default function Scan({ active, profile }: { active: boolean; profile: Pr
             {s && (
               <div className="tot">
                 <Macro bg="#fde2e1" color="#e0484b" value={`${s.kcal}`} label="kcal" />
-                <Macro bg="#ffe9cc" color="#d98324" value={`${s.protein_g} g`} label="Protein" />
-                <Macro bg="#e3f6e6" color="#1f9d4d" value={`${s.kohlenhydrate_g} g`} label="Kohlenh." />
-                <Macro bg="#fff3cc" color="#b58a00" value={`${s.fett_g} g`} label="Fett" />
+                <Macro bg="#ffe9cc" color="#d98324" value={`${s.protein_g} g`} label={t.macroProtein} />
+                <Macro bg="#e3f6e6" color="#1f9d4d" value={`${s.kohlenhydrate_g} g`} label={t.macroCarbs} />
+                <Macro bg="#fff3cc" color="#b58a00" value={`${s.fett_g} g`} label={t.macroFat} />
               </div>
             )}
 
@@ -215,7 +273,7 @@ export default function Scan({ active, profile }: { active: boolean; profile: Pr
                 disabled={added}
               >
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 8, justifyContent: "center" }}>
-                  {added ? (<><Check size={18} /> Zu heute hinzugefügt</>) : (<><Plus size={18} /> {s.kcal} kcal zu heute hinzufügen</>)}
+                  {added ? (<><Check size={18} /> {t.addedToToday}</>) : (<><Plus size={18} /> {t.addToToday(s.kcal)}</>)}
                 </span>
               </button>
             )}
@@ -224,7 +282,7 @@ export default function Scan({ active, profile }: { active: boolean; profile: Pr
               onClick={reset}
               style={{ width: "100%", height: 48, marginTop: 10, border: "1.5px solid var(--line)", background: "#fff", borderRadius: 16, color: "var(--accent2)", fontSize: 15, fontWeight: 700, cursor: "pointer" }}
             >
-              Neue Mahlzeit scannen
+              {t.scanNewMeal}
             </button>
           </div>
         )}
@@ -249,7 +307,7 @@ function Macro({ bg, color, value, label }: { bg: string; color: string; value: 
 }
 
 /** Verkleinert ein Bild clientseitig (max. Kante, JPEG) und liefert eine Data-URL. */
-function downscale(file: File, maxEdge: number, quality: number): Promise<string> {
+function downscale(file: File, maxEdge: number, quality: number, errMsg: { canvasUnavailable: string; imageLoad: string }): Promise<string> {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
@@ -262,13 +320,13 @@ function downscale(file: File, maxEdge: number, quality: number): Promise<string
       canvas.width = w;
       canvas.height = h;
       const ctx = canvas.getContext("2d");
-      if (!ctx) return reject(new Error("Canvas nicht verfügbar"));
+      if (!ctx) return reject(new Error(errMsg.canvasUnavailable));
       ctx.drawImage(img, 0, 0, w, h);
       resolve(canvas.toDataURL("image/jpeg", quality));
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error("Bild konnte nicht geladen werden"));
+      reject(new Error(errMsg.imageLoad));
     };
     img.src = url;
   });

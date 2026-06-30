@@ -11,20 +11,28 @@ import Scan from "@/components/screens/Scan";
 import Community from "@/components/screens/Community";
 import Wissen from "@/components/screens/Wissen";
 import type { Profile } from "@/lib/types";
+import { useI18n } from "@/lib/i18n";
 
 type Screen = "dashboard" | "nutrition" | "coach" | "scan" | "community" | "wissen";
 
-const TABS: { key: Screen; label: string; icon: string }[] = [
-  { key: "dashboard", label: "Start", icon: "ic-home" },
-  { key: "nutrition", label: "Ernährung", icon: "ic-chat" },
-  { key: "coach", label: "Coach", icon: "ic-dumbbell" },
-  { key: "scan", label: "Scan", icon: "ic-camai" },
-  { key: "community", label: "Community", icon: "ic-users" },
-  { key: "wissen", label: "Wissen", icon: "ic-book" },
+const TABS: { key: Screen; icon: string }[] = [
+  { key: "dashboard", icon: "ic-home" },
+  { key: "nutrition", icon: "ic-chat" },
+  { key: "coach", icon: "ic-dumbbell" },
+  { key: "scan", icon: "ic-camai" },
+  { key: "community", icon: "ic-users" },
+  { key: "wissen", icon: "ic-book" },
 ];
+
+const TX = {
+  de: { dashboard: "Start", nutrition: "Ernährung", coach: "Coach", scan: "Scan", community: "Community", wissen: "Wissen", logout: "Abmelden" },
+  en: { dashboard: "Home", nutrition: "Nutrition", coach: "Coach", scan: "Scan", community: "Community", wissen: "Knowledge", logout: "Sign out" },
+} as const;
 
 export default function AppClient({ profile }: { profile: Profile | null }) {
   const router = useRouter();
+  const { lang } = useI18n();
+  const t = TX[lang];
   const [screen, setScreen] = useState<Screen>("dashboard");
 
   async function logout() {
@@ -51,20 +59,20 @@ export default function AppClient({ profile }: { profile: Profile | null }) {
           <img src="/logo.png" alt="HealthMe GLP-1" />
         </div>
 
-        {TABS.map((t) => (
+        {TABS.map((tab) => (
           <button
-            key={t.key}
-            className={`tab${t.key === "scan" ? " scan-tab" : ""}${screen === t.key ? " active" : ""}`}
-            onClick={() => setScreen(t.key)}
+            key={tab.key}
+            className={`tab${tab.key === "scan" ? " scan-tab" : ""}${screen === tab.key ? " active" : ""}`}
+            onClick={() => setScreen(tab.key)}
           >
-            <Icon name={t.icon} />
-            <span>{t.label}</span>
+            <Icon name={tab.icon} />
+            <span>{t[tab.key]}</span>
           </button>
         ))}
 
         <button className="nav-logout" onClick={logout}>
           <Icon name="ic-logout" />
-          <span>Abmelden</span>
+          <span>{t.logout}</span>
         </button>
       </nav>
 

@@ -60,6 +60,14 @@ h1.t { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; margin: 2px 0;
 
 /* Schwebender Scan-Button (mobil) – im Bottom-Menü versteckt */
 .tab.scan-tab { display: none; }
+/* Sprachauswahl (Login) */
+.lang-switch { display: flex; justify-content: center; gap: 8px; margin: 14px 0 4px; }
+.lang-opt { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color 0.15s, color 0.15s, box-shadow 0.15s; }
+.lang-opt:hover { color: var(--ink); }
+.lang-opt.sel { border-color: var(--ink); color: var(--ink); box-shadow: 0 1px 0 var(--ink); }
+.lang-flag { width: 20px; height: 20px; border-radius: 50%; overflow: hidden; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08); display: block; }
+.lang-flag svg { display: block; }
+
 /* Dezenter Install-Button (Login) */
 .install-wrap { margin-top: 18px; text-align: center; }
 .install-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s; }

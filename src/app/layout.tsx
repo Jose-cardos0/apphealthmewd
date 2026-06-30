@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import "./globals.css";
 import IconSprite from "@/components/IconSprite";
 import PwaRegister from "@/components/PwaRegister";
+import { I18nProvider, type Lang } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "HealthMe GLP-1",
@@ -31,11 +33,12 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const lang: Lang = cookies().get("lang")?.value === "en" ? "en" : "de";
   return (
-    <html lang="de" translate="no">
+    <html lang={lang} translate="no">
       <head>
         {/* Browser-Übersetzung deaktivieren – sie kollidiert mit Reacts DOM
-            (NotFoundError: removeChild). Die App ist auf Deutsch. */}
+            (NotFoundError: removeChild). Die App ist mehrsprachig (DE/EN). */}
         <meta name="google" content="notranslate" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -47,7 +50,7 @@ export default function RootLayout({
       <body>
         <IconSprite />
         <PwaRegister />
-        {children}
+        <I18nProvider initial={lang}>{children}</I18nProvider>
       </body>
     </html>
   );

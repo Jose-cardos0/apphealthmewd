@@ -16,9 +16,9 @@ export async function POST(req: NextRequest) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Nicht angemeldet." }, { status: 401 });
 
-  let body: Partial<OnboardingData>;
+  let body: Partial<OnboardingData> & { lang?: string };
   try {
-    body = (await req.json()) as Partial<OnboardingData>;
+    body = (await req.json()) as Partial<OnboardingData> & { lang?: string };
   } catch {
     return NextResponse.json({ error: "Ungültige Daten." }, { status: 400 });
   }

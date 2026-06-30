@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Download, Share, Plus, MoreVertical } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 type BIPEvent = Event & {
   prompt: () => Promise<void>;
@@ -10,12 +11,19 @@ type BIPEvent = Event & {
 
 type Platform = "ios" | "android" | "desktop";
 
+const TX = {
+  de: { install: "App installieren", iosPre: "Tippe in Safari auf", iosMid: "und dann auf", iosStrong: "„Zum Home-Bildschirm“", androidPre: "Tippe oben rechts auf", androidMid: "und dann auf", androidStrong: "„App installieren“", desktopPre: "Klicke in der Adressleiste deines Browsers auf das", desktopStrong: "Installieren-Symbol" },
+  en: { install: "Install app", iosPre: "In Safari tap", iosMid: "and then", iosStrong: "“Add to Home Screen”", androidPre: "Tap the menu top right", androidMid: "and then", androidStrong: "“Install app”", desktopPre: "Click the", desktopStrong: "install icon", desktopPost: "in your browser's address bar." },
+} as const;
+
 /** Dezenter Button zum Installieren der PWA. Immer sichtbar (außer wenn schon installiert). */
 export default function InstallButton() {
   const [deferred, setDeferred] = useState<BIPEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [platform, setPlatform] = useState<Platform>("desktop");
   const [hintOpen, setHintOpen] = useState(false);
+  const { lang } = useI18n();
+  const t = TX[lang];
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -58,16 +66,16 @@ export default function InstallButton() {
   return (
     <div className="install-wrap">
       <button type="button" className="install-btn" onClick={handleClick}>
-        <Download size={15} /> App installieren
+        <Download size={15} /> {t.install}
       </button>
       {hintOpen && !deferred && (
         <div className="install-ios">
           {platform === "ios" ? (
-            <>Tippe in Safari auf <Share size={13} /> und dann auf <strong>„Zum Home-Bildschirm“</strong> <Plus size={13} />.</>
+            <>{t.iosPre} <Share size={13} /> {t.iosMid} <strong>{t.iosStrong}</strong> <Plus size={13} />.</>
           ) : platform === "android" ? (
-            <>Tippe oben rechts auf <MoreVertical size={13} /> und dann auf <strong>„App installieren“</strong>.</>
+            <>{t.androidPre} <MoreVertical size={13} /> {t.androidMid} <strong>{t.androidStrong}</strong>.</>
           ) : (
-            <>Klicke in der Adressleiste deines Browsers auf das <strong>Installieren-Symbol</strong> <Download size={13} />.</>
+            <>{t.desktopPre} <strong>{t.desktopStrong}</strong> <Download size={13} />{lang === "en" ? " " + TX.en.desktopPost : "."}</>
           )}
         </div>
       )}
