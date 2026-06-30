@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyDigistoreSignature, digistoreSignatureDebug } from "@/lib/digistore";
-import { sendWelcomeEmail } from "@/lib/email";
+import { grantAccess, revokeAccess, errorMessage } from "@/lib/access";
 
 // Webhook muss dynamisch laufen (kein Caching) und den rohen Body lesen.
 export const dynamic = "force-dynamic";
@@ -99,95 +99,4 @@ export async function POST(req: NextRequest) {
   }
 
   return new Response("OK", { status: 200 });
-}
-
-/** Extrahiert eine lesbare Fehlermeldung aus Error- ODER Supabase-Fehlerobjekten. */
-function errorMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  if (err && typeof err === "object") {
-    const o = err as Record<string, unknown>;
-    const parts = [o.message, o.details, o.hint, o.code]
-      .filter(Boolean)
-      .map((x) => String(x));
-    if (parts.length) return parts.join(" | ");
-    try {
-      return JSON.stringify(err);
-    } catch {
-      return "Unbekannter Fehler";
-    }
-  }
-  return "Unbekannter Fehler";
-}
-
-type Admin = ReturnType<typeof createAdminClient>;
-
-async function findUserIdByEmail(admin: Admin, email: string): Promise<string | null> {
-  const { data, error } = await admin.rpc("get_user_id_by_email", { p_email: email });
-  if (error) throw error;
-  return (data as string | null) ?? null;
-}
-
-/** Käufer freischalten: neuen Nutzer anlegen + E-Mail senden, oder bestehenden reaktivieren. */
-async function grantAccess(admin: Admin, email: string) {
-  const existingId = await findUserIdByEmail(admin, email);
-
-  if (existingId) {
-    // Bestehender Nutzer → wieder aktivieren (Passwort bleibt unverändert)
-    const { data: userRes } = await admin.auth.admin.getUserById(existingId);
-    const meta = userRes?.user?.app_metadata || {};
-    await admin.auth.admin.updateUserById(existingId, {
-      app_metadata: { ...meta, active: true },
-      ban_duration: "none",
-    });
-    return;
-  }
-
-  // Neuer Nutzer → mit Standard-Passwort anlegen
-  const defaultPassword = process.env.DEFAULT_USER_PASSWORD || "123456789";
-  const { error: createErr } = await admin.auth.admin.createUser({
-    email,
-    password: defaultPassword,
-    email_confirm: true,
-    app_metadata: { must_change_password: true, active: true },
-  });
-
-  // Falls der Nutzer zwischenzeitlich doch existiert: nur reaktivieren, keine E-Mail
-  if (createErr) {
-    if (/already|exist|registered/i.test(createErr.message)) {
-      const id = await findUserIdByEmail(admin, email);
-      if (id) {
-        const { data: userRes } = await admin.auth.admin.getUserById(id);
-        const meta = userRes?.user?.app_metadata || {};
-        await admin.auth.admin.updateUserById(id, {
-          app_metadata: { ...meta, active: true },
-          ban_duration: "none",
-        });
-      }
-      return;
-    }
-    throw createErr;
-  }
-
-  // Willkommens-E-Mail mit Zugangsdaten senden.
-  // Abschließende Slashes entfernen, damit kein "//login" entsteht.
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "").trim().replace(/\/+$/, "");
-  await sendWelcomeEmail({
-    to: email,
-    loginUrl: `${siteUrl}/login`,
-    password: defaultPassword,
-  });
-}
-
-/** Zugang deaktivieren (Rückerstattung / Stornierung). */
-async function revokeAccess(admin: Admin, email: string) {
-  const id = await findUserIdByEmail(admin, email);
-  if (!id) return;
-
-  const { data: userRes } = await admin.auth.admin.getUserById(id);
-  const meta = userRes?.user?.app_metadata || {};
-  await admin.auth.admin.updateUserById(id, {
-    app_metadata: { ...meta, active: false },
-    // Sperrt bestehende Sessions/Logins für lange Zeit
-    ban_duration: "876000h",
-  });
 }
