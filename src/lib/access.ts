@@ -29,8 +29,10 @@ export async function grantAccess(admin: Admin, email: string) {
     return;
   }
 
-  // Neuer Nutzer → mit Standard-Passwort anlegen
-  const defaultPassword = process.env.DEFAULT_USER_PASSWORD || "123456789";
+  // Neuer Nutzer → mit Standard-Passwort anlegen.
+  // trim(): unsichtbare Leerzeichen/Zeilenumbrüche aus der Env-Variable entfernen,
+  // sonst stimmt das Passwort im Login nie mit der E-Mail überein.
+  const defaultPassword = (process.env.DEFAULT_USER_PASSWORD || "123456789").trim();
   const { error: createErr } = await admin.auth.admin.createUser({
     email,
     password: defaultPassword,
