@@ -133,7 +133,7 @@ function welcomeHtml({
         </div>
 
         <div style="text-align:center;margin-bottom:24px;">
-          <a href="${escapeHtml(loginUrl)}" style="display:inline-block;background:#e6b325;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 32px;border-radius:12px;">
+          <a href="${escapeHtml(loginUrl)}" target="_blank" rel="noopener" style="display:inline-block;background:#e6b325;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 32px;border-radius:12px;">
             Jetzt anmelden / Sign in →
           </a>
         </div>
